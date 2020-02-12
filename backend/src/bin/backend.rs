@@ -1,6 +1,6 @@
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
-use backend::{users, DbConnection};
+use backend::{users, ws_board, DbConnection};
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use ring::digest;
@@ -30,12 +30,14 @@ async fn main() -> std::io::Result<()> {
             ))
             .wrap(middleware::Logger::default())
             .service(
-                web::scope("/api").service(
-                    web::scope("/")
-                        .service(users::login)
-                        .service(users::logout)
-                        .service(users::info),
-                ),
+                web::scope("/api")
+                    .service(web::resource("/ws_board").route(web::get().to(ws_board::ws_board)))
+                    .service(
+                        web::scope("/")
+                            .service(users::login)
+                            .service(users::logout)
+                            .service(users::info),
+                    ),
             )
     })
     .bind("127.0.0.1:8080")?
