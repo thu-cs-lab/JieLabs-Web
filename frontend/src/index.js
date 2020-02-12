@@ -4,10 +4,14 @@ import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+import initVhdl from './vhdl';
+
 import store from './store';
 
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+
+initVhdl();
 
 const Render = () => <Provider store={store}>
   <BrowserRouter>

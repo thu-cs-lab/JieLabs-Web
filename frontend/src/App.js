@@ -8,6 +8,7 @@ import { HARD_LOGOUT } from './config';
 import { restore, logout } from './store/actions';
 
 import Login from './routes/Login';
+import Workspace from './routes/Workspace';
 import Icon from './comps/Icon';
 
 export default React.memo(() => {
@@ -16,10 +17,11 @@ export default React.memo(() => {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(async () => {
-    const restored = await dispatch(restore());
-    if(!restored) history.push('/login');
-    setLoading(false);
+  useEffect(() => {
+    dispatch(restore()).then(restored => {;
+      if(!restored) history.push('/login');
+      setLoading(false);
+    });
   }, []);
 
   const logined = useSelector(store => store.user !== null);
@@ -60,6 +62,9 @@ export default React.memo(() => {
     <Switch>
       <Route path="/login" exact>
         <Login />
+      </Route>
+      <Route path="/" exact>
+        <Workspace />
       </Route>
     </Switch>
   </div>;
