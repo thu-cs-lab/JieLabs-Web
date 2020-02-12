@@ -95,6 +95,15 @@ header {
     &:hover .stub-caret {
       opacity: 1;
     }
+
+    &.stub-disabled {
+      cursor: default;
+      pointer-events: none;
+
+      .stub-caret {
+        opacity: 0;
+      }
+    }
   }
 }
 
