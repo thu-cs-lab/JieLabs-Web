@@ -20,8 +20,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .data(pool.clone())
             .wrap(
-                middleware::DefaultHeaders::new()
-                    .header("Access-Control-Allow-Credentials", "true"),
+                actix_cors::Cors::new()
+                    .supports_credentials()
+                    .finish(),
             )
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(secret.as_ref())
