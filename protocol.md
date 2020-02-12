@@ -12,12 +12,12 @@
 
 客户端 -> 服务端
 
-行为：向服务端发送一个预设的密码，以验证板子的身份。
+行为：向服务端发送一个预设的密码，以验证板子的身份。同时需要传递板子上软件和硬件的版本。
 
 格式：
 
 ```json
-{"Authenticate":"password"}
+{"Authenticate":{"password":"password","software_version":"1.0","hardware_version":"0.1"}}
 ```
 
 认证后，如果服务端没有断开连接，则表明认证成功。

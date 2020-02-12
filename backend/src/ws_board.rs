@@ -13,8 +13,15 @@ struct IOSetting {
 }
 
 #[derive(Serialize, Deserialize)]
+struct AuthenticateArgs {
+    password: String,
+    software_version: String,
+    hardware_version: String,
+}
+
+#[derive(Serialize, Deserialize)]
 enum WSBoardMessageB2S {
-    Authenticate(String),
+    Authenticate(AuthenticateArgs),
     ProgramBitstreamFinish(bool),
     ReportIOChange(IOSetting),
 }
@@ -63,7 +70,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                 Ok(msg) => match msg {
                     WSBoardMessageB2S::Authenticate(pass) => {
                         let expected = std::env::var("BOARD_PASS").unwrap_or(String::new());
-                        if pass == expected {
+                        if pass.password == expected {
                             self.authenticated = true;
                         }
                     }
@@ -112,8 +119,12 @@ mod test {
         use super::*;
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageB2S::Authenticate(String::from("password")))
-                .unwrap()
+            serde_json::to_string(&WSBoardMessageB2S::Authenticate(AuthenticateArgs {
+                password: String::from("password"),
+                software_version: String::from("1.0"),
+                hardware_version: String::from("0.1"),
+            }))
+            .unwrap()
         );
         println!(
             "{}",
@@ -130,15 +141,18 @@ mod test {
 
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(vec![0xaa, 0x99, 0x55, 0x66]))
-                .unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(vec![
+                0xaa, 0x99, 0x55, 0x66
+            ]))
+            .unwrap()
         );
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageS2B::SetIOOutput(IOSetting {
                 mask: 0b1011,
                 data: 0b1000,
-            })).unwrap()
+            }))
+            .unwrap()
         );
         println!(
             "{}",
@@ -150,13 +164,11 @@ mod test {
         );
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::SubscribeIOChange)
-                .unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::SubscribeIOChange).unwrap()
         );
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange)
-                .unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange).unwrap()
         );
     }
 }
