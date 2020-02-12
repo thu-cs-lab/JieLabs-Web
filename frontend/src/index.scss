@@ -163,7 +163,13 @@ main {
     align-items: center;
     justify-content: center;
 
-    cursor: pointer;
+    filter: grayscale(1);
+    transition: filter .2s ease;
+
+    &:not(:disabled) {
+      cursor: pointer;
+      filter: none;
+    }
 
     .login-icon {
       font-size: 60px;
@@ -172,7 +178,7 @@ main {
       transition: opacity .2s ease;
     }
 
-    &:hover .login-icon {
+    &:hover:not(:disabled) .login-icon {
       opacity: 1;
     }
   }
