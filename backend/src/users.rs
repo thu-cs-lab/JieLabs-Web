@@ -81,6 +81,9 @@ async fn info(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
 
 #[get("/logout")]
 async fn logout(id: Identity) -> impl Responder {
+    if let Some(user) = id.identity() {
+        info!("User {} logged out", user);
+    }
     id.forget();
     HttpResponse::Found().header("location", "/").finish()
 }

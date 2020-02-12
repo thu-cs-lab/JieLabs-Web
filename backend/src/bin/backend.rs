@@ -1,9 +1,9 @@
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
+use backend::{users, DbConnection};
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use ring::digest;
-use backend::{users, DbConnection};
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -19,6 +19,10 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .wrap(
+                middleware::DefaultHeaders::new()
+                    .header("Access-Control-Allow-Credentials", "true"),
+            )
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(secret.as_ref())
                     .name("jielabsweb")
