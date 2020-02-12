@@ -13,6 +13,7 @@ export default React.memo(() => {
     <Monaco
       options={{
         theme: 'vs-dark',
+        language: 'vhdl',
       }}
     />
   </main>;

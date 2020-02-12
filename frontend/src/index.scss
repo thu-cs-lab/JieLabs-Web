@@ -41,6 +41,8 @@ code {
 
   transition: opacity .5s ease-out;
 
+  overflow: hidden;
+
   &.loading {
     opacity: 0;
     align-items: center;
