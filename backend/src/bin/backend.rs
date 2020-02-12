@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(
                 web::scope("/api").service(
-                    web::scope("/users")
+                    web::scope("/")
                         .service(users::login)
                         .service(users::logout)
                         .service(users::info),

@@ -1,12 +1,12 @@
-use log::*;
 use crate::models::*;
 use crate::schema::users::dsl;
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use diesel::prelude::*;
-use serde_derive::{Deserialize, Serialize};
+use log::*;
 use ring::{digest, hmac};
+use serde_derive::{Deserialize, Serialize};
 
 pub fn hash_password(password: &str) -> String {
     // TODO: reuse hmac key for performance
@@ -25,15 +25,16 @@ struct LoginRequest {
     password: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 struct UserInfoResponse {
-    user_name: String,
+    login: bool,
+    user_name: Option<String>,
     real_name: Option<String>,
     class: Option<String>,
     student_id: Option<String>,
 }
 
-#[post("/login")]
+#[post("/session")]
 async fn login(
     id: Identity,
     pool: web::Data<DbPool>,
@@ -50,14 +51,20 @@ async fn login(
         .first::<User>(&conn)
     {
         info!("User {} logged in", user.user_name);
-        id.remember(user.user_name);
-        HttpResponse::Found().header("location", "/").finish()
+        id.remember(user.user_name.clone());
+        HttpResponse::Ok().json(UserInfoResponse {
+            login: true,
+            user_name: Some(user.user_name),
+            real_name: user.real_name,
+            class: user.class,
+            student_id: user.student_id,
+        })
     } else {
-        HttpResponse::Ok().json(false)
+        HttpResponse::Ok().json(UserInfoResponse::default())
     }
 }
 
-#[get("/info")]
+#[get("/session")]
 async fn info(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().unwrap();
     if let Some(name) = id.identity() {
@@ -65,25 +72,25 @@ async fn info(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
             .filter(dsl::user_name.eq(&name))
             .first::<User>(&conn)
         {
-            HttpResponse::Ok().json(UserInfoResponse {
-                user_name: user.user_name,
+            return HttpResponse::Ok().json(UserInfoResponse {
+                login: true,
+                user_name: Some(user.user_name),
                 real_name: user.real_name,
                 class: user.class,
                 student_id: user.student_id,
-            })
+            });
         } else {
-            HttpResponse::Ok().json(false)
+            warn!("Failed to find user {} in session", name);
         }
-    } else {
-        HttpResponse::Found().header("location", "/").finish()
     }
+    HttpResponse::Ok().json(UserInfoResponse::default())
 }
 
-#[get("/logout")]
+#[delete("/session")]
 async fn logout(id: Identity) -> impl Responder {
     if let Some(user) = id.identity() {
         info!("User {} logged out", user);
     }
     id.forget();
-    HttpResponse::Found().header("location", "/").finish()
+    HttpResponse::Found().json(true)
 }
