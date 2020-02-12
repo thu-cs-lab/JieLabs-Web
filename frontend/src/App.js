@@ -14,7 +14,7 @@ export default React.memo(() => {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(async () => {
     const restored = await dispatch(restore());
@@ -34,6 +34,9 @@ export default React.memo(() => {
     }
   });
 
+  if(loading)
+    return <div className="container loading"></div>;
+
   return <div className="container">
     <header>
       <div className="brand"><strong>Jie</strong>Labs</div>
@@ -46,7 +49,7 @@ export default React.memo(() => {
         </span>
       </div>
 
-      <div class="spanner"></div>
+      <div className="spanner"></div>
 
       <div className={cn("shifter", { shifted: !logined })}>
         <div className="logout" onClick={doLogout}>

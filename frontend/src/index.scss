@@ -14,6 +14,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background: $bg;
 }
 
 code {
@@ -31,11 +33,19 @@ code {
 /* Frame */
 
 .container {
-  background: #333;
+  background: $bg;
   height: 100vh;
   width: 100vw;
   display: flex;
   flex-direction: column;
+
+  transition: opacity .5s ease-out;
+
+  &.loading {
+    opacity: 0;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 header {
@@ -77,7 +87,7 @@ header {
     padding-left: 30px;
     margin-left: -20px;
     z-index: 1;
-    background: #333;
+    background: $bg;
 
     clip-path: polygon(20px 0%, 100% 0%, 100% 100%, 0% 100%);
 
