@@ -69,7 +69,7 @@
 格式：
 
 ```json
-{"SetIOOutput":{"mask":11,"data":8}}
+{"SetIODirection":{"mask":11,"data":8}}
 ```
 
 ### 设置 IO 输出
@@ -81,7 +81,7 @@
 格式：
 
 ```json
-{"SetIODirection":{"mask":8,"data":0}}
+{"SetIOOutput":{"mask":8,"data":0}}
 ```
 
 ### 订阅 IO 状态更新
