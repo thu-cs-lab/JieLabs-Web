@@ -5,19 +5,25 @@ use log::*;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::time::{Duration, Instant};
-use std::collections::BTreeMap;
+
+#[derive(Serialize, Deserialize)]
+struct IOSetting {
+    mask: u64,
+    data: u64,
+}
 
 #[derive(Serialize, Deserialize)]
 enum WSBoardMessageB2S {
     Authenticate(String),
     ProgramBitstreamFinish(bool),
-    ReportIOChange(BTreeMap<String, bool>),
+    ReportIOChange(IOSetting),
 }
 
 #[derive(Serialize, Deserialize)]
 enum WSBoardMessageS2B {
     ProgramBitstream(Vec<u8>),
-    SetIOStatus(BTreeMap<String, bool>),
+    SetIOOutput(IOSetting),
+    SetIODirection(IOSetting),
     SubscribeIOChange,
     UnsubscribeIOChange,
 }
@@ -64,7 +70,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                     _ if !self.authenticated => {
                         ctx.stop();
                     }
-                    _ => {},
+                    _ => {}
                 },
                 Err(_err) => {
                     warn!("ws client {} sent wrong message, kick it", self.remote);
@@ -98,4 +104,59 @@ pub async fn ws_board(req: HttpRequest, stream: web::Payload) -> Result<HttpResp
         &req,
         stream,
     )
+}
+
+mod test {
+    #[test]
+    fn show_serialized() {
+        use super::*;
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageB2S::Authenticate(String::from("password")))
+                .unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageB2S::ProgramBitstreamFinish(true)).unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageB2S::ReportIOChange(IOSetting {
+                mask: 0b1110,
+                data: 0b0100,
+            }))
+            .unwrap()
+        );
+
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(vec![0xaa, 0x99, 0x55, 0x66]))
+                .unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageS2B::SetIOOutput(IOSetting {
+                mask: 0b1011,
+                data: 0b1000,
+            })).unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageS2B::SetIODirection(IOSetting {
+                mask: 0b1000,
+                data: 0b0000,
+            }))
+            .unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageS2B::SubscribeIOChange)
+                .unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange)
+                .unwrap()
+        );
+    }
 }
