@@ -1,10 +1,12 @@
 import { post } from '../util';
 
-export const SET_USER = Symbol();
+export const TYPES = {
+  SET_USER: Symbol('SET_USER'),
+};
 
 export function setUser(user) {
   return {
-    action: SET_USER,
+    type: TYPES.SET_USER,
     user,
   };
 }

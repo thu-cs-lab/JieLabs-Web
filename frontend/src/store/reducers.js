@@ -1,7 +1,7 @@
-import { SET_USER } from './actions';
+import { TYPES } from './actions';
 
 export function user(state = null, action) {
-  if(action.action === SET_USER)
+  if(action.type === TYPES.SET_USER)
     return action.user;
   return state;
 }

@@ -1,5 +1,3 @@
-// $primary-color: 
-
 @import "styles/icon.scss";
 @import "styles/consts.scss";
 
@@ -162,13 +160,16 @@ main {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     filter: grayscale(1);
-    transition: filter .2s ease;
+    transition: filter .4s ease;
 
     &:not(:disabled) {
       cursor: pointer;
       filter: none;
+    }
+
+    &.errored {
+      filter: hue-rotate(360deg-(hue($primary-color)));
     }
 
     .login-icon {
