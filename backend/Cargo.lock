@@ -369,6 +369,7 @@ dependencies = [
  "diesel",
  "dotenv",
  "env_logger",
+ "log",
  "ring",
  "serde",
  "serde_derive",

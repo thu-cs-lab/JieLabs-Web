@@ -1,3 +1,4 @@
+use log::*;
 use crate::models::*;
 use crate::schema::users::dsl;
 use crate::DbPool;
@@ -48,6 +49,7 @@ async fn login(
         )
         .first::<User>(&conn)
     {
+        info!("User {} logged in", user.user_name);
         id.remember(user.user_name);
         HttpResponse::Found().header("location", "/").finish()
     } else {
