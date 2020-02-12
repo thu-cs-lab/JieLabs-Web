@@ -5,14 +5,22 @@ use log::*;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::time::{Duration, Instant};
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize)]
 enum WSBoardMessageB2S {
     Authenticate(String),
+    ProgramBitstreamFinish(bool),
+    ReportIOChange(BTreeMap<String, bool>),
 }
 
 #[derive(Serialize, Deserialize)]
-enum WSBoardMessageS2B {}
+enum WSBoardMessageS2B {
+    ProgramBitstream(Vec<u8>),
+    SetIOStatus(BTreeMap<String, bool>),
+    SubscribeIOChange,
+    UnsubscribeIOChange,
+}
 
 struct WSBoard {
     remote: String,
@@ -56,6 +64,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                     _ if !self.authenticated => {
                         ctx.stop();
                     }
+                    _ => {},
                 },
                 Err(_err) => {
                     warn!("ws client {} sent wrong message, kick it", self.remote);
