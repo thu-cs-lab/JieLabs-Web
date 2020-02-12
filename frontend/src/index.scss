@@ -45,6 +45,8 @@ header {
   display: flex;
   align-items: center;
 
+  overflow: hidden;
+
   .brand {
     font-size: 18px;
     color: rgba(255,255,255,.5);
@@ -105,6 +107,39 @@ header {
       }
     }
   }
+
+  .shifter {
+    transition: transform .5s ease-out;
+    &.shifted {
+      transform: translateX(100%);
+      transition: transform .5s ease-in;
+    }
+
+    .logout {
+      padding: 0 20px 0 30px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      clip-path: polygon(20px 0%, 100% 0%, 100% 100%, 0% 100%);
+      background: rgba(255, 255, 255, .1);
+
+      cursor: pointer;
+
+      .material-icons {
+        color: white;
+        opacity: .7;
+        transition: opacity .2s ease;
+      }
+
+      &:hover .material-icons {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.spanner {
+  flex: 1;
 }
 
 main {
