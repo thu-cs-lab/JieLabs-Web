@@ -19,11 +19,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            .wrap(
-                actix_cors::Cors::new()
-                    .supports_credentials()
-                    .finish(),
-            )
+            .wrap(actix_cors::Cors::new().supports_credentials().finish())
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(secret.as_ref())
                     .name("jielabsweb")

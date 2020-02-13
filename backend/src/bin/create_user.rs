@@ -1,6 +1,6 @@
 use backend;
-use dotenv::dotenv;
 use diesel::prelude::*;
+use dotenv::dotenv;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -20,7 +20,7 @@ struct Args {
     #[structopt(short, long)]
     class: Option<String>,
 
-    #[structopt(short="R", long)]
+    #[structopt(short = "R", long)]
     role: Option<String>,
 }
 

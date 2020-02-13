@@ -1,9 +1,11 @@
 use crate::models::*;
 use crate::schema::users::dsl;
+use crate::DbConnection;
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use diesel::prelude::*;
+use diesel::r2d2::{ConnectionManager, PooledConnection};
 use log::*;
 use ring::{digest, hmac};
 use serde_derive::{Deserialize, Serialize};
@@ -17,6 +19,21 @@ pub fn hash_password(password: &str) -> String {
     ctx.update(password.as_bytes());
     let sign = ctx.sign();
     format!("{:x?}", sign.as_ref())
+}
+
+pub fn get_user(
+    id: &Identity,
+    conn: &PooledConnection<ConnectionManager<DbConnection>>,
+) -> Option<User> {
+    if let Some(name) = id.identity() {
+        if let Ok(user) = dsl::users
+            .filter(dsl::user_name.eq(&name))
+            .first::<User>(conn)
+        {
+            return Some(user);
+        }
+    }
+    None
 }
 
 #[derive(Deserialize)]
@@ -67,21 +84,14 @@ async fn login(
 #[get("/session")]
 async fn info(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().unwrap();
-    if let Some(name) = id.identity() {
-        if let Ok(user) = dsl::users
-            .filter(dsl::user_name.eq(&name))
-            .first::<User>(&conn)
-        {
-            return HttpResponse::Ok().json(UserInfoResponse {
-                login: true,
-                user_name: Some(user.user_name),
-                real_name: user.real_name,
-                class: user.class,
-                student_id: user.student_id,
-            });
-        } else {
-            warn!("Failed to find user {} in session", name);
-        }
+    if let Some(user) = get_user(&id, &conn) {
+        return HttpResponse::Ok().json(UserInfoResponse {
+            login: true,
+            user_name: Some(user.user_name),
+            real_name: user.real_name,
+            class: user.class,
+            student_id: user.student_id,
+        });
     }
     HttpResponse::Ok().json(UserInfoResponse::default())
 }
@@ -92,5 +102,5 @@ async fn logout(id: Identity) -> impl Responder {
         info!("User {} logged out", user);
     }
     id.forget();
-    HttpResponse::Found().json(true)
+    HttpResponse::Ok().json(true)
 }

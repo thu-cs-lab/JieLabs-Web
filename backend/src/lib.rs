@@ -1,4 +1,5 @@
-#[macro_use] extern crate diesel;
+#[macro_use]
+extern crate diesel;
 
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
