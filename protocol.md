@@ -108,3 +108,66 @@
 {"UnsubscribeIOChange":""}
 ```
 
+# 后端与前端通信协议
+
+通过 WebSocket 通信，由前端发起，endpoint 为 /api/ws_user 。
+
+## 请求格式
+
+### 请求分配板子
+
+前端 -> 后端
+
+格式：
+
+```json
+{"RequestForBoard":""}
+```
+
+### 板子分配结果
+
+后端 -> 前端
+
+格式：
+
+```json
+{"BoardAllocateResult":true}
+```
+
+### 设置 IO 方向
+
+前端 -> 后端
+
+行为：必须先分配到板子。设置 FPGA 上引脚的输入输出方向，每个位位 0 代表输入到实验 FPGA， 1 代表从实验 FPGA 输出。
+
+格式：
+
+```json
+{"SetIODirection":{"mask":11,"data":8}}
+```
+
+### 设置 IO 输出
+
+前端 -> 后端
+
+行为：必须先分配到板子。设置实验 FPGA 上引脚的输入值，0 代表低电平，1 代表高电平。
+
+格式：
+
+```json
+{"SetIOOutput":{"mask":8,"data":0}}
+```
+
+### 汇报 IO 状态更新
+
+后端 -> 前端
+
+行为：必须先分配到板子。如果 IO 状态相比上一次汇报有变更，则需要发送。
+
+格式：
+
+```json
+{"ReportIOChange":{"mask":14,"data":4}}
+```
+
+### 
