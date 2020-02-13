@@ -1,6 +1,6 @@
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
-use backend::{users, ws_board, DbConnection};
+use backend::{session, user, ws_board, DbConnection};
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use ring::digest;
@@ -29,11 +29,12 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/api")
                     .service(web::resource("/ws_board").route(web::get().to(ws_board::ws_board)))
+                    .service(web::scope("/user").service(user::list))
                     .service(
                         web::scope("/")
-                            .service(users::login)
-                            .service(users::logout)
-                            .service(users::info),
+                            .service(session::login)
+                            .service(session::logout)
+                            .service(session::info),
                     ),
             )
     })

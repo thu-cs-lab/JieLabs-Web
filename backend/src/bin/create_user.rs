@@ -32,7 +32,7 @@ fn main(args: Args) {
 
     let new_user = backend::models::NewUser {
         user_name: args.user_name,
-        password: backend::users::hash_password(&args.password),
+        password: backend::session::hash_password(&args.password),
         real_name: args.real_name,
         student_id: args.student_id,
         class: args.class,

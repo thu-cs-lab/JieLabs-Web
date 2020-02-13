@@ -9,5 +9,6 @@ type DbPool = Pool<ConnectionManager<DbConnection>>;
 
 pub mod models;
 pub mod schema;
-pub mod users;
+pub mod session;
+pub mod user;
 pub mod ws_board;
