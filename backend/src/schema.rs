@@ -6,5 +6,6 @@ table! {
         real_name -> Nullable<Text>,
         class -> Nullable<Text>,
         student_id -> Nullable<Text>,
+        role -> Text,
     }
 }
