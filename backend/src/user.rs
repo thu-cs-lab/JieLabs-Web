@@ -3,7 +3,7 @@ use crate::schema::users::dsl;
 use crate::session::{get_user, hash_password};
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{get, post, delete, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 

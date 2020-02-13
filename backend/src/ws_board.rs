@@ -1,3 +1,4 @@
+use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard};
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -35,9 +36,11 @@ enum WSBoardMessageS2B {
     UnsubscribeIOChange,
 }
 
-struct WSBoard {
+pub struct WSBoard {
     remote: String,
     authenticated: bool,
+    software_version: String,
+    hardware_version: String,
     last_heartbeat: Instant,
 }
 
@@ -71,14 +74,26 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
             }
             Ok(ws::Message::Text(text)) => match serde_json::from_str::<WSBoardMessageB2S>(&text) {
                 Ok(msg) => match msg {
-                    WSBoardMessageB2S::Authenticate(pass) => {
-                        let expected = std::env::var("BOARD_PASS").unwrap_or(String::new());
-                        if pass.password == expected {
-                            self.authenticated = true;
-                            info!("ws client {} is authenticated", self.remote);
-                        } else {
-                            warn!("ws client {} authentication failed, closing", self.remote);
-                            ctx.stop();
+                    WSBoardMessageB2S::Authenticate(auth) => {
+                        if !self.authenticated {
+                            let expected = std::env::var("BOARD_PASS").unwrap_or(String::new());
+                            if auth.password == expected {
+                                self.authenticated = true;
+                                self.software_version = auth.software_version;
+                                self.hardware_version = auth.hardware_version;
+                                info!("ws client {} is authenticated", self.remote);
+                                get_board_manager().do_send(RegisterBoard {
+                                    addr: ctx.address(),
+                                    info: BoardInfo {
+                                        remote: self.remote.clone(),
+                                        software_version: self.software_version.clone(),
+                                        hardware_version: self.hardware_version.clone(),
+                                    },
+                                });
+                            } else {
+                                warn!("ws client {} authentication failed, closing", self.remote);
+                                ctx.stop();
+                            }
                         }
                     }
                     _ if !self.authenticated => {
@@ -106,6 +121,8 @@ impl WSBoard {
     fn new(remote: &str) -> Self {
         Self {
             remote: String::from(remote),
+            software_version: String::from("Unknown"),
+            hardware_version: String::from("Unknown"),
             last_heartbeat: Instant::now(),
             authenticated: false,
         }
