@@ -90,7 +90,12 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
                                     } else {
                                         false
                                     };
-                                    ctx.text(serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(res)).unwrap());
+                                    ctx.text(
+                                        serde_json::to_string(
+                                            &WSUserMessageS2U::BoardAllocateResult(res),
+                                        )
+                                        .unwrap(),
+                                    );
                                     async {}.into_actor(actor)
                                 })
                                 .wait(ctx);

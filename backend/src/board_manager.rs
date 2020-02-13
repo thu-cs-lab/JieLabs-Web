@@ -58,6 +58,13 @@ impl Actor for BoardManagerActor {
     fn started(&mut self, ctx: &mut Context<Self>) {
         // cleanup disconnected clients
         ctx.run_interval(Duration::from_secs(5), |actor, _ctx| {
+            for board in &mut actor.boards {
+                if let Some(user) = &mut board.user {
+                    if !user.connected() {
+                        board.user = None;
+                    }
+                }
+            }
             actor.boards.retain(|board| !board.addr.connected());
         });
     }
