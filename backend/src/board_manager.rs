@@ -102,6 +102,7 @@ impl Handler<RequestForBoard> for BoardManagerActor {
         for board in &mut self.boards {
             if let None = board.user {
                 board.user = Some(req.user.clone());
+                info!("board {} is assigned to {}", board.info.remote, req.user_name);
                 return Some(board.addr.clone());
             }
         }
