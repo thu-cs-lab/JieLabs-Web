@@ -9,6 +9,7 @@ default-run = "backend"
 
 [dependencies]
 actix = "0.9"
+actix-cors = "0.2.0"
 actix-web = "2.0"
 actix-web-actors = "2.0"
 actix-identity = "0.2"
@@ -24,4 +25,3 @@ diesel_migrations = "1.4"
 dotenv = "0.9.0"
 paw = "1.0.0"
 structopt = { version = "0.3.9", features = ["paw"] }
-actix-cors = "0.2.0"

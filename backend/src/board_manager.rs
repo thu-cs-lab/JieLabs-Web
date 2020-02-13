@@ -30,6 +30,7 @@ pub struct GetBoardList;
 #[rtype(result = "Option<Addr<WSBoard>>")]
 pub struct RequestForBoard {
     pub user: Addr<WSUser>,
+    pub user_name: String,
 }
 
 struct BoardStat {
