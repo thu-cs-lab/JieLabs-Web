@@ -49,3 +49,12 @@ DELETE /api/user/manage/{user_name}
 GET /api/board/list
 
 仅 admin 可用
+
+## 文件管理
+
+### 上传文件
+
+GET /api/file/upload
+
+获得一个链接，对这个链接 PUT 文件内容即可。
+
