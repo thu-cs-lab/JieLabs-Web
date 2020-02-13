@@ -5,32 +5,11 @@ use log::*;
 use serde_derive::Serialize;
 use std::time::Duration;
 
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct RegisterBoard {
-    pub addr: Addr<WSBoard>,
-    pub info: BoardInfo,
-}
-
 #[derive(Debug, Clone, Serialize)]
 pub struct BoardInfo {
     pub remote: String,
     pub software_version: String,
     pub hardware_version: String,
-}
-
-#[derive(MessageResponse)]
-pub struct BoardInfoList(pub Vec<BoardInfo>);
-
-#[derive(Message)]
-#[rtype(result = "BoardInfoList")]
-pub struct GetBoardList;
-
-#[derive(Message)]
-#[rtype(result = "Option<Addr<WSBoard>>")]
-pub struct RequestForBoard {
-    pub user: Addr<WSUser>,
-    pub user_name: String,
 }
 
 struct BoardStat {
@@ -70,6 +49,13 @@ impl Actor for BoardManagerActor {
     }
 }
 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RegisterBoard {
+    pub addr: Addr<WSBoard>,
+    pub info: BoardInfo,
+}
+
 impl Handler<RegisterBoard> for BoardManagerActor {
     type Result = ();
 
@@ -83,6 +69,13 @@ impl Handler<RegisterBoard> for BoardManagerActor {
     }
 }
 
+#[derive(MessageResponse)]
+pub struct BoardInfoList(pub Vec<BoardInfo>);
+
+#[derive(Message)]
+#[rtype(result = "BoardInfoList")]
+pub struct GetBoardList;
+
 impl Handler<GetBoardList> for BoardManagerActor {
     type Result = BoardInfoList;
 
@@ -93,6 +86,13 @@ impl Handler<GetBoardList> for BoardManagerActor {
         }
         BoardInfoList(res)
     }
+}
+
+#[derive(Message)]
+#[rtype(result = "Option<Addr<WSBoard>>")]
+pub struct RequestForBoard {
+    pub user: Addr<WSUser>,
+    pub user_name: String,
 }
 
 impl Handler<RequestForBoard> for BoardManagerActor {

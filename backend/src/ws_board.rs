@@ -7,6 +7,34 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::time::{Duration, Instant};
 
+pub struct WSBoard {
+    remote: String,
+    authenticated: bool,
+    software_version: String,
+    hardware_version: String,
+    last_heartbeat: Instant,
+}
+
+impl Actor for WSBoard {
+    type Context = ws::WebsocketContext<Self>;
+
+    fn started(&mut self, ctx: &mut Self::Context) {
+        info!("ws_board client {} goes online", self.remote);
+        ctx.run_interval(Duration::from_secs(5), |actor, ctx| {
+            if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(30) {
+                warn!("ws_board client {} has no heartbeat", actor.remote);
+                ctx.stop();
+            } else {
+                ctx.ping(b"");
+            }
+        });
+    }
+
+    fn stopped(&mut self, _ctx: &mut Self::Context) {
+        info!("ws_board client {} goes offline", self.remote);
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IOSetting {
     mask: u64,
@@ -34,34 +62,6 @@ pub enum WSBoardMessageS2B {
     SetIODirection(IOSetting),
     SubscribeIOChange(String),
     UnsubscribeIOChange(String),
-}
-
-pub struct WSBoard {
-    remote: String,
-    authenticated: bool,
-    software_version: String,
-    hardware_version: String,
-    last_heartbeat: Instant,
-}
-
-impl Actor for WSBoard {
-    type Context = ws::WebsocketContext<Self>;
-
-    fn started(&mut self, ctx: &mut Self::Context) {
-        info!("ws_board client {} goes online", self.remote);
-        ctx.run_interval(Duration::from_secs(5), |actor, ctx| {
-            if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(30) {
-                warn!("ws_board client {} has no heartbeat", actor.remote);
-                ctx.stop();
-            } else {
-                ctx.ping(b"");
-            }
-        });
-    }
-
-    fn stopped(&mut self, _ctx: &mut Self::Context) {
-        info!("ws_board client {} goes offline", self.remote);
-    }
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {

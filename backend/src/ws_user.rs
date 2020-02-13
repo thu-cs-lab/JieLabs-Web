@@ -11,31 +11,6 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::time::{Duration, Instant};
 
-#[derive(Serialize, Deserialize)]
-struct IOSetting {
-    mask: u64,
-    data: u64,
-}
-
-#[derive(Serialize, Deserialize)]
-enum WSUserMessageU2S {
-    RequestForBoard,
-    SetIOOutput(IOSetting),
-    SetIODirection(IOSetting),
-}
-
-#[derive(Serialize, Deserialize)]
-enum WSUserMessageS2U {
-    ReportIOChange(IOSetting),
-    BoardAllocateResult(bool),
-}
-
-#[derive(Message)]
-#[rtype(result = "()")]
-pub enum BoardManagerMessage2U {
-    BoardDisconnected,
-}
-
 pub struct WSUser {
     user_name: String,
     remote: String,
@@ -61,6 +36,25 @@ impl Actor for WSUser {
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         info!("ws_user client {} goes offline", self.remote);
     }
+}
+
+#[derive(Serialize, Deserialize)]
+struct IOSetting {
+    mask: u64,
+    data: u64,
+}
+
+#[derive(Serialize, Deserialize)]
+enum WSUserMessageU2S {
+    RequestForBoard,
+    SetIOOutput(IOSetting),
+    SetIODirection(IOSetting),
+}
+
+#[derive(Serialize, Deserialize)]
+enum WSUserMessageS2U {
+    ReportIOChange(IOSetting),
+    BoardAllocateResult(bool),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
