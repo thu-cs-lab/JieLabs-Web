@@ -1,6 +1,6 @@
 use crate::schema::users;
 
-#[derive(Debug, Queryable)]
+#[derive(Debug, Queryable, AsChangeset, Identifiable)]
 pub struct User {
     pub id: i32,
     pub user_name: String,

@@ -1,9 +1,9 @@
 use crate::models::*;
 use crate::schema::users::dsl;
-use crate::session::get_user;
+use crate::session::{get_user, hash_password};
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
@@ -56,6 +56,52 @@ async fn list(
                     limit,
                     users: res,
                 });
+            }
+        }
+    }
+    HttpResponse::Forbidden().finish()
+}
+
+#[derive(Serialize, Deserialize)]
+struct UserUpdateRequest {
+    real_name: Option<String>,
+    class: Option<String>,
+    student_id: Option<String>,
+    role: Option<String>,
+    password: Option<String>,
+}
+
+#[post("/manage/{name}")]
+async fn update(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    path: web::Path<String>,
+    body: web::Json<UserUpdateRequest>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    if let Some(user) = get_user(&id, &conn) {
+        if user.role == "admin" {
+            if let Ok(mut user) = dsl::users
+                .filter(dsl::user_name.eq(&*path))
+                .first::<User>(&conn)
+            {
+                if let Some(real_name) = &body.real_name {
+                    user.real_name = Some(real_name.clone());
+                }
+                if let Some(class) = &body.class {
+                    user.class = Some(class.clone());
+                }
+                if let Some(student_id) = &body.student_id {
+                    user.student_id = Some(student_id.clone());
+                }
+                if let Some(role) = &body.role {
+                    user.role = role.clone();
+                }
+                if let Some(password) = &body.password {
+                    user.password = hash_password(password);
+                }
+                return HttpResponse::Ok()
+                    .json(diesel::update(&user).set(&user).execute(&conn).is_ok());
             }
         }
     }
