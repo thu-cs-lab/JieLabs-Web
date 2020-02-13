@@ -15,7 +15,8 @@ fn main() {
                         ws_user::WSUserMessageS2U::BoardAllocateResult(res) => {
                             println!("Board allocation result: {}", res);
                             if res {
-                                out.send(r#"{"ToBoard":{"SetIOOutput":{"mask":14,"data":4}}}"#).unwrap();
+                                out.send(r#"{"ToBoard":{"SetIOOutput":{"mask":14,"data":4}}}"#)
+                                    .unwrap();
                             }
                         }
                         ws_user::WSUserMessageS2U::ReportIOChange(change) => {

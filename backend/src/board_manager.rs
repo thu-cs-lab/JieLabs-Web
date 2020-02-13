@@ -1,6 +1,6 @@
-use crate::ws_board::{SendToBoard, WSBoard, WSBoardMessageS2B};
+use crate::ws_board::{SendToBoard, WSBoard, WSBoardMessageB2S, WSBoardMessageS2B};
 use crate::ws_user::RequestForBoardResult;
-use crate::ws_user::WSUser;
+use crate::ws_user::{SendToUser, WSUser};
 use actix::prelude::*;
 use bimap::BiMap;
 use log::*;
@@ -167,6 +167,30 @@ impl Handler<RouteToBoard> for BoardManagerActor {
         // TODO: filter unneed actions
         if let Some(board) = self.connections.get_by_left(&user_stat) {
             board.addr.do_send(SendToBoard { action: req.action });
+        }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RouteToUser {
+    pub addr: Addr<WSBoard>,
+    pub info: BoardInfo,
+    pub action: WSBoardMessageB2S,
+}
+
+impl Handler<RouteToUser> for BoardManagerActor {
+    type Result = ();
+
+    fn handle(&mut self, req: RouteToUser, _ctx: &mut Context<Self>) {
+        let board = BoardStat {
+            addr: req.addr,
+            info: req.info,
+        };
+        // TODO: filter unneed actions
+        if let Some(user) = self.connections.get_by_right(&board) {
+            info!("send to user");
+            user.addr.do_send(SendToUser { action: req.action });
         }
     }
 }

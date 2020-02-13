@@ -1,3 +1,4 @@
+use backend::common::IOSetting;
 use backend::ws_board;
 use env_logger;
 use serde_json;
@@ -18,9 +19,17 @@ fn main() {
                         }
                         ws_board::WSBoardMessageS2B::SetIODirection(direction) => {
                            println!("Set IO Direction {:?}", direction);
+                           out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
+                               mask: 0b1111,
+                               data: 0b1111,
+                           })).unwrap()).unwrap();
                         }
                         ws_board::WSBoardMessageS2B::SetIOOutput(output) => {
                            println!("Set IO Output {:?}", output);
+                           out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
+                               mask: 0b1111,
+                               data: 0b1111,
+                           })).unwrap()).unwrap();
                         }
                         ws_board::WSBoardMessageS2B::SubscribeIOChange(_) => {
                            println!("Subscribe to io change");

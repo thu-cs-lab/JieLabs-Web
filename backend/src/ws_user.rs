@@ -1,7 +1,7 @@
 use crate::board_manager::{get_board_manager, RequestForBoard, RouteToBoard};
 use crate::common::IOSetting;
 use crate::session::get_user;
-use crate::ws_board::WSBoardMessageS2B;
+use crate::ws_board::{WSBoardMessageB2S, WSBoardMessageS2B};
 use crate::DbPool;
 use actix::prelude::*;
 use actix_identity::Identity;
@@ -108,6 +108,20 @@ impl Handler<RequestForBoardResult> for WSUser {
         ctx.text(
             serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(self.has_board)).unwrap(),
         );
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct SendToUser {
+    pub action: WSBoardMessageB2S,
+}
+
+impl Handler<SendToUser> for WSUser {
+    type Result = ();
+
+    fn handle(&mut self, req: SendToUser, ctx: &mut Self::Context) {
+        ctx.text(serde_json::to_string(&req.action).unwrap());
     }
 }
 

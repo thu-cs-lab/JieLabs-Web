@@ -1,4 +1,4 @@
-use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard};
+use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard, RouteToUser};
 use crate::common::IOSetting;
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
@@ -105,7 +105,18 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                         );
                         ctx.stop();
                     }
-                    _ => {}
+                    _ => {
+                        info!("route to user");
+                        get_board_manager().do_send(RouteToUser {
+                            addr: ctx.address(),
+                            info: BoardInfo {
+                                remote: self.remote.clone(),
+                                software_version: self.software_version.clone(),
+                                hardware_version: self.hardware_version.clone(),
+                            },
+                            action: msg,
+                        });
+                    }
                 },
                 Err(_err) => {
                     warn!(
