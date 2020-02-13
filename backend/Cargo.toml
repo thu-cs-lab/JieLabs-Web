@@ -27,3 +27,4 @@ paw = "1.0.0"
 structopt = { version = "0.3.9", features = ["paw"] }
 ws = "0.9"
 bimap = "0.4"
+redis = "0.15"

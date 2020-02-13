@@ -13,6 +13,7 @@ pub mod common;
 pub mod models;
 pub mod schema;
 pub mod session;
+pub mod task_manager;
 pub mod user;
 pub mod ws_board;
 pub mod ws_user;
