@@ -45,6 +45,7 @@ impl Actor for WSBoard {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
+        info!("ws client {} goes online", self.remote);
         ctx.run_interval(Duration::from_secs(5), |actor, ctx| {
             if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(30) {
                 warn!("ws client {} has no heartbeat", actor.remote);
@@ -63,8 +64,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                 ctx.pong(&msg);
             }
             Ok(ws::Message::Pong(_)) => {
-                debug!("ws client {} heartbeat", self.remote);
-                self.last_heartbeat = Instant::now();
+                if self.authenticated {
+                    debug!("ws client {} heartbeat", self.remote);
+                    self.last_heartbeat = Instant::now();
+                }
             }
             Ok(ws::Message::Text(text)) => match serde_json::from_str::<WSBoardMessageB2S>(&text) {
                 Ok(msg) => match msg {
@@ -72,20 +75,26 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                         let expected = std::env::var("BOARD_PASS").unwrap_or(String::new());
                         if pass.password == expected {
                             self.authenticated = true;
+                            info!("ws client {} is authenticated", self.remote);
+                        } else {
+                            warn!("ws client {} authentication failed, closing", self.remote);
+                            ctx.stop();
                         }
                     }
                     _ if !self.authenticated => {
+                        warn!("ws client {} did not authenticate, closing", self.remote);
                         ctx.stop();
                     }
                     _ => {}
                 },
                 Err(_err) => {
-                    warn!("ws client {} sent wrong message, kick it", self.remote);
+                    warn!("ws client {} sent wrong message, closing", self.remote);
                     ctx.stop();
                 }
             },
             Ok(ws::Message::Binary(_bin)) => {}
             Ok(ws::Message::Close(_)) => {
+                info!("ws client {} closed connection", self.remote);
                 ctx.stop();
             }
             _ => ctx.stop(),
