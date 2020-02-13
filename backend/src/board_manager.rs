@@ -1,11 +1,11 @@
 use crate::ws_board::WSBoard;
 use crate::ws_user::WSUser;
 use actix::prelude::*;
+use bimap::BiMap;
 use log::*;
 use serde_derive::Serialize;
-use std::time::Duration;
-use bimap::BiMap;
 use std::hash::{Hash, Hasher};
+use std::time::Duration;
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq, Hash)]
 pub struct BoardInfo {
@@ -123,11 +123,17 @@ impl Handler<RequestForBoard> for BoardManagerActor {
     type Result = Option<Addr<WSBoard>>;
 
     fn handle(&mut self, req: RequestForBoard, _ctx: &mut Context<Self>) -> Option<Addr<WSBoard>> {
+        let user_stat = UserStat {
+            addr: req.user,
+            user_name: req.user_name,
+        };
+        if let Some(board) = self.connections.get_by_left(&user_stat).cloned() {
+            // this user has one connection already, remove old one
+            self.connections.remove_by_right(&board);
+            self.idle_boards.push(board);
+        }
         if let Some(board) = self.idle_boards.pop() {
-            self.connections.insert(UserStat {
-                addr: req.user,
-                user_name: req.user_name
-            }, board);
+            self.connections.insert(user_stat, board);
         }
         return None;
     }
