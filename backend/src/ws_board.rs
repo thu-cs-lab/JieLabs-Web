@@ -1,4 +1,5 @@
 use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard};
+use crate::common::IOSetting;
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -33,12 +34,6 @@ impl Actor for WSBoard {
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         info!("ws_board client {} goes offline", self.remote);
     }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct IOSetting {
-    mask: u64,
-    data: u64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -139,6 +134,20 @@ impl WSBoard {
             last_heartbeat: Instant::now(),
             authenticated: false,
         }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct SendToBoard {
+    pub action: WSBoardMessageS2B,
+}
+
+impl Handler<SendToBoard> for WSBoard {
+    type Result = ();
+
+    fn handle(&mut self, req: SendToBoard, ctx: &mut Self::Context) {
+        ctx.text(serde_json::to_string(&req.action).unwrap());
     }
 }
 

@@ -9,6 +9,7 @@ type DbPool = Pool<ConnectionManager<DbConnection>>;
 
 pub mod board;
 pub mod board_manager;
+pub mod common;
 pub mod models;
 pub mod schema;
 pub mod session;

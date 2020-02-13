@@ -14,6 +14,9 @@ fn main() {
                     match msg {
                         ws_user::WSUserMessageS2U::BoardAllocateResult(res) => {
                             println!("Board allocation result: {}", res);
+                            if res {
+                                out.send(r#"{"SetIOOutput":{"mask":8,"data":0}}"#).unwrap();
+                            }
                         }
                         ws_user::WSUserMessageS2U::ReportIOChange(change) => {
                             println!("IO changed {:?}", change);

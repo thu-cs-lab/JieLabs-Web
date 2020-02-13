@@ -1,5 +1,7 @@
-use crate::board_manager::{get_board_manager, RequestForBoard};
+use crate::board_manager::{get_board_manager, RequestForBoard, RouteToBoard};
+use crate::common::IOSetting;
 use crate::session::get_user;
+use crate::ws_board;
 use crate::DbPool;
 use actix::prelude::*;
 use actix_identity::Identity;
@@ -37,12 +39,6 @@ impl Actor for WSUser {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct IOSetting {
-    mask: u64,
-    data: u64,
-}
-
 #[derive(Serialize, Deserialize)]
 pub enum WSUserMessageU2S {
     RequestForBoard(String),
@@ -73,6 +69,18 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
                             get_board_manager().do_send(RequestForBoard {
                                 user: ctx.address(),
                                 user_name: self.user_name.clone(),
+                            });
+                        }
+                    }
+                    WSUserMessageU2S::SetIOOutput(data) => {
+                        if self.has_board {
+                            get_board_manager().do_send(RouteToBoard {
+                                user: ctx.address(),
+                                user_name: self.user_name.clone(),
+                                action: ws_board::WSBoardMessageS2B::SetIOOutput(IOSetting {
+                                    mask: data.mask,
+                                    data: data.data,
+                                }),
                             });
                         }
                     }

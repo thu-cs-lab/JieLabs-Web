@@ -1,4 +1,4 @@
-use crate::ws_board::WSBoard;
+use crate::ws_board::{SendToBoard, WSBoard, WSBoardMessageS2B};
 use crate::ws_user::RequestForBoardResult;
 use crate::ws_user::WSUser;
 use actix::prelude::*;
@@ -145,6 +145,29 @@ impl Handler<RequestForBoard> for BoardManagerActor {
             false
         };
         addr.do_send(RequestForBoardResult(res));
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RouteToBoard {
+    pub user: Addr<WSUser>,
+    pub user_name: String,
+    pub action: WSBoardMessageS2B,
+}
+
+impl Handler<RouteToBoard> for BoardManagerActor {
+    type Result = ();
+
+    fn handle(&mut self, req: RouteToBoard, _ctx: &mut Context<Self>) {
+        let user_stat = UserStat {
+            addr: req.user,
+            user_name: req.user_name,
+        };
+        // TODO: filter unneed actions
+        if let Some(board) = self.connections.get_by_left(&user_stat) {
+            board.addr.do_send(SendToBoard { action: req.action });
+        }
     }
 }
 
