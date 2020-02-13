@@ -57,7 +57,7 @@ pub enum WSBoardMessageB2S {
 
 #[derive(Serialize, Deserialize)]
 pub enum WSBoardMessageS2B {
-    ProgramBitstream(Vec<u8>),
+    ProgramBitstream(String),
     SetIOOutput(IOSetting),
     SetIODirection(IOSetting),
     SubscribeIOChange(String),
@@ -180,10 +180,7 @@ mod test {
 
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(vec![
-                0xaa, 0x99, 0x55, 0x66
-            ]))
-            .unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(String::from("AA995566"))).unwrap()
         );
         println!(
             "{}",

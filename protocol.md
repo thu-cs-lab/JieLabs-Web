@@ -57,7 +57,7 @@
 格式：
 
 ```json
-{"ProgramBitstream":[170,153,85,102]}
+{"ProgramBitstream":"AA995566"}
 ```
 
 ### 设置 IO 方向
