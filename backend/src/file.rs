@@ -26,7 +26,7 @@ fn s3_credentials() -> AwsCredentials {
 
 fn s3_region() -> Region {
     Region::Custom {
-        name: String::from("something"),
+        name: std::env::var("S3_REGION").expect("S3_REGION"),
         endpoint: std::env::var("S3_ENDPOINT").expect("S3_ENDPOINT"),
     }
 }
