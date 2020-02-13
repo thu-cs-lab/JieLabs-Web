@@ -36,7 +36,7 @@ pub struct SubmitBuildTask {
 impl Handler<SubmitBuildTask> for TaskManagerActor {
     type Result = ();
 
-    fn handle(&mut self, req: SubmitBuildTask, _ctx: &mut Context<Self>) {
+    fn handle(&mut self, _req: SubmitBuildTask, _ctx: &mut Context<Self>) {
         let conn = self.conn.as_mut().unwrap();
         redis::cmd("LPUSH")
             .arg("jielabs-tasks")
