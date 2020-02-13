@@ -143,7 +143,7 @@
 格式：
 
 ```json
-{"SetIODirection":{"mask":11,"data":8}}
+{"ToBoard":{"SetIODirection":{"mask":14,"data":4}}}
 ```
 
 ### 设置 IO 输出
@@ -155,7 +155,7 @@
 格式：
 
 ```json
-{"SetIOOutput":{"mask":8,"data":0}}
+{"ToBoard":{"SetIOOutput":{"mask":14,"data":4}}}
 ```
 
 ### 汇报 IO 状态更新

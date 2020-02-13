@@ -1,7 +1,7 @@
 use crate::board_manager::{get_board_manager, RequestForBoard, RouteToBoard};
 use crate::common::IOSetting;
 use crate::session::get_user;
-use crate::ws_board;
+use crate::ws_board::WSBoardMessageS2B;
 use crate::DbPool;
 use actix::prelude::*;
 use actix_identity::Identity;
@@ -42,8 +42,7 @@ impl Actor for WSUser {
 #[derive(Serialize, Deserialize)]
 pub enum WSUserMessageU2S {
     RequestForBoard(String),
-    SetIOOutput(IOSetting),
-    SetIODirection(IOSetting),
+    ToBoard(WSBoardMessageS2B),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -72,19 +71,15 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
                             });
                         }
                     }
-                    WSUserMessageU2S::SetIOOutput(data) => {
+                    WSUserMessageU2S::ToBoard(action) => {
                         if self.has_board {
                             get_board_manager().do_send(RouteToBoard {
                                 user: ctx.address(),
                                 user_name: self.user_name.clone(),
-                                action: ws_board::WSBoardMessageS2B::SetIOOutput(IOSetting {
-                                    mask: data.mask,
-                                    data: data.data,
-                                }),
+                                action,
                             });
                         }
                     }
-                    _ => {}
                 },
                 Err(_err) => {
                     warn!("ws_user client {} sent wrong message, closing", self.remote);
@@ -167,18 +162,22 @@ mod test {
         );
         println!(
             "{}",
-            serde_json::to_string(&WSUserMessageU2S::SetIOOutput(IOSetting {
-                mask: 0b1110,
-                data: 0b0100,
-            }))
+            serde_json::to_string(&WSUserMessageU2S::ToBoard(WSBoardMessageS2B::SetIOOutput(
+                IOSetting {
+                    mask: 0b1110,
+                    data: 0b0100,
+                }
+            )))
             .unwrap()
         );
         println!(
             "{}",
-            serde_json::to_string(&WSUserMessageU2S::SetIODirection(IOSetting {
-                mask: 0b1110,
-                data: 0b0100,
-            }))
+            serde_json::to_string(&WSUserMessageU2S::ToBoard(
+                WSBoardMessageS2B::SetIODirection(IOSetting {
+                    mask: 0b1110,
+                    data: 0b0100,
+                })
+            ))
             .unwrap()
         );
 
