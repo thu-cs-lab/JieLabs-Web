@@ -56,5 +56,32 @@ GET /api/board/list
 
 GET /api/file/upload
 
-获得一个链接，对这个链接 PUT 文件内容即可。
+获得一个文件 ID 和链接，对这个链接 PUT 文件内容即可上传。
 
+## 任务管理
+
+### 提交构建任务
+
+POST /api/task/build
+
+字段：source，通过 /api/file/upload 获取的附件 ID
+
+获得 build_id，可以用这个 ID 获取构建信息
+
+### 获取构建信息
+
+GET /api/task/get/{build_id}
+
+仅构建的创建用户可访问
+
+### 提交构建结果
+
+POST /api/task/finish
+
+字段：task_id，表示 task 的ID；secret，一个预设的密码
+
+### 获取任务信息
+
+GET /api/task/list
+
+仅 admin 可用
