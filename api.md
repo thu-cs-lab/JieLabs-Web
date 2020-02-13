@@ -41,3 +41,11 @@ GET /api/user/manage/{user_name}
 DELETE /api/user/manage/{user_name}
 
 仅 admin 可用
+
+## 板子管理
+
+### 列出所有板子
+
+GET /api/board/list
+
+仅 admin 可用

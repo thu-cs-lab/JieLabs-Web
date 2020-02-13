@@ -93,7 +93,7 @@
 格式：
 
 ```json
-"SubscribeIOChange"
+{"SubscribeIOChange":""}
 ```
 
 ### 订阅 IO 状态更新
@@ -105,6 +105,6 @@
 格式：
 
 ```json
-"UnsubscribeIOChange"
+{"UnsubscribeIOChange":""}
 ```
 

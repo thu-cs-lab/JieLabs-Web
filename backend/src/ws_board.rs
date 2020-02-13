@@ -32,8 +32,8 @@ enum WSBoardMessageS2B {
     ProgramBitstream(Vec<u8>),
     SetIOOutput(IOSetting),
     SetIODirection(IOSetting),
-    SubscribeIOChange,
-    UnsubscribeIOChange,
+    SubscribeIOChange(String),
+    UnsubscribeIOChange(String),
 }
 
 pub struct WSBoard {
@@ -190,11 +190,11 @@ mod test {
         );
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::SubscribeIOChange).unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::SubscribeIOChange(String::from(""))).unwrap()
         );
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange).unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange(String::from(""))).unwrap()
         );
     }
 }
