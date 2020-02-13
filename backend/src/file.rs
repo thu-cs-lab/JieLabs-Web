@@ -1,3 +1,4 @@
+use crate::common::generate_uuid;
 use crate::session::get_user;
 use crate::DbPool;
 use actix_identity::Identity;
@@ -7,7 +8,6 @@ use rusoto_core::Region;
 use rusoto_s3::util::PreSignedRequest;
 use rusoto_s3::{GetObjectRequest, PutObjectRequest};
 use serde_derive::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 struct UploadResponse {
@@ -29,15 +29,6 @@ fn s3_region() -> Region {
         name: std::env::var("S3_REGION").expect("S3_REGION"),
         endpoint: std::env::var("S3_ENDPOINT").expect("S3_ENDPOINT"),
     }
-}
-
-pub fn generate_file_name() -> String {
-    let uuid = Uuid::new_v4();
-    let file_name = uuid
-        .to_simple()
-        .encode_lower(&mut Uuid::encode_buffer())
-        .to_owned();
-    file_name
 }
 
 pub fn get_upload_url(file_name: &String) -> String {
@@ -66,7 +57,7 @@ pub fn get_download_url(file_name: &String) -> String {
 async fn upload(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().unwrap();
     if let Some(_user) = get_user(&id, &conn) {
-        let file_name = generate_file_name();
+        let file_name = generate_uuid();
         let presigned_url = get_upload_url(&file_name);
         return HttpResponse::Ok().json(UploadResponse {
             uuid: file_name,

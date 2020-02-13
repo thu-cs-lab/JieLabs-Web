@@ -1,6 +1,7 @@
 use actix::prelude::*;
 use log::*;
 use redis;
+use serde_derive::Serialize;
 
 #[derive(Default)]
 pub struct TaskManagerActor {
@@ -27,20 +28,22 @@ impl SystemService for TaskManagerActor {
     }
 }
 
-#[derive(Message)]
+#[derive(Message, Serialize)]
 #[rtype(result = "()")]
 pub struct SubmitBuildTask {
-    pub source: String,
+    pub id: String,
+    pub src: String,
+    pub dst: String,
 }
 
 impl Handler<SubmitBuildTask> for TaskManagerActor {
     type Result = ();
 
-    fn handle(&mut self, _req: SubmitBuildTask, _ctx: &mut Context<Self>) {
+    fn handle(&mut self, req: SubmitBuildTask, _ctx: &mut Context<Self>) {
         let conn = self.conn.as_mut().unwrap();
         redis::cmd("LPUSH")
             .arg(std::env::var("REDIS_WAITING_QUEUE").expect("REDIS_WAITING_QUEUE"))
-            .arg("")
+            .arg(serde_json::to_string(&req).expect("to json"))
             .execute(conn);
     }
 }
