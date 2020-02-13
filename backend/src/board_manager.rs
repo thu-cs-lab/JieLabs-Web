@@ -2,6 +2,7 @@ use crate::ws_board::WSBoard;
 use actix::prelude::*;
 use log::*;
 use serde_derive::Serialize;
+use std::time::Duration;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -39,7 +40,12 @@ impl SystemService for BoardManagerActor {
 impl Actor for BoardManagerActor {
     type Context = Context<Self>;
 
-    fn started(&mut self, _ctx: &mut Context<Self>) {}
+    fn started(&mut self, ctx: &mut Context<Self>) {
+        // cleanup disconnected clients
+        ctx.run_interval(Duration::from_secs(5), |actor, _ctx| {
+            actor.boards.retain(|(addr, _info)| addr.connected());
+        });
+    }
 }
 
 impl Handler<RegisterBoard> for BoardManagerActor {
@@ -57,7 +63,8 @@ impl Handler<GetBoardList> for BoardManagerActor {
     fn handle(&mut self, _req: GetBoardList, _ctx: &mut Context<Self>) -> BoardInfoList {
         let mut res = vec![];
         for board in &self.boards {
-            res.push(board.1.clone());
+            let (_addr, info) = board;
+            res.push(info.clone());
         }
         BoardInfoList(res)
     }

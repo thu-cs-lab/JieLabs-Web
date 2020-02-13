@@ -194,7 +194,8 @@ mod test {
         );
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange(String::from(""))).unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange(String::from("")))
+                .unwrap()
         );
     }
 }
