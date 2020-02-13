@@ -7,28 +7,28 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json;
 use std::time::{Duration, Instant};
 
-#[derive(Serialize, Deserialize)]
-struct IOSetting {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IOSetting {
     mask: u64,
     data: u64,
 }
 
 #[derive(Serialize, Deserialize)]
-struct AuthenticateArgs {
+pub struct AuthenticateArgs {
     password: String,
     software_version: String,
     hardware_version: String,
 }
 
 #[derive(Serialize, Deserialize)]
-enum WSBoardMessageB2S {
+pub enum WSBoardMessageB2S {
     Authenticate(AuthenticateArgs),
     ProgramBitstreamFinish(bool),
     ReportIOChange(IOSetting),
 }
 
 #[derive(Serialize, Deserialize)]
-enum WSBoardMessageS2B {
+pub enum WSBoardMessageS2B {
     ProgramBitstream(Vec<u8>),
     SetIOOutput(IOSetting),
     SetIODirection(IOSetting),
