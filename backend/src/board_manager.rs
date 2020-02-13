@@ -1,4 +1,5 @@
 use crate::ws_board::WSBoard;
+use crate::ws_user::WSUser;
 use actix::prelude::*;
 use log::*;
 use serde_derive::Serialize;
@@ -25,12 +26,25 @@ pub struct BoardInfoList(pub Vec<BoardInfo>);
 #[rtype(result = "BoardInfoList")]
 pub struct GetBoardList;
 
+#[derive(Message)]
+#[rtype(result = "Option<Addr<WSBoard>>")]
+pub struct RequestForBoard {
+    pub user: Addr<WSUser>,
+}
+
+struct BoardStat {
+    addr: Addr<WSBoard>,
+    info: BoardInfo,
+    user: Option<Addr<WSUser>>,
+}
+
 #[derive(Default)]
 pub struct BoardManagerActor {
-    boards: Vec<(Addr<WSBoard>, BoardInfo)>,
+    boards: Vec<BoardStat>,
 }
 
 impl actix::Supervised for BoardManagerActor {}
+
 impl SystemService for BoardManagerActor {
     fn service_started(&mut self, _ctx: &mut Context<Self>) {
         info!("board manager is up");
@@ -43,7 +57,7 @@ impl Actor for BoardManagerActor {
     fn started(&mut self, ctx: &mut Context<Self>) {
         // cleanup disconnected clients
         ctx.run_interval(Duration::from_secs(5), |actor, _ctx| {
-            actor.boards.retain(|(addr, _info)| addr.connected());
+            actor.boards.retain(|board| !board.addr.connected());
         });
     }
 }
@@ -53,7 +67,11 @@ impl Handler<RegisterBoard> for BoardManagerActor {
 
     fn handle(&mut self, board: RegisterBoard, _ctx: &mut Context<Self>) -> () {
         info!("board registered {:?}", board.info);
-        self.boards.push((board.addr, board.info));
+        self.boards.push(BoardStat {
+            addr: board.addr,
+            info: board.info,
+            user: None,
+        });
     }
 }
 
@@ -63,10 +81,23 @@ impl Handler<GetBoardList> for BoardManagerActor {
     fn handle(&mut self, _req: GetBoardList, _ctx: &mut Context<Self>) -> BoardInfoList {
         let mut res = vec![];
         for board in &self.boards {
-            let (_addr, info) = board;
-            res.push(info.clone());
+            res.push(board.info.clone());
         }
         BoardInfoList(res)
+    }
+}
+
+impl Handler<RequestForBoard> for BoardManagerActor {
+    type Result = Option<Addr<WSBoard>>;
+
+    fn handle(&mut self, req: RequestForBoard, _ctx: &mut Context<Self>) -> Option<Addr<WSBoard>> {
+        for board in &mut self.boards {
+            if let None = board.user {
+                board.user = Some(req.user.clone());
+                return Some(board.addr.clone());
+            }
+        }
+        return None;
     }
 }
 

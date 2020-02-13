@@ -1,4 +1,4 @@
-use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard};
+use crate::board_manager::{get_board_manager, RequestForBoard};
 use crate::session::get_user;
 use crate::DbPool;
 use actix::prelude::*;
@@ -29,10 +29,17 @@ enum WSUserMessageS2U {
     BoardAllocateResult(bool),
 }
 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub enum BoardManagerMessage2U {
+    BoardDisconnected,
+}
+
 pub struct WSUser {
     user_name: String,
     remote: String,
     last_heartbeat: Instant,
+    has_board: bool,
 }
 
 impl Actor for WSUser {
@@ -67,7 +74,23 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
             }
             Ok(ws::Message::Text(text)) => match serde_json::from_str::<WSUserMessageU2S>(&text) {
                 Ok(msg) => match msg {
-                    WSUserMessageU2S::RequestForBoard => {}
+                    WSUserMessageU2S::RequestForBoard => {
+                        if !self.has_board {
+                            ctx.spawn(async |actor, ctx| {
+                                let res = get_board_manager()
+                                    .send(RequestForBoard {
+                                        user: ctx.address(),
+                                    })
+                                    .await;
+                                if let Some(true) = res {
+                                    actor.has_board = true;
+                                    ctx.text(WSUserMessageS2U::BoardAllocateResult(true));
+                                } else {
+                                    ctx.text(WSUserMessageS2U::BoardAllocateResult(false));
+                                }
+                            });
+                        }
+                    }
                     _ => {}
                 },
                 Err(_err) => {
@@ -91,6 +114,7 @@ impl WSUser {
             remote: String::from(remote),
             user_name: String::from(user_name),
             last_heartbeat: Instant::now(),
+            has_board: false,
         }
     }
 }
