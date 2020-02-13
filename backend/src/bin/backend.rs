@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/api")
                     .service(web::resource("/ws_board").route(web::get().to(ws_board::ws_board)))
-                    .service(web::scope("/user").service(user::list))
+                    .service(web::scope("/user").service(user::list).service(user::update).service(user::remove))
                     .service(
                         web::scope("/")
                             .service(session::login)
