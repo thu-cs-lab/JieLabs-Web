@@ -1,4 +1,17 @@
 table! {
+    jobs (id) {
+        id -> Integer,
+        submitter -> Text,
+        #[sql_name = "type"]
+        type_ -> Text,
+        source -> Text,
+        status -> Nullable<Text>,
+        destination -> Nullable<Text>,
+        task_id -> Nullable<Text>,
+    }
+}
+
+table! {
     users (id) {
         id -> Integer,
         user_name -> Text,
@@ -9,3 +22,8 @@ table! {
         role -> Text,
     }
 }
+
+allow_tables_to_appear_in_same_query!(
+    jobs,
+    users,
+);

@@ -66,11 +66,11 @@ POST /api/task/build
 
 字段：source，通过 /api/file/upload 获取的附件 ID
 
-获得 build_id，可以用这个 ID 获取构建信息
+获得 job_id，可以用这个 ID 获取构建信息
 
 ### 获取构建信息
 
-GET /api/task/get/{build_id}
+GET /api/task/get/{job_id}
 
 仅构建的创建用户可访问
 

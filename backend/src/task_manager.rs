@@ -39,7 +39,7 @@ impl Handler<SubmitBuildTask> for TaskManagerActor {
     fn handle(&mut self, _req: SubmitBuildTask, _ctx: &mut Context<Self>) {
         let conn = self.conn.as_mut().unwrap();
         redis::cmd("LPUSH")
-            .arg("jielabs-tasks")
+            .arg(std::env::var("REDIS_WAITING_QUEUE").expect("REDIS_WAITING_QUEUE"))
             .arg("")
             .execute(conn);
     }

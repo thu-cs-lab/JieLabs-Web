@@ -18,3 +18,4 @@ pub mod task_manager;
 pub mod user;
 pub mod ws_board;
 pub mod ws_user;
+pub mod task;
