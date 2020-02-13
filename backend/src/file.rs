@@ -2,13 +2,26 @@ use crate::session::get_user;
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{get, web, HttpResponse, Responder};
-use rusoto_core::credential::{AwsCredentials, DefaultCredentialsProvider, ProvideAwsCredentials};
+use rusoto_core::credential::AwsCredentials;
 use rusoto_core::Region;
 use rusoto_s3::util::PreSignedRequest;
 use rusoto_s3::{PutObjectRequest, S3Client};
+use serde_derive::{Deserialize, Serialize};
+use uuid::Uuid;
 
-async fn s3_credentials() -> AwsCredentials {
-    AwsCredentials::new("minioadmin", "minioadmin", None, None)
+#[derive(Serialize, Deserialize)]
+struct UploadResponse {
+    uuid: String,
+    url: String,
+}
+
+fn s3_credentials() -> AwsCredentials {
+    AwsCredentials::new(
+        std::env::var("S3_KEY").expect("S3_KEY"),
+        std::env::var("S3_SECRET").expect("S3_SECRET"),
+        None,
+        None,
+    )
 }
 
 fn s3_region() -> Region {
@@ -26,16 +39,23 @@ fn s3_client() -> S3Client {
 async fn upload(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().unwrap();
     if let Some(_user) = get_user(&id, &conn) {
-        let bucket = String::from("jielabs-upload");
-        let filename = String::from("file1");
+        let bucket = std::env::var("S3_BUCKET").expect("S3_BUCKET");
+        let uuid = Uuid::new_v4();
+        let filename = uuid
+            .to_simple()
+            .encode_lower(&mut Uuid::encode_buffer())
+            .to_owned();
         let req = PutObjectRequest {
             bucket,
-            key: filename,
+            key: filename.clone(),
             ..Default::default()
         };
         let presigned_url =
-            req.get_presigned_url(&s3_region(), &s3_credentials().await, &Default::default());
-        return HttpResponse::Ok().json(presigned_url);
+            req.get_presigned_url(&s3_region(), &s3_credentials(), &Default::default());
+        return HttpResponse::Ok().json(UploadResponse {
+            uuid: filename,
+            url: presigned_url,
+        });
     }
     HttpResponse::Forbidden().finish()
 }
