@@ -59,14 +59,14 @@ impl Actor for BoardManagerActor {
     fn started(&mut self, ctx: &mut Context<Self>) {
         // cleanup disconnected clients
         ctx.run_interval(Duration::from_secs(5), |actor, _ctx| {
-            actor.idle_boards.retain(|board| !board.addr.connected());
+            actor.idle_boards.retain(|board| board.addr.connected());
             for (user, board) in &actor.connections {
                 if !user.addr.connected() && board.addr.connected() {
                     actor.idle_boards.push(board.clone());
                 }
             }
             actor.connections.retain(|user, board| {
-                return !user.addr.connected() || !board.addr.connected();
+                return user.addr.connected() && board.addr.connected();
             });
         });
     }
@@ -83,7 +83,7 @@ impl Handler<RegisterBoard> for BoardManagerActor {
     type Result = ();
 
     fn handle(&mut self, board: RegisterBoard, _ctx: &mut Context<Self>) -> () {
-        info!("board registered {:?}", board.info);
+        info!("board registered {:?}", board.info,);
         self.idle_boards.push(BoardStat {
             addr: board.addr,
             info: board.info,
@@ -135,6 +135,10 @@ impl Handler<RequestForBoard> for BoardManagerActor {
             self.idle_boards.push(board);
         }
         let res = if let Some(board) = self.idle_boards.pop() {
+            info!(
+                "connect user {} to board {}",
+                user_stat.user_name, board.info.remote
+            );
             self.connections.insert(user_stat, board);
             true
         } else {

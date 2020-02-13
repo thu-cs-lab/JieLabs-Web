@@ -37,21 +37,21 @@ impl Actor for WSUser {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct IOSetting {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IOSetting {
     mask: u64,
     data: u64,
 }
 
 #[derive(Serialize, Deserialize)]
-enum WSUserMessageU2S {
-    RequestForBoard,
+pub enum WSUserMessageU2S {
+    RequestForBoard(String),
     SetIOOutput(IOSetting),
     SetIODirection(IOSetting),
 }
 
 #[derive(Serialize, Deserialize)]
-enum WSUserMessageS2U {
+pub enum WSUserMessageS2U {
     ReportIOChange(IOSetting),
     BoardAllocateResult(bool),
 }
@@ -68,7 +68,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
             }
             Ok(ws::Message::Text(text)) => match serde_json::from_str::<WSUserMessageU2S>(&text) {
                 Ok(msg) => match msg {
-                    WSUserMessageU2S::RequestForBoard => {
+                    WSUserMessageU2S::RequestForBoard(_) => {
                         if !self.has_board {
                             get_board_manager().do_send(RequestForBoard {
                                 user: ctx.address(),
@@ -125,12 +125,23 @@ pub async fn ws_user(
     req: HttpRequest,
     stream: web::Payload,
 ) -> Result<HttpResponse, Error> {
+    let conn = req.connection_info();
+    let remote = conn.remote();
     let conn = pool.get().unwrap();
     if let Some(user) = get_user(&id, &conn) {
-        let conn = req.connection_info();
-        let remote = conn.remote();
         return ws::start(
             WSUser::new(remote.unwrap_or("Unknown Remote"), &user.user_name),
+            &req,
+            stream,
+        );
+    }
+    // For debugging
+    if std::env::var("ALLOW_ANONYMOUS_WS_USER").is_ok() {
+        return ws::start(
+            WSUser::new(
+                remote.unwrap_or("Unknown Remote"),
+                &format!("Anonymous-{:?}", remote),
+            ),
             &req,
             stream,
         );
@@ -144,7 +155,7 @@ mod test {
         use super::*;
         println!(
             "{}",
-            serde_json::to_string(&WSUserMessageU2S::RequestForBoard).unwrap()
+            serde_json::to_string(&WSUserMessageU2S::RequestForBoard(String::from(""))).unwrap()
         );
         println!(
             "{}",
