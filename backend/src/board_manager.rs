@@ -1,4 +1,5 @@
 use crate::ws_board::WSBoard;
+use crate::ws_user::RequestForBoardResult;
 use crate::ws_user::WSUser;
 use actix::prelude::*;
 use bimap::BiMap;
@@ -113,16 +114,17 @@ impl Handler<GetBoardList> for BoardManagerActor {
 }
 
 #[derive(Message)]
-#[rtype(result = "Option<Addr<WSBoard>>")]
+#[rtype(result = "()")]
 pub struct RequestForBoard {
     pub user: Addr<WSUser>,
     pub user_name: String,
 }
 
 impl Handler<RequestForBoard> for BoardManagerActor {
-    type Result = Option<Addr<WSBoard>>;
+    type Result = ();
 
-    fn handle(&mut self, req: RequestForBoard, _ctx: &mut Context<Self>) -> Option<Addr<WSBoard>> {
+    fn handle(&mut self, req: RequestForBoard, _ctx: &mut Context<Self>) {
+        let addr = req.user.clone();
         let user_stat = UserStat {
             addr: req.user,
             user_name: req.user_name,
@@ -132,10 +134,13 @@ impl Handler<RequestForBoard> for BoardManagerActor {
             self.connections.remove_by_right(&board);
             self.idle_boards.push(board);
         }
-        if let Some(board) = self.idle_boards.pop() {
+        let res = if let Some(board) = self.idle_boards.pop() {
             self.connections.insert(user_stat, board);
-        }
-        return None;
+            true
+        } else {
+            false
+        };
+        addr.do_send(RequestForBoardResult(res));
     }
 }
 

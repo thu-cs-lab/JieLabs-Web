@@ -180,7 +180,10 @@ mod test {
 
         println!(
             "{}",
-            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(String::from("AA995566"))).unwrap()
+            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(String::from(
+                "AA995566"
+            )))
+            .unwrap()
         );
         println!(
             "{}",

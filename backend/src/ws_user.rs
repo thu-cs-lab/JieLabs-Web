@@ -1,6 +1,5 @@
 use crate::board_manager::{get_board_manager, RequestForBoard};
 use crate::session::get_user;
-use crate::ws_board::WSBoard;
 use crate::DbPool;
 use actix::prelude::*;
 use actix_identity::Identity;
@@ -15,7 +14,7 @@ pub struct WSUser {
     user_name: String,
     remote: String,
     last_heartbeat: Instant,
-    board_addr: Option<Addr<WSBoard>>,
+    has_board: bool,
 }
 
 impl Actor for WSUser {
@@ -70,29 +69,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
             Ok(ws::Message::Text(text)) => match serde_json::from_str::<WSUserMessageU2S>(&text) {
                 Ok(msg) => match msg {
                     WSUserMessageU2S::RequestForBoard => {
-                        if self.board_addr.is_none() {
-                            get_board_manager()
-                                .send(RequestForBoard {
-                                    user: ctx.address(),
-                                    user_name: self.user_name.clone(),
-                                })
-                                .into_actor(self)
-                                .then(move |res, actor, ctx| {
-                                    let res = if let Ok(Some(addr)) = res {
-                                        actor.board_addr = Some(addr);
-                                        true
-                                    } else {
-                                        false
-                                    };
-                                    ctx.text(
-                                        serde_json::to_string(
-                                            &WSUserMessageS2U::BoardAllocateResult(res),
-                                        )
-                                        .unwrap(),
-                                    );
-                                    async {}.into_actor(actor)
-                                })
-                                .wait(ctx);
+                        if !self.has_board {
+                            get_board_manager().do_send(RequestForBoard {
+                                user: ctx.address(),
+                                user_name: self.user_name.clone(),
+                            });
                         }
                     }
                     _ => {}
@@ -112,13 +93,28 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
     }
 }
 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RequestForBoardResult(pub bool);
+
+impl Handler<RequestForBoardResult> for WSUser {
+    type Result = ();
+
+    fn handle(&mut self, req: RequestForBoardResult, ctx: &mut Self::Context) -> () {
+        self.has_board = req.0;
+        ctx.text(
+            serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(self.has_board)).unwrap(),
+        );
+    }
+}
+
 impl WSUser {
     fn new(remote: &str, user_name: &str) -> Self {
         Self {
             remote: String::from(remote),
             user_name: String::from(user_name),
             last_heartbeat: Instant::now(),
-            board_addr: None,
+            has_board: false,
         }
     }
 }
