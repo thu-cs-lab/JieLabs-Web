@@ -14,3 +14,4 @@ pub mod schema;
 pub mod session;
 pub mod user;
 pub mod ws_board;
+pub mod ws_user;

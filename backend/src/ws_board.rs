@@ -48,15 +48,19 @@ impl Actor for WSBoard {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        info!("ws client {} goes online", self.remote);
+        info!("ws_board client {} goes online", self.remote);
         ctx.run_interval(Duration::from_secs(5), |actor, ctx| {
             if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(30) {
-                warn!("ws client {} has no heartbeat", actor.remote);
+                warn!("ws_board client {} has no heartbeat", actor.remote);
                 ctx.stop();
             } else {
                 ctx.ping(b"");
             }
         });
+    }
+
+    fn stopped(&mut self, _ctx: &mut Self::Context) {
+        info!("ws_board client {} goes offline", self.remote);
     }
 }
 
@@ -68,7 +72,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
             }
             Ok(ws::Message::Pong(_)) => {
                 if self.authenticated {
-                    debug!("ws client {} heartbeat", self.remote);
+                    debug!("ws_board client {} heartbeat", self.remote);
                     self.last_heartbeat = Instant::now();
                 }
             }
@@ -81,7 +85,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                                 self.authenticated = true;
                                 self.software_version = auth.software_version;
                                 self.hardware_version = auth.hardware_version;
-                                info!("ws client {} is authenticated", self.remote);
+                                info!("ws_board client {} is authenticated", self.remote);
                                 get_board_manager().do_send(RegisterBoard {
                                     addr: ctx.address(),
                                     info: BoardInfo {
@@ -91,25 +95,34 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                                     },
                                 });
                             } else {
-                                warn!("ws client {} authentication failed, closing", self.remote);
+                                warn!(
+                                    "ws_board client {} authentication failed, closing",
+                                    self.remote
+                                );
                                 ctx.stop();
                             }
                         }
                     }
                     _ if !self.authenticated => {
-                        warn!("ws client {} did not authenticate, closing", self.remote);
+                        warn!(
+                            "ws_board client {} did not authenticate, closing",
+                            self.remote
+                        );
                         ctx.stop();
                     }
                     _ => {}
                 },
                 Err(_err) => {
-                    warn!("ws client {} sent wrong message, closing", self.remote);
+                    warn!(
+                        "ws_board client {} sent wrong message, closing",
+                        self.remote
+                    );
                     ctx.stop();
                 }
             },
             Ok(ws::Message::Binary(_bin)) => {}
             Ok(ws::Message::Close(_)) => {
-                info!("ws client {} closed connection", self.remote);
+                info!("ws_board client {} closed connection", self.remote);
                 ctx.stop();
             }
             _ => ctx.stop(),

@@ -2,7 +2,7 @@
 extern crate diesel_migrations;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
-use backend::{board, session, user, ws_board, DbConnection};
+use backend::{board, session, user, ws_board, ws_user, DbConnection};
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use ring::digest;
@@ -36,6 +36,7 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/api")
                     .service(web::resource("/ws_board").route(web::get().to(ws_board::ws_board)))
+                    .service(web::resource("/ws_user").route(web::get().to(ws_user::ws_user)))
                     .service(
                         web::scope("/user")
                             .service(user::list)
