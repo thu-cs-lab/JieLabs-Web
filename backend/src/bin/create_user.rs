@@ -19,6 +19,9 @@ struct Args {
 
     #[structopt(short, long)]
     class: Option<String>,
+
+    #[structopt(short="R", long)]
+    role: Option<String>,
 }
 
 #[paw::main]
@@ -33,6 +36,7 @@ fn main(args: Args) {
         real_name: args.real_name,
         student_id: args.student_id,
         class: args.class,
+        role: args.role,
     };
     diesel::insert_into(backend::schema::users::table)
         .values(&new_user)
