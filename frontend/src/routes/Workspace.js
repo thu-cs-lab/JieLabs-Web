@@ -7,7 +7,7 @@ import Sandbox from '../Sandbox';
 
 export default React.memo(() => {
   return <main className="workspace">
-    <div className="right">
+    <div className="left">
       <Sandbox />
     </div>
     <div className="toolbar">
@@ -19,7 +19,7 @@ export default React.memo(() => {
         <Icon>help_outline</Icon>
       </button>
     </div>
-    <div className="left">
+    <div className="right">
       <Monaco
         options={{
           theme: 'vs-dark',

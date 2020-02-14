@@ -254,6 +254,8 @@ main {
 
   .left {
     flex: 1;
+    overflow: hidden;
+    margin-right: -80px;
   }
 
   .toolbar {
@@ -287,7 +289,6 @@ main {
 
   .right {
     flex: 1;
-    margin-right: -80px;
   }
 }
 
