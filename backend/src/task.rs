@@ -32,14 +32,18 @@ async fn build(
             destination: Some(dest.clone()),
             task_id: Some(task_id.clone()),
         };
-        diesel::insert_into(jobs::table)
-            .values(&new_job)
-            .execute(&conn)
-            .expect("insert shold not fail");
-        let job_id = jobs::dsl::jobs
-            .select(jobs::dsl::id)
-            .filter(jobs::dsl::task_id.eq(&task_id))
-            .first::<i32>(&conn)?;
+        let job_id = conn
+            .transaction::<_, diesel::result::Error, _>(|| {
+                diesel::insert_into(jobs::table)
+                    .values(&new_job)
+                    .execute(&conn)?;
+                let job_id = jobs::dsl::jobs
+                    .select(jobs::dsl::id)
+                    .filter(jobs::dsl::task_id.eq(&task_id))
+                    .first::<i32>(&conn)?;
+                Ok(job_id)
+            })
+            .map_err(err)?;
         let src_url = get_download_url(&body.source);
         let dst_url = get_upload_url(&dest);
         get_task_manager().do_send(SubmitBuildTask {
