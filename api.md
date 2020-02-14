@@ -78,7 +78,7 @@ GET /api/task/get/{job_id}
 
 POST /api/task/finish
 
-字段：task_id，表示 task 的ID；secret，一个预设的密码
+字段：task_id，表示 task 的ID
 
 ### 获取任务信息
 

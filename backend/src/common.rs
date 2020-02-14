@@ -1,8 +1,11 @@
+use actix_web::{error::ErrorInternalServerError, Error};
+use log::*;
 use rusoto_core::credential::AwsCredentials;
 use rusoto_core::Region;
 use rusoto_s3::util::PreSignedRequest;
 use rusoto_s3::{GetObjectRequest, PutObjectRequest};
 use serde_derive::{Deserialize, Serialize};
+use std::fmt::Display;
 use std::time::SystemTime;
 use uuid::Uuid;
 
@@ -62,4 +65,13 @@ pub fn get_download_url(file_name: &String) -> String {
     };
     let presigned_url = req.get_presigned_url(&s3_region(), &s3_credentials(), &Default::default());
     presigned_url
+}
+
+pub fn err<T: Display>(err: T) -> Error {
+    let error_token = generate_uuid();
+    warn!("Error {}: {}", error_token, err);
+    ErrorInternalServerError(format!(
+        "Please contact admin with error token {}",
+        error_token
+    ))
 }

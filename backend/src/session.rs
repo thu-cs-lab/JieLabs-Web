@@ -2,8 +2,9 @@ use crate::models::*;
 use crate::schema::users::dsl;
 use crate::DbConnection;
 use crate::DbPool;
+use crate::common::err;
 use actix_identity::Identity;
-use actix_web::{delete, get, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use log::*;
@@ -56,8 +57,8 @@ async fn login(
     id: Identity,
     pool: web::Data<DbPool>,
     body: web::Json<LoginRequest>,
-) -> HttpResponse {
-    let conn = pool.get().unwrap();
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     let hashed = hash_password(&body.password);
     if let Ok(user) = dsl::users
         .filter(
@@ -69,31 +70,31 @@ async fn login(
     {
         info!("User {} logged in", user.user_name);
         id.remember(user.user_name.clone());
-        HttpResponse::Ok().json(UserInfoResponse {
+        Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
             user_name: Some(user.user_name),
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
-        })
+        }))
     } else {
-        HttpResponse::Ok().json(UserInfoResponse::default())
+        Ok(HttpResponse::Ok().json(UserInfoResponse::default()))
     }
 }
 
 #[get("/session")]
-async fn info(id: Identity, pool: web::Data<DbPool>) -> impl Responder {
-    let conn = pool.get().unwrap();
+async fn info(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
-        return HttpResponse::Ok().json(UserInfoResponse {
+        return Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
             user_name: Some(user.user_name),
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
-        });
+        }));
     }
-    HttpResponse::Ok().json(UserInfoResponse::default())
+    Ok(HttpResponse::Ok().json(UserInfoResponse::default()))
 }
 
 #[delete("/session")]
