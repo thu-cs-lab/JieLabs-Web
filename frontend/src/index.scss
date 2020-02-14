@@ -52,7 +52,7 @@ code {
 
 header {
   height: 60px;
-  box-shadow: rgba(0,0,0,.3) 0 2px 6px;
+  box-shadow: rgba(0,0,0,.3) 0 4px 12px;
 
   display: flex;
   align-items: center;
@@ -258,6 +258,8 @@ main {
 
   .toolbar {
     width: 60px;
+    backdrop-filter: blur(4px);
+    box-shadow: rgba(0,0,0,.3) 0 4px 12px;
     button {
       @include rst-input;
       width: 60px;
@@ -285,7 +287,13 @@ main {
 
   .right {
     flex: 1;
+    margin-right: -80px;
   }
+}
+
+.sandbox {
+  height: 100%;
+  position: relative;
 }
 
 .block {
@@ -296,9 +304,139 @@ main {
   box-shadow: rgba(0,0,0,.3) 0 2px 6px;
 }
 
+.block-wrapper {
+  position: absolute;
+
+  .block {
+    position: relative;
+  }
+
+  .block-ops {
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    button {
+      @include rst-input;
+      cursor: pointer;
+
+      height: 20px;
+      width: 20px;
+
+      .material-icons {
+        font-size: 14px;
+        line-height: 14px;
+      }
+
+      background: rgba(255,255,255,.1);
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      &.delete {
+        background: #9e1616;
+        color: white;
+      }
+
+      .material-icons {
+        opacity: .7;
+        transition: opacity .2s ease;
+      }
+
+      &:hover .material-icons {
+        opacity: 1;
+      }
+    }
+
+    transition: transform .2s ease;
+  }
+
+  &:hover .block-ops {
+    transform: translateY(-20px);
+  }
+}
+
 .connector {
   cursor: pointer;
-  height: 10px;
-  width: 5px;
+  width: 15px;
+  height: 15px;
+  border-radius: 10px;
+  border: rgba(0,0,0,.2) 5px solid;
+}
+
+.switch4 {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px;
+
+  .switches, .leds {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    > div {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.led {
+  width: 10px;
+  height: 20px;
+  border-top: white 2px solid;
+  border-bottom: white 4px solid;
+  border-left: white 2px solid;
+  border-right: white 2px solid;
+
+  box-shadow: rgba(0,0,0,.3) 0 2px 6px;
+
   background: white;
+
+  margin: 10px;
+
+  transition: background .2s ease, box-shadow .2s ease;
+
+  &.lighten {
+    background: #22ea22;
+    box-shadow: rgba(0,0,0,.3) 0 2px 6px, #22ea22 0 0 4px;
+  }
+}
+
+.switch {
+  width: 20px;
+  height: 20px;
+  margin: 10px 0;
+  cursor: pointer;
+  box-shadow: rgba(0,0,0,.3) 0 3px 9px;
+  background: rgba(255,255,255,.2);
+
+  transition: box-shadow .2s ease, background .2s ease;
+
+  &.pusheen {
+    box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+    background: rgba(255,255,255,.05);
+  }
+}
+
+.lines {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
 }
