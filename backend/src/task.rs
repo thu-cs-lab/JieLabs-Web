@@ -5,7 +5,7 @@ use crate::session::get_user;
 use crate::task_manager::{get_task_manager, SubmitBuildTask};
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
@@ -36,6 +36,11 @@ async fn build(
             .values(&new_job)
             .execute(&conn)
             .expect("insert shold not fail");
+        let job_id = jobs::dsl::jobs
+            .select(jobs::dsl::id)
+            .filter(jobs::dsl::task_id.eq(&task_id))
+            .first::<i32>(&conn)
+            .unwrap();
         let src_url = get_download_url(&body.source);
         let dst_url = get_upload_url(&dest);
         get_task_manager().do_send(SubmitBuildTask {
@@ -44,7 +49,7 @@ async fn build(
             dst: dst_url,
             timestamp: get_timestamp(),
         });
-        return HttpResponse::Ok().json(task_id);
+        return HttpResponse::Ok().json(job_id);
     }
     HttpResponse::Forbidden().finish()
 }
@@ -68,6 +73,90 @@ async fn finish(body: web::Json<FinishRequest>, pool: web::Data<DbPool>) -> impl
             return HttpResponse::Ok().json(diesel::update(&job).set(&job).execute(&conn).is_ok());
         }
         return HttpResponse::Ok().json(true);
+    }
+    HttpResponse::Forbidden().finish()
+}
+
+#[derive(Serialize, Deserialize)]
+struct JobListRequest {
+    offset: Option<i64>,
+    limit: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct JobListResponse {
+    offset: i64,
+    limit: i64,
+    jobs: Vec<JobInfo>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct JobInfo {
+    id: i32,
+    submitter: String,
+    type_: String,
+    status: Option<String>,
+    src_url: String,
+    dst_url: Option<String>,
+}
+
+#[get("/list")]
+async fn list(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    query: web::Query<JobListRequest>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    if let Some(user) = get_user(&id, &conn) {
+        if user.role == "admin" {
+            let offset = query.offset.unwrap_or(0);
+            let limit = query.offset.unwrap_or(5);
+            if let Ok(jobs) = jobs::dsl::jobs
+                .offset(offset)
+                .limit(limit)
+                .load::<Job>(&conn)
+            {
+                let mut res = vec![];
+                for job in jobs {
+                    let src_url = get_download_url(&job.source);
+                    let dst_url = job.destination.map(|dst| get_download_url(&dst));
+                    res.push(JobInfo {
+                        id: job.id,
+                        submitter: job.submitter,
+                        type_: job.type_,
+                        status: job.status,
+                        src_url,
+                        dst_url,
+                    });
+                }
+                return HttpResponse::Ok().json(JobListResponse {
+                    offset,
+                    limit,
+                    jobs: res,
+                });
+            }
+        }
+    }
+    HttpResponse::Forbidden().finish()
+}
+
+#[get("/get/{job_id}")]
+async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<i32>) -> impl Responder {
+    let conn = pool.get().unwrap();
+    if let Some(user) = get_user(&id, &conn) {
+        if let Ok(job) = jobs::dsl::jobs.find(*path).first::<Job>(&conn) {
+            if user.role == "admin" || user.user_name == job.submitter {
+                let src_url = get_download_url(&job.source);
+                return HttpResponse::Ok().json(JobInfo {
+                    id: job.id,
+                    submitter: job.submitter,
+                    type_: job.type_,
+                    status: job.status,
+                    src_url,
+                    dst_url: None,
+                });
+            }
+        }
     }
     HttpResponse::Forbidden().finish()
 }

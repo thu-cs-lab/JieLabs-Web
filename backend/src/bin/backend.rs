@@ -50,7 +50,9 @@ async fn main() -> std::io::Result<()> {
                     .service(
                         web::scope("/task")
                             .service(task::build)
-                            .service(task::finish),
+                            .service(task::finish)
+                            .service(task::get)
+                            .service(task::list),
                     )
                     .service(
                         web::scope("/")

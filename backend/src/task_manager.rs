@@ -14,6 +14,8 @@ pub struct TaskManagerActor {
     client: Option<redis::Client>,
     conn: Option<redis::Connection>,
     db: Option<DbPool>,
+    waiting_queue: String,
+    working_queue: String,
 }
 
 impl actix::Supervised for TaskManagerActor {}
@@ -32,6 +34,8 @@ impl SystemService for TaskManagerActor {
         let conn = client.get_connection().expect("redis connection");
         self.client = Some(client);
         self.conn = Some(conn);
+        self.waiting_queue = std::env::var("REDIS_WAITING_QUEUE").expect("REDIS_WAITING_QUEUE");
+        self.working_queue = std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE");
         ctx.run_interval(Duration::from_secs(10), |actor, ctx| {
             if actor.db.is_none() || actor.conn.is_none() {
                 return;
@@ -41,11 +45,11 @@ impl SystemService for TaskManagerActor {
             let db_conn = db.get().unwrap();
 
             let len_waiting: u64 = redis::cmd("LLEN")
-                .arg(std::env::var("REDIS_WAITING_QUEUE").expect("REDIS_WAITING_QUEUE"))
+                .arg(&actor.waiting_queue)
                 .query(conn)
                 .unwrap();
             let len_working: u64 = redis::cmd("LLEN")
-                .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
+                .arg(&actor.working_queue)
                 .query(conn)
                 .unwrap();
             if len_waiting > 0 || len_working > 0 {
@@ -54,7 +58,7 @@ impl SystemService for TaskManagerActor {
                     len_waiting, len_working
                 );
                 while let Some(last_working) = redis::cmd("LINDEX")
-                    .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
+                    .arg(&actor.working_queue)
                     .arg("-1")
                     .query::<Option<String>>(conn)
                     .unwrap()
@@ -67,12 +71,7 @@ impl SystemService for TaskManagerActor {
                         {
                             if job.status.is_some() {
                                 // done, remove it
-                                redis::cmd("RPOP")
-                                    .arg(
-                                        std::env::var("REDIS_WORKING_QUEUE")
-                                            .expect("REDIS_WORKING_QUEUE"),
-                                    )
-                                    .execute(conn);
+                                redis::cmd("RPOP").arg(&actor.working_queue).execute(conn);
                                 info!("task queue: removing finished task {}", task.id,);
                             } else {
                                 if get_timestamp() - task.timestamp > 10 {
@@ -90,29 +89,23 @@ impl SystemService for TaskManagerActor {
                                         dst: dst_url,
                                         timestamp: get_timestamp(),
                                     });
-                                    redis::cmd("RPOP")
-                                        .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
-                                        .execute(conn);
-                                            info!(
-                                                "task queue: restarting task {} -> {}",
-                                                task.id, new_task_id
-                                            );
+                                    redis::cmd("RPOP").arg(&actor.working_queue).execute(conn);
+                                    info!(
+                                        "task queue: restarting task {} -> {}",
+                                        task.id, new_task_id
+                                    );
                                 } else {
                                     // no timeout tasks
                                     break;
                                 }
                             }
                         } else {
-                            redis::cmd("RPOP")
-                                .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
-                                .execute(conn);
+                            redis::cmd("RPOP").arg(&actor.working_queue).execute(conn);
                             info!("task queue: removing stale task {}", task.id,);
                         }
                     } else {
                         // bad element, remove it
-                        redis::cmd("RPOP")
-                            .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
-                            .execute(conn);
+                        redis::cmd("RPOP").arg(&actor.working_queue).execute(conn);
                         info!("task queue: removing unknown element from working queue");
                     }
                 }
@@ -136,7 +129,7 @@ impl Handler<SubmitBuildTask> for TaskManagerActor {
     fn handle(&mut self, req: SubmitBuildTask, _ctx: &mut Context<Self>) {
         let conn = self.conn.as_mut().unwrap();
         redis::cmd("LPUSH")
-            .arg(std::env::var("REDIS_WAITING_QUEUE").expect("REDIS_WAITING_QUEUE"))
+            .arg(&self.waiting_queue)
             .arg(serde_json::to_string(&req).expect("to json"))
             .execute(conn);
     }
