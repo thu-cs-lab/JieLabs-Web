@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-
+import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 
 import * as blocks from './blocks';
@@ -15,13 +15,11 @@ class Handler {
   }
 
   connectors = {};
-  counter = 0;
 
   selecting = null;
 
   register(master) {
-    // TODO: use uuid
-    const id = `${this.counter++}`;
+    const id = uuidv4();
     const ref = React.createRef();
     this.connectors[id] = { onChange: null, ref, master, value: SIGNAL.X, connected: null };
     return { ref, id };
@@ -32,7 +30,6 @@ class Handler {
   }
 
   unregister(id) {
-    console.log(`Unreg: `, id);
     if(this.selecting === id) this.selecting = false;
     const other = this.connectors[id].connected;
 
@@ -123,8 +120,7 @@ function center(rect, ref) {
 export default function Sandbox() {
   const [field, setField] = useState(List(
     [
-      { type: 'Switch4', x: 0, y: 0, id: 'test' },
-      { type: 'Switch4', x: 0, y: 0, id: 'test2' },
+      { type: 'Switch4', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
     ]
   ));
 
@@ -192,9 +188,21 @@ export default function Sandbox() {
 
   setTimeout(() => redraw());
 
+  const [ctxMenu, setCtxMenu] = useState(null);
+
   return <div
     ref={container}
     className="sandbox"
+    onContextMenu={ev => {
+      setCtxMenu({ x: ev.clientX, y: ev.clientY });
+      ev.preventDefault();
+
+      const discard = () => {
+        setCtxMenu(null);
+        document.removeEventListener('click', discard, false);
+      }
+      document.addEventListener('click', discard, false);
+    }}
     onMouseDown={() => {
       let curScroll = scroll;
 
@@ -256,5 +264,18 @@ export default function Sandbox() {
 
       <canvas ref={canvas} className="lines"></canvas>
     </SandboxContext.Provider>
+
+    { ctxMenu !== null ?
+      <div class="ctx" style={{
+        top: ctxMenu.y,
+        left: ctxMenu.x,
+      }}>
+        <div class="ctx-entry" onClick={() => {
+          setField(field.push(
+            { type: 'Switch4', x: ctxMenu.x, y: ctxMenu.y, id: uuidv4() },
+          ))
+        }}>Add</div>
+      </div> : null
+    }
   </div>;
 }

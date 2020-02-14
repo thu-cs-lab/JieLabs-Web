@@ -440,3 +440,25 @@ main {
   right: 0;
   top: 0;
 }
+
+.ctx {
+  position: fixed;
+  box-shadow: rgba(0,0,0,.3) 0 2px 6px;
+  backdrop-filter: blur(4px);
+  background-color: change-color(#333, $alpha: .7);
+  z-index: 100;
+
+  .ctx-entry {
+    width: 150px;
+    padding: 0 20px;
+    line-height: 40px;
+    font-size: 14px;
+    color: rgba(255,255,255,.7);
+    cursor: pointer;
+    transition: color .2s ease;
+
+    &:hover {
+      color: rgba(255,255,255,1);
+    }
+  }
+}
