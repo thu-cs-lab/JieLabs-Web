@@ -21,8 +21,8 @@ impl Actor for WSBoard {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         info!("ws_board client {} goes online", self.remote);
-        ctx.run_interval(Duration::from_secs(5), |actor, ctx| {
-            if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(30) {
+        ctx.run_interval(Duration::from_secs(20), |actor, ctx| {
+            if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(60) {
                 warn!("ws_board client {} has no heartbeat", actor.remote);
                 ctx.stop();
             } else {
