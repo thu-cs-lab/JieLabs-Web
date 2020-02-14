@@ -1,9 +1,10 @@
+use crate::common::err;
 use crate::models::*;
 use crate::schema::users::dsl;
 use crate::session::{get_user, hash_password};
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{delete, get, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpResponse, Result};
 use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
@@ -34,8 +35,8 @@ async fn list(
     id: Identity,
     pool: web::Data<DbPool>,
     query: web::Query<UserListRequest>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
@@ -51,15 +52,15 @@ async fn list(
                         role: user.role,
                     });
                 }
-                return HttpResponse::Ok().json(UserListResponse {
+                return Ok(HttpResponse::Ok().json(UserListResponse {
                     offset,
                     limit,
                     users: res,
-                });
+                }));
             }
         }
     }
-    HttpResponse::Forbidden().finish()
+    Ok(HttpResponse::Forbidden().finish())
 }
 
 #[derive(Serialize, Deserialize)]
@@ -77,8 +78,8 @@ async fn update(
     pool: web::Data<DbPool>,
     path: web::Path<String>,
     body: web::Json<UserUpdateRequest>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
             if let Ok(mut user) = dsl::users
@@ -100,52 +101,60 @@ async fn update(
                 if let Some(password) = &body.password {
                     user.password = hash_password(password);
                 }
-                return HttpResponse::Ok()
-                    .json(diesel::update(&user).set(&user).execute(&conn).is_ok());
+                return Ok(HttpResponse::Ok()
+                    .json(diesel::update(&user).set(&user).execute(&conn).is_ok()));
             }
         }
     }
-    HttpResponse::Forbidden().finish()
+    Ok(HttpResponse::Forbidden().finish())
 }
 
 #[get("/manage/{name}")]
-async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<String>) -> impl Responder {
-    let conn = pool.get().unwrap();
+async fn get(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    path: web::Path<String>,
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
             if let Ok(user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
                 .first::<User>(&conn)
             {
-                return HttpResponse::Ok().json(UserInfo {
+                return Ok(HttpResponse::Ok().json(UserInfo {
                     user_name: user.user_name,
                     real_name: user.real_name,
                     class: user.class,
                     student_id: user.student_id,
                     role: user.role,
-                });
+                }));
             } else {
-                return HttpResponse::Ok().json(false);
+                return Ok(HttpResponse::Ok().json(false));
             }
         }
     }
-    HttpResponse::Forbidden().finish()
+    Ok(HttpResponse::Forbidden().finish())
 }
 
 #[delete("/manage/{name}")]
-async fn remove(id: Identity, pool: web::Data<DbPool>, path: web::Path<String>) -> impl Responder {
-    let conn = pool.get().unwrap();
+async fn remove(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    path: web::Path<String>,
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
             if let Ok(user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
                 .first::<User>(&conn)
             {
-                return HttpResponse::Ok().json(diesel::delete(&user).execute(&conn).is_ok());
+                return Ok(HttpResponse::Ok().json(diesel::delete(&user).execute(&conn).is_ok()));
             } else {
-                return HttpResponse::Ok().json(false);
+                return Ok(HttpResponse::Ok().json(false));
             }
         }
     }
-    HttpResponse::Forbidden().finish()
+    Ok(HttpResponse::Forbidden().finish())
 }

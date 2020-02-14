@@ -72,16 +72,16 @@ POST /api/task/build
 
 GET /api/task/get/{job_id}
 
-仅构建的创建用户可访问
+仅构建的创建用户和admin可访问
 
 ### 提交构建结果
 
 POST /api/task/finish
 
-字段：task_id，表示 task 的ID；secret，一个预设的密码
+字段：task_id，表示 task 的ID
 
 ### 获取任务信息
 
-GET /api/task/list
+GET /api/task/list?offset=0&limit=5
 
 仅 admin 可用
