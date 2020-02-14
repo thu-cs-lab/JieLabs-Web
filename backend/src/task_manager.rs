@@ -53,56 +53,67 @@ impl SystemService for TaskManagerActor {
                     "task queue: {} waiting, {} working",
                     len_waiting, len_working
                 );
-                if len_working > 0 {
-                    if let Some(last_working) = redis::cmd("LINDEX")
-                        .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
-                        .arg("-1")
-                        .query::<Option<String>>(conn)
-                        .unwrap()
-                    {
-                        if let Ok(task) = serde_json::from_str::<SubmitBuildTask>(&last_working) {
-                            // secs
-                            if get_timestamp() - task.timestamp > 10 {
-                                // remove it
+                while let Some(last_working) = redis::cmd("LINDEX")
+                    .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
+                    .arg("-1")
+                    .query::<Option<String>>(conn)
+                    .unwrap()
+                {
+                    if let Ok(task) = serde_json::from_str::<SubmitBuildTask>(&last_working) {
+                        // find job by task
+                        if let Ok(mut job) = jobs::dsl::jobs
+                            .filter(jobs::dsl::task_id.eq(&task.id))
+                            .first::<Job>(&db_conn)
+                        {
+                            if job.status.is_some() {
+                                // done, remove it
                                 redis::cmd("RPOP")
                                     .arg(
                                         std::env::var("REDIS_WORKING_QUEUE")
                                             .expect("REDIS_WORKING_QUEUE"),
                                     )
                                     .execute(conn);
-
-                                // find job by task
-                                if let Ok(mut job) = jobs::dsl::jobs
-                                    .filter(jobs::dsl::task_id.eq(&task.id))
-                                    .first::<Job>(&db_conn)
-                                {
-                                    // assign a new task id and destination
-                                    if job.status.is_none() {
-                                        let new_task_id = generate_uuid();
-                                        let new_dest = generate_uuid();
-                                        job.task_id = Some(new_task_id.clone());
-                                        job.destination = Some(new_dest.clone());
-                                        let src_url = get_download_url(&job.source);
-                                        let dst_url = get_upload_url(&new_dest);
-                                        diesel::update(&job).set(&job).execute(&db_conn).unwrap();
-                                        ctx.address().do_send(SubmitBuildTask {
-                                            id: new_task_id.clone(),
-                                            src: src_url,
-                                            dst: dst_url,
-                                            timestamp: get_timestamp(),
-                                        });
-                                        info!(
-                                            "task queue: restarting task {} -> {}",
-                                            task.id, new_task_id
-                                        );
-                                    } else {
-                                        info!("task queue: removing finished task {}", task.id,);
-                                    }
+                                info!("task queue: removing finished task {}", task.id,);
+                            } else {
+                                if get_timestamp() - task.timestamp > 10 {
+                                    // timeout, assign a new task id and destination
+                                    let new_task_id = generate_uuid();
+                                    let new_dest = generate_uuid();
+                                    job.task_id = Some(new_task_id.clone());
+                                    job.destination = Some(new_dest.clone());
+                                    let src_url = get_download_url(&job.source);
+                                    let dst_url = get_upload_url(&new_dest);
+                                    diesel::update(&job).set(&job).execute(&db_conn).unwrap();
+                                    ctx.address().do_send(SubmitBuildTask {
+                                        id: new_task_id.clone(),
+                                        src: src_url,
+                                        dst: dst_url,
+                                        timestamp: get_timestamp(),
+                                    });
+                                    redis::cmd("RPOP")
+                                        .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
+                                        .execute(conn);
+                                            info!(
+                                                "task queue: restarting task {} -> {}",
+                                                task.id, new_task_id
+                                            );
                                 } else {
-                                    info!("task queue: removing stale task {}", task.id,);
+                                    // no timeout tasks
+                                    break;
                                 }
                             }
+                        } else {
+                            redis::cmd("RPOP")
+                                .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
+                                .execute(conn);
+                            info!("task queue: removing stale task {}", task.id,);
                         }
+                    } else {
+                        // bad element, remove it
+                        redis::cmd("RPOP")
+                            .arg(std::env::var("REDIS_WORKING_QUEUE").expect("REDIS_WORKING_QUEUE"))
+                            .execute(conn);
+                        info!("task queue: removing unknown element from working queue");
                     }
                 }
             }
