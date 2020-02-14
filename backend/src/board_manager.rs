@@ -1,6 +1,6 @@
 use crate::ws_board::{SendToBoard, WSBoard, WSBoardMessageB2S, WSBoardMessageS2B};
 use crate::ws_user::RequestForBoardResult;
-use crate::ws_user::{SendToUser, WSUser};
+use crate::ws_user::{BoardDisconnected, SendToUser, WSUser};
 use actix::prelude::*;
 use bimap::BiMap;
 use log::*;
@@ -63,6 +63,8 @@ impl Actor for BoardManagerActor {
             for (user, board) in &actor.connections {
                 if !user.addr.connected() && board.addr.connected() {
                     actor.idle_boards.push(board.clone());
+                } else if user.addr.connected() && !board.addr.connected() {
+                    user.addr.do_send(BoardDisconnected);
                 }
             }
             actor.connections.retain(|user, board| {

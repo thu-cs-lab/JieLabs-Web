@@ -62,6 +62,9 @@ fn main(args: Args) {
                         ws_user::WSUserMessageS2U::ReportIOChange(change) => {
                             println!("IO changed {:?}", change);
                         }
+                        ws_user::WSUserMessageS2U::BoardDisconnected(_) => {
+                            println!("Board disconnected");
+                        }
                     }
                 }
             }
