@@ -69,7 +69,7 @@ pub fn get_download_url(file_name: &String) -> String {
 
 pub fn err<T: Display>(err: T) -> Error {
     let error_token = generate_uuid();
-    warn!("Error {}: {}", error_token, err);
+    error!("Error {}: {}", error_token, err);
     ErrorInternalServerError(format!(
         "Please contact admin with error token {}",
         error_token

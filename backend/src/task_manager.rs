@@ -127,11 +127,14 @@ impl Handler<SubmitBuildTask> for TaskManagerActor {
     type Result = ();
 
     fn handle(&mut self, req: SubmitBuildTask, _ctx: &mut Context<Self>) {
-        let conn = self.conn.as_mut().unwrap();
-        redis::cmd("LPUSH")
-            .arg(&self.waiting_queue)
-            .arg(serde_json::to_string(&req).expect("to json"))
-            .execute(conn);
+        if let Some(conn) = self.conn.as_mut() {
+            redis::cmd("LPUSH")
+                .arg(&self.waiting_queue)
+                .arg(serde_json::to_string(&req).expect("to json"))
+                .execute(conn);
+        } else {
+            warn!("no redis conn, fail to submit build task");
+        }
     }
 }
 

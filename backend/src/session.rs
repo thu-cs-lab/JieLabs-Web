@@ -1,8 +1,8 @@
+use crate::common::err;
 use crate::models::*;
 use crate::schema::users::dsl;
 use crate::DbConnection;
 use crate::DbPool;
-use crate::common::err;
 use actix_identity::Identity;
 use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
 use diesel::prelude::*;
