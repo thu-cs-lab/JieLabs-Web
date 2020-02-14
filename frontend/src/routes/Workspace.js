@@ -9,12 +9,25 @@ import Icon from '../comps/Icon';
 import Monaco from 'react-monaco-editor';
 
 export default React.memo(() => {
-  return <main>
-    <Monaco
-      options={{
-        theme: 'vs-dark',
-        language: 'vhdl',
-      }}
-    />
+  return <main className="workspace">
+    <div className="right">
+    </div>
+    <div className="toolbar">
+      <button className="primary">
+        <Icon>play_arrow</Icon>
+      </button>
+
+      <button>
+        <Icon>help_outline</Icon>
+      </button>
+    </div>
+    <div className="left">
+      <Monaco
+        options={{
+          theme: 'vs-dark',
+          language: 'vhdl',
+        }}
+      />
+    </div>
   </main>;
 });

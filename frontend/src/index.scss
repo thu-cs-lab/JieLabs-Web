@@ -66,6 +66,8 @@ header {
     color: rgba(255,255,255,.5);
     font-weight: 100;
 
+    user-select: none;
+
     strong {
       color: rgba(255,255,255,.7);
       font-weight: 700;
@@ -240,5 +242,48 @@ main {
     &:hover:not(:disabled) .login-icon {
       opacity: 1;
     }
+  }
+}
+
+.material-icons {
+  user-select: none;
+}
+
+.workspace {
+  display: flex;
+
+  .left {
+    flex: 1;
+  }
+
+  .toolbar {
+    width: 60px;
+    button {
+      @include rst-input;
+      width: 60px;
+      height: 60px;
+      color: white;
+
+      background: rgba(255,255,255,.1);
+
+      cursor: pointer;
+
+      &.primary {
+        background: $primary-color;
+      }
+
+      .material-icons {
+        opacity: .7;
+        transition: opacity .2s ease;
+      }
+
+      &:hover .material-icons {
+        opacity: 1;
+      }
+    }
+  }
+
+  .right {
+    flex: 1;
   }
 }
