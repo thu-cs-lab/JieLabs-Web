@@ -106,7 +106,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                         ctx.stop();
                     }
                     _ => {
-                        info!("route to user");
                         get_board_manager().do_send(RouteToUser {
                             addr: ctx.address(),
                             info: BoardInfo {

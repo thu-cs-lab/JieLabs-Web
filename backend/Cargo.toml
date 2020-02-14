@@ -10,6 +10,7 @@ default-run = "backend"
 [dependencies]
 actix = "0.9"
 actix-cors = "0.2.0"
+actix-http = "1.0"
 actix-web = "2.0"
 actix-web-actors = "2.0"
 actix-identity = "0.2"

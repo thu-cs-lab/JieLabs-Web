@@ -4,6 +4,7 @@ use crate::session::get_user;
 use crate::ws_board::{WSBoardMessageB2S, WSBoardMessageS2B};
 use crate::DbPool;
 use actix::prelude::*;
+use actix_http::ws::Item;
 use actix_identity::Identity;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -17,6 +18,8 @@ pub struct WSUser {
     remote: String,
     last_heartbeat: Instant,
     has_board: bool,
+
+    text_buffer: Option<Vec<u8>>,
 }
 
 impl Actor for WSUser {
@@ -61,32 +64,27 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
                 debug!("ws_user client {} heartbeat", self.remote);
                 self.last_heartbeat = Instant::now();
             }
-            Ok(ws::Message::Text(text)) => match serde_json::from_str::<WSUserMessageU2S>(&text) {
-                Ok(msg) => match msg {
-                    WSUserMessageU2S::RequestForBoard(_) => {
-                        if !self.has_board {
-                            get_board_manager().do_send(RequestForBoard {
-                                user: ctx.address(),
-                                user_name: self.user_name.clone(),
-                            });
+            Ok(ws::Message::Text(text)) => self.handle_message(&text, ctx),
+            Ok(ws::Message::Binary(_bin)) => {}
+            Ok(ws::Message::Continuation(cont)) => match cont {
+                Item::FirstText(bytes) => {
+                    self.text_buffer = Some(Vec::from(&bytes[..]));
+                }
+                Item::FirstBinary(_bytes) => {}
+                Item::Continue(bytes) => {
+                    if let Some(text_buffer) = &mut self.text_buffer {
+                        text_buffer.extend(bytes);
+                    }
+                }
+                Item::Last(bytes) => {
+                    if let Some(mut text_buffer) = self.text_buffer.take() {
+                        text_buffer.extend(bytes);
+                        if let Ok(text) = String::from_utf8(text_buffer) {
+                            self.handle_message(&text, ctx);
                         }
                     }
-                    WSUserMessageU2S::ToBoard(action) => {
-                        if self.has_board {
-                            get_board_manager().do_send(RouteToBoard {
-                                user: ctx.address(),
-                                user_name: self.user_name.clone(),
-                                action,
-                            });
-                        }
-                    }
-                },
-                Err(_err) => {
-                    warn!("ws_user client {} sent wrong message, closing", self.remote);
-                    ctx.stop();
                 }
             },
-            Ok(ws::Message::Binary(_bin)) => {}
             Ok(ws::Message::Close(_)) => {
                 info!("ws_user client {} closed connection", self.remote);
                 ctx.stop();
@@ -132,6 +130,36 @@ impl WSUser {
             user_name: String::from(user_name),
             last_heartbeat: Instant::now(),
             has_board: false,
+
+            text_buffer: None,
+        }
+    }
+
+    fn handle_message(&mut self, text: &str, ctx: &mut <Self as Actor>::Context) {
+        match serde_json::from_str::<WSUserMessageU2S>(text) {
+            Ok(msg) => match msg {
+                WSUserMessageU2S::RequestForBoard(_) => {
+                    if !self.has_board {
+                        get_board_manager().do_send(RequestForBoard {
+                            user: ctx.address(),
+                            user_name: self.user_name.clone(),
+                        });
+                    }
+                }
+                WSUserMessageU2S::ToBoard(action) => {
+                    if self.has_board {
+                        get_board_manager().do_send(RouteToBoard {
+                            user: ctx.address(),
+                            user_name: self.user_name.clone(),
+                            action,
+                        });
+                    }
+                }
+            },
+            Err(_err) => {
+                warn!("ws_user client {} sent wrong message, closing", self.remote);
+                ctx.stop();
+            }
         }
     }
 }

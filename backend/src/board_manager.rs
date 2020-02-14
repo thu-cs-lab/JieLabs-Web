@@ -189,7 +189,6 @@ impl Handler<RouteToUser> for BoardManagerActor {
         };
         // TODO: filter unneed actions
         if let Some(user) = self.connections.get_by_right(&board) {
-            info!("send to user");
             user.addr.do_send(SendToUser { action: req.action });
         }
     }

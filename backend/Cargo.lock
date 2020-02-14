@@ -461,6 +461,7 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "actix-cors",
+ "actix-http",
  "actix-identity",
  "actix-rt",
  "actix-web",
