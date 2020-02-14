@@ -1,13 +1,9 @@
-import React, { useState, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
-import cn from 'classnames';
+import React from 'react';
 
-import Input from '../comps/Input';
 import Icon from '../comps/Icon';
 
 import Monaco from 'react-monaco-editor';
-import Sandbox from '../sandbox';
+import Sandbox from '../Sandbox';
 
 export default React.memo(() => {
   return <main className="workspace">

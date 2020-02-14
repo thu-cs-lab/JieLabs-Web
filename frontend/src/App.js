@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 
@@ -22,7 +22,7 @@ export default React.memo(() => {
       if(!restored) history.push('/login');
       setLoading(false);
     });
-  }, []);
+  });
 
   const logined = useSelector(store => store.user !== null);
   const doLogout = useCallback(async () => {
@@ -34,7 +34,7 @@ export default React.memo(() => {
       // FIXME: routing guard
       history.push('/login');
     }
-  });
+  }, []);
 
   if(loading)
     return <div className="container loading"></div>;

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 
@@ -266,11 +266,11 @@ export default function Sandbox() {
     </SandboxContext.Provider>
 
     { ctxMenu !== null ?
-      <div class="ctx" style={{
+      <div className="ctx" style={{
         top: ctxMenu.y,
         left: ctxMenu.x,
       }}>
-        <div class="ctx-entry" onClick={() => {
+        <div className="ctx-entry" onClick={() => {
           setField(field.push(
             { type: 'Switch4', x: ctxMenu.x, y: ctxMenu.y, id: uuidv4() },
           ))

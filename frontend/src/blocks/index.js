@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import cn from 'classnames';
 
-import { SandboxContext } from '../sandbox.js';
+import { SandboxContext } from '../Sandbox.js';
 
 export const SIGNAL = {
   H: Symbol("High"),
@@ -36,4 +36,4 @@ export function Connector({ onChange, output, master, className, ...rest }) {
   return <div ref={ref} className={cn("connector", className)} onClick={onClick}></div>;
 }
 
-export { default as Switch4 } from './switch4.js';
+export { default as Switch4 } from './Switch4.js';

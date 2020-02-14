@@ -14,7 +14,6 @@ export default function Switch4(rest) {
         leds.map((s, idx) => <div key={idx}>
           <div className={cn("led", { lighten: s === SIGNAL.H })}></div>
           <Connector master={false} onChange={v => {
-            console.log(leds);
             setLeds(leds.set(idx, v))
           }}></Connector>
         </div>)
