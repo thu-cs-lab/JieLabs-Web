@@ -7,10 +7,12 @@ import Input from '../comps/Input';
 import Icon from '../comps/Icon';
 
 import Monaco from 'react-monaco-editor';
+import Sandbox from '../sandbox';
 
 export default React.memo(() => {
   return <main className="workspace">
     <div className="right">
+      <Sandbox />
     </div>
     <div className="toolbar">
       <button className="primary">

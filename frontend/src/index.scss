@@ -287,3 +287,18 @@ main {
     flex: 1;
   }
 }
+
+.block {
+  width: 150px;
+  height: 150px;
+  background: #666;
+  cursor: move;
+  box-shadow: rgba(0,0,0,.3) 0 2px 6px;
+}
+
+.connector {
+  cursor: pointer;
+  height: 10px;
+  width: 5px;
+  background: white;
+}
