@@ -203,7 +203,10 @@ export default function Sandbox() {
       }
       document.addEventListener('click', discard, false);
     }}
-    onMouseDown={() => {
+    onMouseDown={e => {
+      if(e.button !== 0) // Center or right key
+        return;
+
       let curScroll = scroll;
 
       const move = ev => {
@@ -271,8 +274,9 @@ export default function Sandbox() {
         left: ctxMenu.x,
       }}>
         <div className="ctx-entry" onClick={() => {
+          const cont = container.current.getBoundingClientRect();
           setField(field.push(
-            { type: 'Switch4', x: ctxMenu.x, y: ctxMenu.y, id: uuidv4() },
+            { type: 'Switch4', x: ctxMenu.x - scroll.x - cont.x, y: ctxMenu.y - scroll.y - cont.y, id: uuidv4() },
           ))
         }}>Add</div>
       </div> : null
