@@ -52,6 +52,7 @@ pub enum WSUserMessageU2S {
 pub enum WSUserMessageS2U {
     ReportIOChange(IOSetting),
     BoardAllocateResult(bool),
+    BoardDisconnected(String),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
@@ -120,6 +121,21 @@ impl Handler<SendToUser> for WSUser {
 
     fn handle(&mut self, req: SendToUser, ctx: &mut Self::Context) {
         ctx.text(serde_json::to_string(&req.action).unwrap());
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct BoardDisconnected;
+
+impl Handler<BoardDisconnected> for WSUser {
+    type Result = ();
+
+    fn handle(&mut self, _req: BoardDisconnected, ctx: &mut Self::Context) {
+        self.has_board = false;
+        ctx.text(
+            serde_json::to_string(&WSUserMessageS2U::BoardDisconnected(String::from(""))).unwrap(),
+        );
     }
 }
 
@@ -234,6 +250,10 @@ mod test {
                 data: 0b1000,
             }))
             .unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSUserMessageS2U::BoardDisconnected(String::from(""))).unwrap()
         );
     }
 }

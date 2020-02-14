@@ -193,3 +193,15 @@
 ```json
 {"ToBoard":{"UnsubscribeIOChange":""}}
 ```
+
+### 板子断开
+
+后端 -> 前端
+
+行为：必须先分配到板子。后端通知前端，目前分配的板子断开了连接。
+
+格式：
+
+```json
+{"BoardDisconnected":""}
+```
