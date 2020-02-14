@@ -39,10 +39,7 @@ fn main(args: Args) {
                                 )
                                 .unwrap();
                                 info!("SetIODirection sent");
-                                out.send(
-                                    r#"{"ToBoard":{"SubscribeIOChange":""}}"#,
-                                )
-                                .unwrap();
+                                out.send(r#"{"ToBoard":{"SubscribeIOChange":""}}"#).unwrap();
                                 info!("SubscribeIOChange sent");
                                 if let Some(bitstream_path) = bitstream.clone() {
                                     let mut file = File::open(bitstream_path).unwrap();

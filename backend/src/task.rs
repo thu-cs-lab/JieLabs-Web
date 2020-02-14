@@ -1,4 +1,4 @@
-use crate::common::{generate_uuid, get_download_url, get_upload_url};
+use crate::common::{generate_uuid, get_download_url, get_timestamp, get_upload_url};
 use crate::models::*;
 use crate::schema::jobs;
 use crate::session::get_user;
@@ -42,6 +42,7 @@ async fn build(
             id: task_id.clone(),
             src: src_url,
             dst: dst_url,
+            timestamp: get_timestamp(),
         });
         return HttpResponse::Ok().json(task_id);
     }

@@ -1,14 +1,22 @@
-use serde_derive::{Deserialize, Serialize};
-use uuid::Uuid;
 use rusoto_core::credential::AwsCredentials;
 use rusoto_core::Region;
 use rusoto_s3::util::PreSignedRequest;
 use rusoto_s3::{GetObjectRequest, PutObjectRequest};
+use serde_derive::{Deserialize, Serialize};
+use std::time::SystemTime;
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IOSetting {
     pub mask: u64,
     pub data: u64,
+}
+
+pub fn get_timestamp() -> u64 {
+    SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
 }
 
 pub fn generate_uuid() -> String {
