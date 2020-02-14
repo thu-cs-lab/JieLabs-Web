@@ -74,7 +74,7 @@ impl SystemService for TaskManagerActor {
                                 redis::cmd("RPOP").arg(&actor.working_queue).execute(conn);
                                 info!("task queue: removing finished task {}", task.id,);
                             } else {
-                                if get_timestamp() - task.timestamp > 10 {
+                                if get_timestamp() - task.timestamp > 5 * 60 {
                                     // timeout, assign a new task id and destination
                                     let new_task_id = generate_uuid();
                                     let new_dest = generate_uuid();
