@@ -53,8 +53,6 @@ async fn build(
 struct FinishRequest {
     task_id: String,
     status: String,
-    src: String,
-    dst: String,
 }
 
 #[post("/finish")]
