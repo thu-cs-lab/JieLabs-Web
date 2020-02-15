@@ -221,4 +221,15 @@ bitstream.rbf
 {"ProgramBitstream":"1234"}
 ```
 
-### 
+### Bitstream 编程结果
+
+后端 -> 前端
+
+行为：在向 FPGA 编程 Bitstream后，汇报编程结果。
+
+格式：
+
+```json
+{"ProgramBitstreamFinish":true}
+```
+
