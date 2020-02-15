@@ -16,12 +16,12 @@ export default React.memo(() => {
   const changeUser = useCallback(v => {
     setErrored(false);
     setUser(v);
-  });
+  }, []);
 
   const changePass = useCallback(v => {
     setErrored(false);
     setPass(v);
-  });
+  }, []);
 
   const history = useHistory();
 
@@ -32,7 +32,7 @@ export default React.memo(() => {
       history.push("/");
     else
       setErrored(true);
-  }, [user, pass, dispatch]);
+  }, [dispatch, user, pass, history]);
 
   return <main className="centering">
     <div className="login-box">

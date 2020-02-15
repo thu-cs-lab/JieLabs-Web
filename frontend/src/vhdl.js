@@ -1,5 +1,7 @@
 import * as monaco from 'monaco-editor';
 
+/* eslint-disable no-useless-concat,no-useless-escape */
+
 const INTEGER_RE = '\\d(_|\\d)*';
 const EXPONENT_RE = '[eE][-+]?' + INTEGER_RE;
 const DECIMAL_LITERAL_RE = INTEGER_RE + '(\\.' + INTEGER_RE + ')?' + '(' + EXPONENT_RE + ')?';
