@@ -22,7 +22,7 @@ export default React.memo(() => {
       if(!restored) history.push('/login');
       setLoading(false);
     });
-  });
+  }, []);
 
   const logined = useSelector(store => store.user !== null);
   const doLogout = useCallback(async () => {
