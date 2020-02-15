@@ -1,36 +1,24 @@
 import React, { useState, useCallback } from 'react';
-import { get, post, putS3, createTarFile } from '../util';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Icon from '../comps/Icon';
+
+import { submitBuild } from '../store/actions';
 
 import Monaco from 'react-monaco-editor';
 import Sandbox from '../Sandbox';
 
 export default React.memo(() => {
   const [code, setCode] = useState('');
-  const doUpload = useCallback(async () => {
-    try {
-      const data = await get('/api/file/upload');
-      const uuid = data.uuid;
-      const url = data.url;
 
-      console.log(data);
-      let tar = createTarFile('src/mod_top.v', code);
-      await putS3(url, tar);
-      const result = await post('/api/task/build', {source: uuid});
-      console.log(result);
-      let id = null;
-      id = setInterval(async () => {
-        const info = await get(`/api/task/get/${result}`);
-        console.log(info);
-        if (info.status) {
-          clearInterval(id);
-        }
-      }, 3000);
-    } catch(e) {
-      console.error(e);
+  const dispatch = useDispatch();
+  // TODO: disable button when polling
+  const isPolling = useSelector(store => store.build !== null && store.build.isPolling);
+  const doUpload = useCallback(async () => {
+    if (!isPolling) {
+      await dispatch(submitBuild(code));
     }
-  }, [code]);
+  }, [code, dispatch, isPolling]);
 
   return <main className="workspace">
     <div className="left">
