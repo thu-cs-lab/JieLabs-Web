@@ -30,3 +30,13 @@ export async function post(endpoint, data, method = "POST") {
 
   return await parseResp(resp);
 }
+
+export async function putS3(endpoint, data, method = "PUT") {
+  const resp = await fetch(endpoint, {
+    method,
+    body: data,
+    mode: 'cors',
+  });
+
+  return await resp.text();
+}

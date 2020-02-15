@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { get, post, putS3 } from '../util';
 
 import Icon from '../comps/Icon';
 
@@ -8,7 +9,20 @@ import Sandbox from '../Sandbox';
 export default React.memo(() => {
   const [code, setCode] = useState('');
   const doUpload = useCallback(async () => {
-  }, []);
+    try {
+      const data = await get('/api/file/upload');
+      const uuid = data.uuid;
+      const url = data.url;
+
+      console.log(data);
+      // TODO: tar
+      await putS3(url, code);
+      const result = await post('/api/task/build', {source: uuid});
+      console.log(result);
+    } catch(e) {
+      console.error(e);
+    }
+  }, [code]);
 
   return <main className="workspace">
     <div className="left">
