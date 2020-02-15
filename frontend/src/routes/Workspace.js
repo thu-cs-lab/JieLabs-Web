@@ -73,6 +73,7 @@ export default React.memo(() => {
           theme: 'vs-dark',
           language: 'vhdl',
         }}
+        value={code}
         onChange={setCode}
         editorDidMount={editorDidMount}
       />
