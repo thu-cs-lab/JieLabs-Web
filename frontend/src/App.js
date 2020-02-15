@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { HARD_LOGOUT } from './config';
 
-import { restore, logout } from './store/actions';
+import { init, logout } from './store/actions';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -18,7 +18,7 @@ export default React.memo(() => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(restore()).then(restored => {;
+    dispatch(init()).then(restored => {;
       if(!restored) history.push('/login');
       setLoading(false);
     });
