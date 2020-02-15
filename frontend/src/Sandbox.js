@@ -291,7 +291,7 @@ export default function Sandbox() {
               };
 
               const up = ev => {
-                setMoving({ show: false, ...moving });
+                setMoving({ ...curMoving, show: false });
                 let realPos = findAlignedPos(field, curScroll, id);
                 setField(field.set(idx, { type, id, ...realPos }));
                 document.removeEventListener('mousemove', move, false);
