@@ -218,7 +218,7 @@ bitstream.rbf
 格式：
 
 ```json
-{"ProgramBitstream":"1234"}
+{"ProgramBitstream":1234}
 ```
 
 ### Bitstream 编程结果
