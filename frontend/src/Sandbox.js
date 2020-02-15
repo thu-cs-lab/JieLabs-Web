@@ -245,7 +245,6 @@ export default function Sandbox() {
   >
     <SandboxContext.Provider value={ctx}>
       <div
-          key={'Mover'}
           style={{
             transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
             opacity: moving.show ? "0.5" : "0",
@@ -253,7 +252,7 @@ export default function Sandbox() {
           className="block-wrapper"
       >
         <div className="block"></div>
-        </div>
+      </div>
       { field.map(({ type, x, y, id }, idx) => {
         const Block = blocks[type];
         return <div
@@ -271,6 +270,9 @@ export default function Sandbox() {
           <Block
             onMouseDown={ev => {
               let curScroll = { x, y };
+              let curMoving = { ...curScroll };
+
+              setMoving({ show: true, ...curScroll });
 
               const move = ev => {
                 curScroll.x += ev.movementX;
@@ -279,12 +281,17 @@ export default function Sandbox() {
                   x: alignToBlock(curScroll.x),
                   y: alignToBlock(curScroll.y),
                 };
-                setMoving({show: true, ...realPos});
+
+                if(realPos.x !== curMoving.x || realPos.y !== curMoving.y)
+                  setMoving({ show: true, ...realPos });
+
+                curMoving = realPos;
+
                 setField(field.set(idx, { type, id, ...curScroll }));
               };
 
               const up = ev => {
-                setMoving({show: false, ...moving});
+                setMoving({ show: false, ...moving });
                 let realPos = findAlignedPos(field, curScroll, id);
                 setField(field.set(idx, { type, id, ...realPos }));
                 document.removeEventListener('mousemove', move, false);
