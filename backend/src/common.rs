@@ -46,10 +46,10 @@ pub fn s3_credentials() -> AwsCredentials {
 }
 
 lazy_static! {
-    static ref S3_BUCKET: String = setup_s3_bucket();
+    pub static ref S3_BUCKET: String = setup_s3_bucket();
 }
 
-fn s3_client() -> S3Client {
+pub fn s3_client() -> S3Client {
     let client = S3Client::new_with(
         rusoto_core::request::HttpClient::new().expect("Failed to creat HTTP client"),
         StaticProvider::from(s3_credentials()),
