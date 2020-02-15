@@ -278,7 +278,7 @@ export default function Sandbox() {
                   y: alignToBlock(curScroll.y),
                 };
                 setMoving({show: false, ...moving});
-                while (field.findIndex((item) => item.x === realPos.x && item.y === realPos.y) !== -1) {
+                while (field.findIndex((item) => item.x === realPos.x && item.y === realPos.y && item.id !== id) !== -1) {
                   realPos.y += BLOCK_ALIGNMENT;
                 }
                 setField(field.set(idx, { type, id, ...realPos }));
