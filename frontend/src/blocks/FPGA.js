@@ -14,7 +14,7 @@ function getRow(index) {
 
 function getCol(index) {
     if (index < 15) {
-        return index / 3 + 1;
+        return Math.floor(index / 3) + 1;
     } else {
         return 5;
     }
