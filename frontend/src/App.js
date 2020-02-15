@@ -34,7 +34,7 @@ export default React.memo(() => {
       // FIXME: routing guard
       history.push('/login');
     }
-  }, []);
+  }, [dispatch, history]);
 
   if(loading)
     return <div className="container loading"></div>;
