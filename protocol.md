@@ -52,12 +52,15 @@
 
 服务端 -> 客户端
 
-行为：发送 Bitstream 并要求客户端编程 Bitstream。
+行为：通过 WebSocket Binary 消息。发送 Bitstream 并要求客户端编程 Bitstream。格式为 .tar.gz，bitstream 为内部的 bitstream.rbf 。
 
 格式：
 
 ```json
-{"ProgramBitstream":"AA995566"}
+xxx.tar.gz: Tar in Gzip
+stdout
+stderr
+bitstream.rbf
 ```
 
 ### 设置 IO 方向
@@ -106,6 +109,30 @@
 
 ```json
 {"UnsubscribeIOChange":""}
+```
+
+### 设置并使能用户时钟
+
+服务端 -> 客户端
+
+行为：设置时钟频率并使能。
+
+格式：
+
+```json
+{"EnableUserClock":{"frequency":3000000}}
+```
+
+### 关闭用户时钟
+
+服务端 -> 客户端
+
+行为：关闭时钟。
+
+格式：
+
+```json
+{"DisableUserClock":""}
 ```
 
 # 后端与前端通信协议
@@ -205,3 +232,28 @@
 ```json
 {"BoardDisconnected":""}
 ```
+
+### Bitstream 编程
+
+前端 -> 后端
+
+行为：必须先分配到板子。对分配的板子烧入某已完成构建的 bitstream。
+
+格式：
+
+```json
+{"ProgramBitstream":1234}
+```
+
+### Bitstream 编程结果
+
+后端 -> 前端
+
+行为：在向 FPGA 编程 Bitstream后，汇报编程结果。
+
+格式：
+
+```json
+{"ProgramBitstreamFinish":true}
+```
+

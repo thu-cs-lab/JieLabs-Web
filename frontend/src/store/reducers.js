@@ -11,3 +11,15 @@ export function lib(state = null, action) {
     return action.lib;
   return state;
 }
+
+export function build(state = {}, action) {
+  if(action.type === TYPES.SET_BUILD)
+    return action.build;
+  return state;
+}
+
+export function board(state = {}, action) {
+  if(action.type === TYPES.SET_BOARD)
+    return action.board;
+  return state;
+}

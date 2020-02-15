@@ -52,7 +52,6 @@ pub enum WSBoardMessageB2S {
 
 #[derive(Serialize, Deserialize)]
 pub enum WSBoardMessageS2B {
-    ProgramBitstream(String),
     SetIOOutput(IOSetting),
     SetIODirection(IOSetting),
     SubscribeIOChange(String),
@@ -161,6 +160,20 @@ impl Handler<SendToBoard> for WSBoard {
     }
 }
 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProgramBitstream {
+    pub data: bytes::Bytes,
+}
+
+impl Handler<ProgramBitstream> for WSBoard {
+    type Result = ();
+
+    fn handle(&mut self, req: ProgramBitstream, ctx: &mut Self::Context) {
+        ctx.binary(req.data);
+    }
+}
+
 pub async fn ws_board(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     let conn = req.connection_info();
     let remote = conn.remote();
@@ -197,13 +210,6 @@ mod test {
             .unwrap()
         );
 
-        println!(
-            "{}",
-            serde_json::to_string(&WSBoardMessageS2B::ProgramBitstream(String::from(
-                "AA995566"
-            )))
-            .unwrap()
-        );
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageS2B::SetIOOutput(IOSetting {

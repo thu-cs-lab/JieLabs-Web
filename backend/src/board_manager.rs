@@ -1,4 +1,6 @@
-use crate::ws_board::{SendToBoard, WSBoard, WSBoardMessageB2S, WSBoardMessageS2B};
+use crate::ws_board::{
+    ProgramBitstream, SendToBoard, WSBoard, WSBoardMessageB2S, WSBoardMessageS2B,
+};
 use crate::ws_user::RequestForBoardResult;
 use crate::ws_user::{BoardDisconnected, SendToUser, WSUser};
 use actix::prelude::*;
@@ -133,8 +135,15 @@ impl Handler<RequestForBoard> for BoardManagerActor {
         };
         if let Some(board) = self.connections.get_by_left(&user_stat).cloned() {
             // this user has one connection already, remove old one
-            self.connections.remove_by_right(&board);
+            let old = self.connections.remove_by_right(&board);
             self.idle_boards.push(board);
+            if let Some((old_user, old_board)) = old {
+                old_user.addr.do_send(BoardDisconnected);
+                info!(
+                    "kicking user {} old connection to board {}",
+                    old_user.user_name, old_board.info.remote
+                );
+            }
         }
         let res = if let Some(board) = self.idle_boards.pop() {
             info!(
@@ -169,6 +178,32 @@ impl Handler<RouteToBoard> for BoardManagerActor {
         // TODO: filter unneed actions
         if let Some(board) = self.connections.get_by_left(&user_stat) {
             board.addr.do_send(SendToBoard { action: req.action });
+        }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProgramBitstreamToBoard {
+    pub user: Addr<WSUser>,
+    pub user_name: String,
+    pub data: bytes::Bytes,
+}
+
+impl Handler<ProgramBitstreamToBoard> for BoardManagerActor {
+    type Result = ();
+
+    fn handle(&mut self, req: ProgramBitstreamToBoard, _ctx: &mut Context<Self>) {
+        let user_stat = UserStat {
+            addr: req.user,
+            user_name: req.user_name,
+        };
+        if let Some(board) = self.connections.get_by_left(&user_stat) {
+            board.addr.do_send(ProgramBitstream { data: req.data });
+        } else {
+            user_stat.addr.do_send(SendToUser {
+                action: WSBoardMessageB2S::ProgramBitstreamFinish(false),
+            });
         }
     }
 }

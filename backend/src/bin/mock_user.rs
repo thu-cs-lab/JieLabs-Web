@@ -65,6 +65,9 @@ fn main(args: Args) {
                         ws_user::WSUserMessageS2U::BoardDisconnected(_) => {
                             println!("Board disconnected");
                         }
+                        ws_user::WSUserMessageS2U::ProgramBitstreamFinish(result) => {
+                            println!("Program bitstream finished with {}", result);
+                        }
                     }
                 }
             }
