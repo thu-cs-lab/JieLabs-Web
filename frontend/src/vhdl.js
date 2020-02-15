@@ -12,7 +12,11 @@ const NUMBER_RE = '\\b(' + BASED_LITERAL_RE + '|' + DECIMAL_LITERAL_RE + ')';
 
 const LOGIC_RE = /'[UX01ZWLH-]'/;
 
-export default () => {
+let store = null;
+
+export default _store => {
+  store = _store;
+
   monaco.languages.register({ id: 'vhdl' });
 
   // Modified from the tokenizer from highlight.js
@@ -71,3 +75,49 @@ export default () => {
     }
   });
 };
+
+export function registerCodeLens(cmds) {
+  const { asTop } = cmds;
+
+  const codeLensProvider = {
+    onDidChange: cb => {
+      let last = null;
+
+      const unsubscribe = store.subscribe(() => {
+        const { analysis } = store.getState();
+        // Analysis is returned from WASM call, so weak comparasion should work here
+        if(analysis !== last) {
+          last = analysis;
+          cb(codeLensProvider);
+        }
+      });
+
+      return { dispose: unsubscribe };
+    },
+
+    provideCodeLenses: (_model, _token) => {
+      const { analysis } = store.getState();
+
+      if(!analysis) return { lenses: [], dispose: () => {} };
+
+      const lenses = analysis.entities.map(ent => ({
+        range: {
+          startLineNumber: ent.decl.from_line + 1,
+          startColumn: 1,
+          endLineNumber: ent.decl.from_line + 2,
+          endColumn: 1,
+        },
+        id: `set-as-top:${ent.name}`,
+        command: {
+          title: 'Set as top',
+          id: asTop,
+          arguments: [ent],
+        },
+      }));
+
+      return { lenses, dispose: () => {} };
+    }
+  };
+
+  monaco.languages.registerCodeLensProvider('vhdl', codeLensProvider);
+}

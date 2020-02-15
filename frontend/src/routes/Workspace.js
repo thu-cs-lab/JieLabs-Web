@@ -5,6 +5,8 @@ import Icon from '../comps/Icon';
 
 import { updateCode, submitBuild, connectToBoard, programBitstream } from '../store/actions';
 
+import { registerCodeLens } from '../vhdl';
+
 import Monaco from 'react-monaco-editor';
 import Sandbox from '../Sandbox';
 
@@ -36,6 +38,14 @@ export default React.memo(() => {
     }
   }, [dispatch, hasBitstream, hasBoard]);
 
+  const editorDidMount = useCallback((editor, monaco) => {
+    const asTop = editor.addCommand(0, (ctx, { name }) => {
+      console.log(name);
+    });
+
+    registerCodeLens({ asTop });
+  }, []);
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
@@ -64,6 +74,7 @@ export default React.memo(() => {
           language: 'vhdl',
         }}
         onChange={setCode}
+        editorDidMount={editorDidMount}
       />
     </div>
   </main>;

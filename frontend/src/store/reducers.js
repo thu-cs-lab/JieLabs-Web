@@ -18,6 +18,12 @@ export function code(state = null, action) {
   return state;
 }
 
+export function analysis(state = null, action) {
+  if(action.type === TYPES.SET_ANALYSIS)
+    return action.analysis;
+  return state;
+}
+
 export function build(state = {}, action) {
   if(action.type === TYPES.SET_BUILD)
     return action.build;

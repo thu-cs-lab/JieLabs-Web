@@ -5,6 +5,7 @@ export const TYPES = {
   SET_USER: Symbol('SET_USER'),
   LOAD_LIB: Symbol('LOAD_LIB'),
   SET_CODE: Symbol('SET_CODE'),
+  SET_ANALYSIS: Symbol('SET_ANALYSIS'),
   SET_BUILD: Symbol('SET_BUILD'),
   SET_BOARD: Symbol('SET_BOARD'),
 };
@@ -27,6 +28,13 @@ export function setCode(code) {
   return {
     type: TYPES.SET_CODE,
     code,
+  };
+}
+
+export function setAnalysis(analysis) {
+  return {
+    type: TYPES.SET_ANALYSIS,
+    analysis,
   };
 }
 
@@ -247,8 +255,8 @@ export function updateCode(code) {
         return;
       }
 
-      console.log('Analyse...');
-      console.log(lib.parse(code));
+      const analysis = lib.parse(code);
+      dispatch(setAnalysis(analysis));
     }, CODE_ANALYSE_DEBOUNCE);
   }
 }
