@@ -126,15 +126,15 @@ export function submitBuild(code) {
         if (info.status) {
           clearInterval(intervalID);
           dispatch(setBuild({
-            job_id: result,
+            jobID: result,
             isPolling: false,
-            intervalID: null,
+            buildInfo: info,
           }));
         }
       }, 3000);
 
       dispatch(setBuild({
-        job_id: result,
+        jobID: result,
         isPolling: true,
         intervalID,
       }));
@@ -187,6 +187,22 @@ export function connectToBoard(code) {
         websocket,
         hasBoard: false,
       }));
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
+}
+
+export function programBitstream(code) {
+  return async (dispatch, getState) => {
+    try {
+      let { board, build } = getState();
+      if (board && board.websocket) {
+        let jobID = build.jobID;
+        board.websocket.send(`{"ProgramBitstream":${jobID}}`);
+      }
       return true;
     } catch (e) {
       console.error(e);

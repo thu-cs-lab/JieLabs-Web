@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import Icon from '../comps/Icon';
 
-import { submitBuild, connectToBoard } from '../store/actions';
+import { submitBuild, connectToBoard, programBitstream } from '../store/actions';
 
 import Monaco from 'react-monaco-editor';
 import Sandbox from '../Sandbox';
@@ -20,12 +20,19 @@ export default React.memo(() => {
     }
   }, [code, dispatch, isPolling]);
 
-  const hasBoard = useSelector(store => store.build.hasBoard);
+  const hasBoard = useSelector(store => store.board.hasBoard);
   const doConnect = useCallback(async () => {
     if (!hasBoard) {
       await dispatch(connectToBoard());
     }
   }, [dispatch, hasBoard]);
+
+  const hasBitstream = useSelector(store => store.build.buildInfo && store.build.buildInfo.status === "Compilation Success");
+  const doProgram = useCallback(async () => {
+    if (hasBoard && hasBitstream) {
+      await dispatch(programBitstream());
+    }
+  }, [dispatch, hasBitstream, hasBoard]);
 
   return <main className="workspace">
     <div className="left">
@@ -38,6 +45,10 @@ export default React.memo(() => {
 
       <button className="secondary" onClick={doConnect}>
         <Icon>developer_board</Icon>
+      </button>
+
+      <button className="secondary" onClick={doProgram}>
+        <Icon>cloud_download</Icon>
       </button>
 
       <button>
