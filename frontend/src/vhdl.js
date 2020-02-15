@@ -81,15 +81,25 @@ export function registerCodeLens(cmds) {
 
   const codeLensProvider = {
     onDidChange: cb => {
-      let last = null;
+      let lastAnalysis = null;
+      let lastSignals = null;
 
       const unsubscribe = store.subscribe(() => {
-        const { analysis } = store.getState();
+        const { analysis, signals } = store.getState();
+        let changed = false;
         // Analysis is returned from WASM call, so weak comparasion should work here
-        if(analysis !== last) {
-          last = analysis;
-          cb(codeLensProvider);
+        if(analysis !== lastAnalysis) {
+          lastAnalysis = analysis;
+          changed = true;
         }
+
+        if(signals !== lastSignals) {
+          lastSignals = signals;
+          changed = true;
+        }
+
+        if(changed)
+          cb(codeLensProvider);
       });
 
       return { dispose: unsubscribe };
@@ -100,20 +110,48 @@ export function registerCodeLens(cmds) {
 
       if(!analysis) return { lenses: [], dispose: () => {} };
 
-      const lenses = analysis.entities.map(ent => ({
-        range: {
-          startLineNumber: ent.decl.from_line + 1,
-          startColumn: 1,
-          endLineNumber: ent.decl.from_line + 2,
-          endColumn: 1,
-        },
-        id: `set-as-top:${ent.name}`,
-        command: {
-          title: 'Set as top',
-          id: asTop,
-          arguments: [ent],
-        },
-      }));
+      const lenses = analysis.entities.map((ent, idx) => {
+        return {
+          range: {
+            startLineNumber: ent.decl.from_line + 1,
+            startColumn: 1,
+            endLineNumber: ent.decl.from_line + 2,
+            endColumn: 1,
+          },
+          id: `set-as-top:${ent.name}`,
+          command: {
+            title: 'Set as top',
+            id: asTop,
+            arguments: [ent],
+          },
+        };
+      });
+
+
+      if(analysis.top !== null) {
+        // TODO: Oops, typo in wasm lib.
+        const topIdx = analysis.top - 1;
+        lenses[topIdx].command = {
+          title: 'Top entity'
+        };
+
+        for(const signal of analysis.entities[topIdx].signals) {
+          lenses.push({
+            range: {
+              startLineNumber: signal.pos.from_line + 1,
+              startColumn: signal.pos.from_char + 1,
+              endLineNumber: signal.pos.to_line + 1,
+              endColumn: signal.pos.to_char + 1,
+            },
+            id: `assign-pin:${signal.name}`,
+            command: {
+              title: `Assign pin for ${signal.name}`,
+              arguments: [signal.name, signal.dir],
+            },
+          })
+        }
+      }
+
 
       return { lenses, dispose: () => {} };
     }

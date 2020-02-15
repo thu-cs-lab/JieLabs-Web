@@ -8,6 +8,8 @@ export const TYPES = {
   SET_ANALYSIS: Symbol('SET_ANALYSIS'),
   SET_BUILD: Symbol('SET_BUILD'),
   SET_BOARD: Symbol('SET_BOARD'),
+  ASSIGN_TOP: Symbol('ASSIGN_TOP'),
+  ASSIGN_PIN: Symbol('ASSIGN_PIN'),
 };
 
 export function setUser(user) {
@@ -49,6 +51,20 @@ export function setBoard(board) {
   return {
     type: TYPES.SET_BOARD,
     board,
+  };
+}
+
+export function assignTop(top) {
+  return {
+    type: TYPES.ASSIGN_TOP,
+    top,
+  };
+}
+
+export function assignPin(signal, pin) {
+  return {
+    type: TYPES.ASSIGN_TOP,
+    signal, pin,
   };
 }
 
@@ -252,7 +268,7 @@ export function updateCode(code) {
     debouncer = setTimeout(() => {
       debouncer = null;
 
-      let { lib, code: curCode } = getState();
+      let { lib, code: curCode, signals } = getState();
       if(!lib) return;
 
       if(curCode !== code) {
@@ -260,8 +276,24 @@ export function updateCode(code) {
         return;
       }
 
-      const analysis = lib.parse(code);
+      const analysis = lib.parse(code, signals.top);
       dispatch(setAnalysis(analysis));
     }, CODE_ANALYSE_DEBOUNCE);
+  }
+}
+
+export function updateTop(top) {
+  return async (dispatch, getState) => {
+    // Immediately run analysis
+    clearTimeout(debouncer);
+    debouncer = null;
+
+    const { code, lib } = getState();
+
+    dispatch(assignTop(top));
+    if(!lib) return;
+
+    const analysis = lib.parse(code, top);
+    dispatch(setAnalysis(analysis));
   }
 }

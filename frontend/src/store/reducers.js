@@ -35,3 +35,18 @@ export function board(state = {}, action) {
     return action.board;
   return state;
 }
+
+export function signals(state = { top: null, signals: new Map() }, action) {
+  if(action.type === TYPES.ASSIGN_TOP) {
+    return { top: action.top, signals: new Map() };
+  } else if(action.type === TYPES.ASSIGN_PIN) {
+    const { signal, pin } = action;
+
+    return {
+      top: state.top,
+      signals: state.signals.filter((_, v) => v !== pin).set(signal, pin),
+    };
+  }
+
+  return state;
+}

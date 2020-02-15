@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import Icon from '../comps/Icon';
 
-import { updateCode, submitBuild, connectToBoard, programBitstream } from '../store/actions';
+import { updateCode, submitBuild, connectToBoard, programBitstream, updateTop } from '../store/actions';
 
 import { registerCodeLens } from '../vhdl';
 
@@ -40,7 +40,7 @@ export default React.memo(() => {
 
   const editorDidMount = useCallback((editor, monaco) => {
     const asTop = editor.addCommand(0, (ctx, { name }) => {
-      console.log(name);
+      dispatch(updateTop(name));
     });
 
     registerCodeLens({ asTop });
