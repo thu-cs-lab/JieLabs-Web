@@ -267,6 +267,7 @@ export default function Sandbox() {
             key={id}
             style={{
               transform: `translate(${scroll.x + x}px,${scroll.y + y}px)`,
+              zIndex: moving === idx ? 1 : 0,
             }}
             className="block-wrapper"
           >
