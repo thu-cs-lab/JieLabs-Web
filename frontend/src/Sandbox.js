@@ -123,6 +123,17 @@ function alignToBlock(pos) {
   return Math.round(pos / BLOCK_ALIGNMENT) * BLOCK_ALIGNMENT;
 }
 
+function findAlignedPos(field, pos, id) {
+  let realPos = {
+    x: alignToBlock(pos.x),
+    y: alignToBlock(pos.y),
+  };
+  while (field.findIndex((item) => item.x === realPos.x && item.y === realPos.y && item.id !== id) !== -1) {
+    realPos.y += BLOCK_ALIGNMENT;
+  }
+  return realPos;
+}
+
 export default function Sandbox() {
   const [field, setField] = useState(List(
     [
@@ -273,14 +284,8 @@ export default function Sandbox() {
               };
 
               const up = ev => {
-                let realPos = {
-                  x: alignToBlock(curScroll.x),
-                  y: alignToBlock(curScroll.y),
-                };
                 setMoving({show: false, ...moving});
-                while (field.findIndex((item) => item.x === realPos.x && item.y === realPos.y && item.id !== id) !== -1) {
-                  realPos.y += BLOCK_ALIGNMENT;
-                }
+                let realPos = findAlignedPos(field, curScroll, id);
                 setField(field.set(idx, { type, id, ...realPos }));
                 document.removeEventListener('mousemove', move, false);
                 document.removeEventListener('mouseup', up, false);
@@ -306,8 +311,12 @@ export default function Sandbox() {
       }}>
         <div className="ctx-entry" onClick={() => {
           const cont = container.current.getBoundingClientRect();
+          let pos = findAlignedPos(field, {
+            x: ctxMenu.x - scroll.x - cont.x,
+            y: ctxMenu.y - scroll.y - cont.y,
+          }, null);
           setField(field.push(
-            { type: 'Switch4', x: ctxMenu.x - scroll.x - cont.x, y: ctxMenu.y - scroll.y - cont.y, id: uuidv4() },
+            { type: 'Switch4', id: uuidv4(), ...pos },
           ))
         }}>Add</div>
       </div> : null
