@@ -33,7 +33,7 @@ export function Connector({ onChange, output, master, className, ...rest }) {
   const { onClick } = snd.update(id, output);
 
   if(!id) return <div className={className} {...rest}></div>;
-  return <div ref={ref} className={cn("connector", className)} onClick={onClick}></div>;
+  return <div ref={ref} className={cn("connector", className)} onClick={onClick} onMouseDown={e => e.stopPropagation()}></div>;
 }
 
 export { default as Switch4 } from './Switch4.js';

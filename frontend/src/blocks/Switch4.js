@@ -25,6 +25,7 @@ export default function Switch4(rest) {
           <div
             className={cn("switch", { pusheen: s === SIGNAL.H })}
             onClick={() => setSwitches(switches.set(idx, s === SIGNAL.L ? SIGNAL.H : SIGNAL.L))}
+            onMouseDown={e => e.stopPropagation()}
           ></div>
           <Connector output={s} master={true}></Connector>
         </div>)
