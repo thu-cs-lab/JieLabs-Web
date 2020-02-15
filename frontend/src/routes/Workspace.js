@@ -19,6 +19,14 @@ export default React.memo(() => {
       await putS3(url, code);
       const result = await post('/api/task/build', {source: uuid});
       console.log(result);
+      let id = null;
+      id = setInterval(async () => {
+        const info = await get(`/api/task/get/${result}`);
+        console.log(info);
+        if (info.status) {
+          clearInterval(id);
+        }
+      }, 1000);
     } catch(e) {
       console.error(e);
     }
