@@ -142,7 +142,7 @@ export default function Sandbox() {
     ]
   ));
 
-  const [scroll, setScroll] = useState({ x: 0, y: 0 });
+  const [scroll, setScroll] = useState({ x: 20, y: 20 });
   const [moving, setMoving] = useState({ x: 0, y: 0, show: false });
   const [scale, setScale] = useState(1);
 
