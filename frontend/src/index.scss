@@ -259,6 +259,7 @@ main {
   }
 
   .toolbar {
+    z-index: 10;
     width: 60px;
     backdrop-filter: blur(4px);
     box-shadow: rgba(0,0,0,.3) 0 4px 12px;
@@ -289,6 +290,7 @@ main {
 
   .right {
     flex: 1;
+    z-index: 10;
   }
 }
 
@@ -467,6 +469,8 @@ main {
   bottom: 0;
   right: 0;
   top: 0;
+
+  z-index: 4;
 }
 
 .ctx {

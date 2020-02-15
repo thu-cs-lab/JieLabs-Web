@@ -151,7 +151,7 @@ export default React.memo(() => {
   const container = useRef();
   const canvas = useRef();
 
-  function redraw() {
+  const redraw = useCallback(() => {
     // Compute line indexes
     if(canvas.current && container.current) {
       const ctx = canvas.current.getContext('2d');
@@ -177,7 +177,7 @@ export default React.memo(() => {
         ctx.closePath();
       };
     }
-  }
+  }, [canvas, container, lines]);
 
   const observer = React.useMemo(() => new ResizeObserver(entries => {
     const { width, height } = entries[0].contentRect;
@@ -259,6 +259,7 @@ export default React.memo(() => {
           spec={spec}
           requestSettle={requestSettle}
           requestDelete={requestDelete}
+          requestRedraw={redraw}
           scroll={scroll}
         >
         </BlockWrapper>
@@ -287,7 +288,7 @@ export default React.memo(() => {
   </div>;
 });
 
-const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDelete, ...rest }) => {
+const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDelete, requestRedraw, ...rest }) => {
   const [moving, setMoving] = useState(null);
 
   const style = useMemo(() => {
@@ -319,6 +320,9 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
       cur.y += ev.movementY;
       // Bypass weak equality
       setMoving({ ...cur });
+      setTimeout(() => {
+        requestRedraw();
+      });
     };
 
     const up = ev => {
@@ -333,7 +337,7 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
 
     ev.stopPropagation();
     ev.preventDefault();
-  }, [idx, spec, requestSettle, setMoving]);
+  }, [idx, spec, requestSettle, requestRedraw, setMoving]);
 
   const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
 
@@ -352,6 +356,7 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
     <div
       style={style}
       className="block-wrapper"
+      {...rest}
     >
       <div className="block-ops">
         <button className="delete" onClick={requestDelete}>
