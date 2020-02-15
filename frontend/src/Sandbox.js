@@ -117,15 +117,33 @@ function center(rect, ref) {
   }
 }
 
+const BLOCK_ALIGNMENT = 200;
+
+function alignToBlock(pos) {
+  return Math.round(pos / BLOCK_ALIGNMENT) * BLOCK_ALIGNMENT;
+}
+
+function findAlignedPos(field, pos, id) {
+  let realPos = {
+    x: alignToBlock(pos.x),
+    y: alignToBlock(pos.y),
+  };
+  while (field.findIndex((item) => item.x === realPos.x && item.y === realPos.y && item.id !== id) !== -1) {
+    realPos.y += BLOCK_ALIGNMENT;
+  }
+  return realPos;
+}
+
 export default function Sandbox() {
   const [field, setField] = useState(List(
     [
       { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
-      { type: 'Switch4', x: 0, y: 200, id: 'switch4_1' },
+      { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
     ]
   ));
 
-  const [scroll, setScroll] = useState({ x: 0, y: 0 });
+  const [scroll, setScroll] = useState({ x: 20, y: 20 });
+  const [moving, setMoving] = useState({ x: 0, y: 0, show: false });
   const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
@@ -226,6 +244,16 @@ export default function Sandbox() {
     }}
   >
     <SandboxContext.Provider value={ctx}>
+      <div
+          key={'Mover'}
+          style={{
+            transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
+            opacity: moving.show ? "0.5" : "0",
+          }}
+          className="block-wrapper"
+      >
+        <div className="block"></div>
+        </div>
       { field.map(({ type, x, y, id }, idx) => {
         const Block = blocks[type];
         return <div
@@ -243,15 +271,22 @@ export default function Sandbox() {
           <Block
             onMouseDown={ev => {
               let curScroll = { x, y };
-              let all = field;
 
               const move = ev => {
                 curScroll.x += ev.movementX;
                 curScroll.y += ev.movementY;
+                let realPos = {
+                  x: alignToBlock(curScroll.x),
+                  y: alignToBlock(curScroll.y),
+                };
+                setMoving({show: true, ...realPos});
                 setField(field.set(idx, { type, id, ...curScroll }));
               };
 
               const up = ev => {
+                setMoving({show: false, ...moving});
+                let realPos = findAlignedPos(field, curScroll, id);
+                setField(field.set(idx, { type, id, ...realPos }));
                 document.removeEventListener('mousemove', move, false);
                 document.removeEventListener('mouseup', up, false);
               };
@@ -276,8 +311,12 @@ export default function Sandbox() {
       }}>
         <div className="ctx-entry" onClick={() => {
           const cont = container.current.getBoundingClientRect();
+          let pos = findAlignedPos(field, {
+            x: ctxMenu.x - scroll.x - cont.x,
+            y: ctxMenu.y - scroll.y - cont.y,
+          }, null);
           setField(field.push(
-            { type: 'Switch4', x: ctxMenu.x - scroll.x - cont.x, y: ctxMenu.y - scroll.y - cont.y, id: uuidv4() },
+            { type: 'Switch4', id: uuidv4(), ...pos },
           ))
         }}>Add</div>
       </div> : null

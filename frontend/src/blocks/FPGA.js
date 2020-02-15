@@ -37,8 +37,8 @@ export default function FPGA(rest) {
         {
             io.map((s, idx) => <div key={idx}
                 style={{
-                    "grid-row": getRow(idx),
-                    "grid-column": getCol(idx),
+                    gridRow: getRow(idx),
+                    gridColumn: getCol(idx),
                 }}>
                 {getLabel(idx)}
                 <Connector master={false} onChange={v => {
