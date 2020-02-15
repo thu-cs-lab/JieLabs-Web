@@ -152,13 +152,14 @@ async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<i32>) -> Res
         if let Ok(job) = jobs::dsl::jobs.find(*path).first::<Job>(&conn) {
             if user.role == "admin" || user.user_name == job.submitter {
                 let src_url = get_download_url(&job.source);
+                let dst_url = job.destination.map(|dest| get_download_url(&dest));
                 return Ok(HttpResponse::Ok().json(JobInfo {
                     id: job.id,
                     submitter: job.submitter,
                     type_: job.type_,
                     status: job.status,
                     src_url,
-                    dst_url: None,
+                    dst_url,
                 }));
             }
         }

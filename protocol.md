@@ -111,6 +111,30 @@ bitstream.rbf
 {"UnsubscribeIOChange":""}
 ```
 
+### 设置并使能用户时钟
+
+服务端 -> 客户端
+
+行为：设置时钟频率并使能。
+
+格式：
+
+```json
+{"EnableUserClock":{"frequency":3000000}}
+```
+
+### 关闭用户时钟
+
+服务端 -> 客户端
+
+行为：关闭时钟。
+
+格式：
+
+```json
+{"DisableUserClock":""}
+```
+
 # 后端与前端通信协议
 
 通过 WebSocket 通信，由前端发起，endpoint 为 /api/ws_user 。
