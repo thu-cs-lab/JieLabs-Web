@@ -193,6 +193,10 @@ impl Handler<ProgramBitstreamToBoard> for BoardManagerActor {
         };
         if let Some(board) = self.connections.get_by_left(&user_stat) {
             board.addr.do_send(ProgramBitstream { data: req.data });
+        } else {
+            user_stat.addr.do_send(SendToUser {
+                action: WSBoardMessageB2S::ProgramBitstreamFinish(false),
+            });
         }
     }
 }
