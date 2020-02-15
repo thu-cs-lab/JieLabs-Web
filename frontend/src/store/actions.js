@@ -105,9 +105,14 @@ export function logout() {
 }
 
 export function initLib() {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     const lib = await import('jielabs_lib');
     dispatch(loadLib(lib));
+
+    const { code } = getState();
+
+    const analysis = lib.parse(code);
+    dispatch(setAnalysis(analysis));
   }
 }
 
