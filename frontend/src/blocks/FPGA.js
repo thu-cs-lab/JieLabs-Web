@@ -35,7 +35,11 @@ export default function FPGA(rest) {
 
     return <div className="block fpga" {...rest}>
         {
-            io.map((s, idx) => <div key={idx} className={cn(`row${getRow(idx)}`, `col${getCol(idx)}`)}>
+            io.map((s, idx) => <div key={idx}
+                style={{
+                    "grid-row": getRow(idx),
+                    "grid-column": getCol(idx),
+                }}>
                 {getLabel(idx)}
                 <Connector master={false} onChange={v => {
                     setIO(io.set(idx, v))
