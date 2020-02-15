@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { get, post, putS3 } from '../util';
+import { get, post, putS3, createTarFile } from '../util';
 
 import Icon from '../comps/Icon';
 
@@ -15,8 +15,8 @@ export default React.memo(() => {
       const url = data.url;
 
       console.log(data);
-      // TODO: tar
-      await putS3(url, code);
+      let tar = createTarFile('src/mod_top.v', code);
+      await putS3(url, tar);
       const result = await post('/api/task/build', {source: uuid});
       console.log(result);
       let id = null;
@@ -26,7 +26,7 @@ export default React.memo(() => {
         if (info.status) {
           clearInterval(id);
         }
-      }, 1000);
+      }, 3000);
     } catch(e) {
       console.error(e);
     }
