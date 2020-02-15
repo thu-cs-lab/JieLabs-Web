@@ -53,7 +53,9 @@ function octal(num, bytes) {
 }
 
 export function createTarFile(name, body) {
-  let totalLength = 512 + ((body.length + 511) / 512) * 512 + 2 * 512;
+  let encoder = new TextEncoder();
+  let bodyArray = encoder.encode(body);
+  let totalLength = 512 + ((bodyArray.length + 511) / 512) * 512 + 2 * 512;
   let file = new Uint8Array(totalLength);
   setString(file, name, 0);
   // mode
@@ -63,7 +65,7 @@ export function createTarFile(name, body) {
   // group
   setString(file, octal(0, 6), 116);
   // length
-  let length = body.length;
+  let length = bodyArray.length;
   setString(file, octal(length, 11), 124);
   // mod time
   setString(file, octal(0, 11), 136);
@@ -75,6 +77,6 @@ export function createTarFile(name, body) {
   checksum += 8 * 32;// 8 spaces
   checksum = checksum.toString(8);
   setString(file, "0".repeat(6 - checksum.length) + checksum + "\u0000 ", 148);
-  setString(file, body, 512);
+  file.set(bodyArray, 512);
   return file;
 }
