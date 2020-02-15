@@ -54,5 +54,8 @@ export default function FPGA(rest) {
                 setClock(v)
             }}></Connector>
         </div>
+        <div className="altera">
+            ALTERA
+        </div>
     </div>
 }

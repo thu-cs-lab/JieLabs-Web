@@ -413,6 +413,11 @@ main {
     grid-column: 4;
   }
 
+  .altera {
+    grid-row: 1;
+    grid-column: 2 / span 2;
+  }
+
   .row1 {
     grid-row: 1;
   }
