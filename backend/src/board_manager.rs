@@ -135,8 +135,15 @@ impl Handler<RequestForBoard> for BoardManagerActor {
         };
         if let Some(board) = self.connections.get_by_left(&user_stat).cloned() {
             // this user has one connection already, remove old one
-            self.connections.remove_by_right(&board);
+            let old = self.connections.remove_by_right(&board);
             self.idle_boards.push(board);
+            if let Some((old_user, old_board)) = old {
+                old_user.addr.do_send(BoardDisconnected);
+                info!(
+                    "kicking user {} old connection to board {}",
+                    old_user.user_name, old_board.info.remote
+                );
+            }
         }
         let res = if let Some(board) = self.idle_boards.pop() {
             info!(

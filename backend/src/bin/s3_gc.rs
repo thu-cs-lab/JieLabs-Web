@@ -1,6 +1,6 @@
+use backend::common::*;
 use backend::models::*;
 use backend::schema::jobs;
-use backend::common::*;
 use backend::DbConnection;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
