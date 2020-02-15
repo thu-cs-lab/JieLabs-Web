@@ -1,5 +1,5 @@
 import { get, post, putS3, createTarFile } from '../util';
-import { WS_BACKEND } from '../config';
+import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE } from '../config';
 
 export const TYPES = {
   SET_USER: Symbol('SET_USER'),
@@ -219,10 +219,31 @@ export function programBitstream() {
   }
 }
 
+let debouncer = null;
+
 export function updateCode(code) {
   return async (dispatch, getState) => {
     // TODO: debounce and run lang server checks
 
     dispatch(setCode(code));
+
+    if(debouncer !== null) {
+      clearTimeout(debouncer);
+    }
+
+    debouncer = setTimeout(() => {
+      debouncer = null;
+
+      let { lib, code: curCode } = getState();
+      if(!lib) return;
+
+      if(curCode !== code) {
+        // Raced between clearTimeout and setCode
+        return;
+      }
+
+      console.log('Analyse...');
+      console.log(lib.parse(code));
+    }, CODE_ANALYSE_DEBOUNCE);
   }
 }

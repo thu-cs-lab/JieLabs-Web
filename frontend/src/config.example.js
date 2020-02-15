@@ -1,3 +1,4 @@
 export const BACKEND = "http://localhost:8080";
 export const WS_BACKEND = "ws://localhost:8080";
 export const HARD_LOGOUT = false;
+export const CODE_ANALYSE_DEBOUNCE = 1000;
