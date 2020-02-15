@@ -1,5 +1,9 @@
-use crate::board_manager::{get_board_manager, RequestForBoard, RouteToBoard};
-use crate::common::IOSetting;
+use crate::board_manager::{
+    get_board_manager, ProgramBitstreamToBoard, RequestForBoard, RouteToBoard,
+};
+use crate::common::{download_s3, IOSetting};
+use crate::models::*;
+use crate::schema::jobs;
 use crate::session::get_user;
 use crate::ws_board::{WSBoardMessageB2S, WSBoardMessageS2B};
 use crate::DbPool;
@@ -8,6 +12,7 @@ use actix_http::ws::Item;
 use actix_identity::Identity;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
+use diesel::prelude::*;
 use log::*;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
@@ -20,6 +25,7 @@ pub struct WSUser {
     has_board: bool,
 
     text_buffer: Option<Vec<u8>>,
+    pool: DbPool,
 }
 
 impl Actor for WSUser {
@@ -46,6 +52,7 @@ impl Actor for WSUser {
 pub enum WSUserMessageU2S {
     RequestForBoard(String),
     ToBoard(WSBoardMessageS2B),
+    ProgramBitstream(i32),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -53,6 +60,7 @@ pub enum WSUserMessageS2U {
     ReportIOChange(IOSetting),
     BoardAllocateResult(bool),
     BoardDisconnected(String),
+    ProgramBitstreamFinish(bool),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
@@ -140,7 +148,7 @@ impl Handler<BoardDisconnected> for WSUser {
 }
 
 impl WSUser {
-    fn new(remote: &str, user_name: &str) -> Self {
+    fn new(remote: &str, user_name: &str, pool: DbPool) -> Self {
         Self {
             remote: String::from(remote),
             user_name: String::from(user_name),
@@ -148,6 +156,7 @@ impl WSUser {
             has_board: false,
 
             text_buffer: None,
+            pool,
         }
     }
 
@@ -171,6 +180,35 @@ impl WSUser {
                         });
                     }
                 }
+                WSUserMessageU2S::ProgramBitstream(job_id) => {
+                    let mut fail = true;
+                    if let Ok(conn) = self.pool.get() {
+                        if let Ok(job) = jobs::dsl::jobs.find(job_id).first::<Job>(&conn) {
+                            if job.status.is_some() && job.destination.is_some() {
+                                // job is done
+                                fail = false;
+                                let download = download_s3(job.destination.unwrap().clone());
+                                let wrapped = actix::fut::wrap_future::<_, Self>(download);
+                                let then = wrapped.map(|res, actor, ctx| {
+                                    if let Some(data) = res {
+                                        get_board_manager().do_send(ProgramBitstreamToBoard {
+                                            user: ctx.address(),
+                                            user_name: actor.user_name.clone(),
+                                            data,
+                                        });
+                                    }
+                                });
+                                ctx.spawn(then);
+                            }
+                        }
+                    }
+                    if fail {
+                        ctx.text(
+                            serde_json::to_string(&WSUserMessageS2U::ProgramBitstreamFinish(false))
+                                .unwrap(),
+                        );
+                    }
+                }
             },
             Err(_err) => {
                 warn!("ws_user client {} sent wrong message, closing", self.remote);
@@ -191,7 +229,11 @@ pub async fn ws_user(
     let conn = pool.get().unwrap();
     if let Some(user) = get_user(&id, &conn) {
         return ws::start(
-            WSUser::new(remote.unwrap_or("Unknown Remote"), &user.user_name),
+            WSUser::new(
+                remote.unwrap_or("Unknown Remote"),
+                &user.user_name,
+                pool.get_ref().clone(),
+            ),
             &req,
             stream,
         );
@@ -202,6 +244,7 @@ pub async fn ws_user(
             WSUser::new(
                 remote.unwrap_or("Unknown Remote"),
                 &format!("Anonymous-{:?}", remote),
+                pool.get_ref().clone(),
             ),
             &req,
             stream,

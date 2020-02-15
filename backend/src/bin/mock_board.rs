@@ -13,10 +13,6 @@ fn main() {
             if let ws::Message::Text(text) = msg {
                 if let Ok(msg) = serde_json::from_str::<ws_board::WSBoardMessageS2B>(&text) {
                     match msg {
-                        ws_board::WSBoardMessageS2B::ProgramBitstream(_data) => {
-                           println!("Bitstream programmed");
-                           out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ProgramBitstreamFinish(true)).unwrap()).unwrap();
-                        }
                         ws_board::WSBoardMessageS2B::SetIODirection(direction) => {
                            println!("Set IO Direction {:?}", direction);
                            out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {

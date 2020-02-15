@@ -1,5 +1,7 @@
 use actix::spawn;
 use actix_web::{error::ErrorInternalServerError, Error};
+use bytes::Bytes;
+use futures::TryStreamExt;
 use lazy_static::*;
 use log::*;
 use rusoto_core::credential::{AwsCredentials, StaticProvider};
@@ -47,6 +49,15 @@ lazy_static! {
     static ref S3_BUCKET: String = setup_s3_bucket();
 }
 
+fn s3_client() -> S3Client {
+    let client = S3Client::new_with(
+        rusoto_core::request::HttpClient::new().expect("Failed to creat HTTP client"),
+        StaticProvider::from(s3_credentials()),
+        s3_region(),
+    );
+    client
+}
+
 async fn setup_s3_cors(bucket: String) {
     let conf = CORSConfiguration {
         cors_rules: vec![CORSRule {
@@ -55,11 +66,7 @@ async fn setup_s3_cors(bucket: String) {
             ..Default::default()
         }],
     };
-    let client = S3Client::new_with(
-        rusoto_core::request::HttpClient::new().expect("Failed to creat HTTP client"),
-        StaticProvider::from(s3_credentials()),
-        s3_region(),
-    );
+    let client = s3_client();
     let req = PutBucketCorsRequest {
         bucket: bucket,
         cors_configuration: conf,
@@ -102,6 +109,28 @@ pub fn get_download_url(file_name: &String) -> String {
     };
     let presigned_url = req.get_presigned_url(&s3_region(), &s3_credentials(), &Default::default());
     presigned_url
+}
+
+pub async fn download_s3(file_name: String) -> Option<Bytes> {
+    let bucket = S3_BUCKET.clone();
+    let client = s3_client();
+    let req = GetObjectRequest {
+        bucket,
+        key: file_name.clone(),
+        ..Default::default()
+    };
+    if let Ok(result) = client.get_object(req).await {
+        if let Some(stream) = result.body {
+            if let Ok(body) = stream
+                .map_ok(|b| bytes::BytesMut::from(&b[..]))
+                .try_concat()
+                .await
+            {
+                return Some(body.freeze());
+            }
+        }
+    }
+    None
 }
 
 pub fn err<T: Display>(err: T) -> Error {

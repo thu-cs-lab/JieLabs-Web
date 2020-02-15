@@ -1,4 +1,6 @@
-use crate::ws_board::{SendToBoard, WSBoard, WSBoardMessageB2S, WSBoardMessageS2B};
+use crate::ws_board::{
+    ProgramBitstream, SendToBoard, WSBoard, WSBoardMessageB2S, WSBoardMessageS2B,
+};
 use crate::ws_user::RequestForBoardResult;
 use crate::ws_user::{BoardDisconnected, SendToUser, WSUser};
 use actix::prelude::*;
@@ -169,6 +171,28 @@ impl Handler<RouteToBoard> for BoardManagerActor {
         // TODO: filter unneed actions
         if let Some(board) = self.connections.get_by_left(&user_stat) {
             board.addr.do_send(SendToBoard { action: req.action });
+        }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProgramBitstreamToBoard {
+    pub user: Addr<WSUser>,
+    pub user_name: String,
+    pub data: bytes::Bytes,
+}
+
+impl Handler<ProgramBitstreamToBoard> for BoardManagerActor {
+    type Result = ();
+
+    fn handle(&mut self, req: ProgramBitstreamToBoard, _ctx: &mut Context<Self>) {
+        let user_stat = UserStat {
+            addr: req.user,
+            user_name: req.user_name,
+        };
+        if let Some(board) = self.connections.get_by_left(&user_stat) {
+            board.addr.do_send(ProgramBitstream { data: req.data });
         }
     }
 }
