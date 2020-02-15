@@ -117,15 +117,22 @@ function center(rect, ref) {
   }
 }
 
+const BLOCK_ALIGNMENT = 200;
+
+function alignToBlock(pos) {
+  return Math.round(pos / BLOCK_ALIGNMENT) * BLOCK_ALIGNMENT;
+}
+
 export default function Sandbox() {
   const [field, setField] = useState(List(
     [
       { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
-      { type: 'Switch4', x: 0, y: 200, id: 'switch4_1' },
+      { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
     ]
   ));
 
   const [scroll, setScroll] = useState({ x: 0, y: 0 });
+  const [moving, setMoving] = useState({ x: 0, y: 0, show: false });
   const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
@@ -226,6 +233,16 @@ export default function Sandbox() {
     }}
   >
     <SandboxContext.Provider value={ctx}>
+      <div
+          key={'Mover'}
+          style={{
+            transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
+            opacity: moving.show ? "0.5" : "0",
+          }}
+          className="block-wrapper"
+      >
+        <div className="block"></div>
+        </div>
       { field.map(({ type, x, y, id }, idx) => {
         const Block = blocks[type];
         return <div
@@ -243,15 +260,25 @@ export default function Sandbox() {
           <Block
             onMouseDown={ev => {
               let curScroll = { x, y };
-              let all = field;
 
               const move = ev => {
                 curScroll.x += ev.movementX;
                 curScroll.y += ev.movementY;
+                let realPos = {
+                  x: alignToBlock(curScroll.x),
+                  y: alignToBlock(curScroll.y),
+                };
+                setMoving({show: true, ...realPos});
                 setField(field.set(idx, { type, id, ...curScroll }));
               };
 
               const up = ev => {
+                let realPos = {
+                  x: alignToBlock(curScroll.x),
+                  y: alignToBlock(curScroll.y),
+                };
+                setMoving({show: false, ...moving});
+                setField(field.set(idx, { type, id, ...realPos }));
                 document.removeEventListener('mousemove', move, false);
                 document.removeEventListener('mouseup', up, false);
               };
