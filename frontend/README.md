@@ -16,9 +16,10 @@ To build the frontend:
 
 cd frontend/lib
 wasm-pack build
+cd pkg
 yarn link
 
-cd ..
+cd ../..
 yarn link jiewebs_lib
 
 yarn build
