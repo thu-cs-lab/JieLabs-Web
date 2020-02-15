@@ -6,8 +6,14 @@ export function user(state = null, action) {
   return state;
 }
 
-export function build(state = null, action) {
+export function build(state = {}, action) {
   if(action.type === TYPES.SET_BUILD)
     return action.build;
+  return state;
+}
+
+export function board(state = {}, action) {
+  if(action.type === TYPES.SET_BOARD)
+    return action.board;
   return state;
 }

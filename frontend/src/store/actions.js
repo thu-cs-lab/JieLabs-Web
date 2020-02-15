@@ -1,8 +1,10 @@
 import { get, post, putS3, createTarFile } from '../util';
+import { WS_BACKEND } from '../config';
 
 export const TYPES = {
   SET_USER: Symbol('SET_USER'),
   SET_BUILD: Symbol('SET_BUILD'),
+  SET_BOARD: Symbol('SET_BOARD'),
 };
 
 export function setUser(user) {
@@ -19,6 +21,13 @@ export function setBuild(build) {
   };
 }
 
+export function setBoard(board) {
+  return {
+    type: TYPES.SET_BOARD,
+    board,
+  };
+}
+
 export function login(user, pass) {
   // TODO: show blocker
   return async (dispatch) => {
@@ -28,12 +37,12 @@ export function login(user, pass) {
         password: pass,
       });
 
-      if(!data.login) return false;
+      if (!data.login) return false;
 
       dispatch(setUser(data));
 
       return true;
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       return false;
     }
@@ -46,12 +55,12 @@ export function restore() {
     try {
       const data = await get('/api/session');
 
-      if(!data.login) return false;
+      if (!data.login) return false;
 
       dispatch(setUser(data));
 
       return true;
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       return false;
     }
@@ -65,7 +74,7 @@ export function logout() {
       const data = await get('/api/session', 'DELETE');
       dispatch(setUser(null));
       return true;
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       return false;
     }
@@ -86,7 +95,7 @@ export function submitBuild(code) {
 
       let tar = createTarFile('src/mod_top.v', code);
       await putS3(url, tar);
-      const result = await post('/api/task/build', {source: uuid});
+      const result = await post('/api/task/build', { source: uuid });
       let intervalID = null;
       intervalID = setInterval(async () => {
         const info = await get(`/api/task/get/${result}`);
@@ -106,7 +115,56 @@ export function submitBuild(code) {
         intervalID,
       }));
       return true;
-    } catch(e) {
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
+}
+
+export function connectToBoard(code) {
+  return async (dispatch, getState) => {
+    try {
+      let { board } = getState();
+      let websocket = null;
+      if (board && board.websocket) {
+        websocket = board.websocket;
+        if (websocket.readyState === WebSocket.OPEN) {
+          websocket.send('{"RequestForBoard":""}');
+        }
+      } else {
+        let websocket = new WebSocket(`${WS_BACKEND}/api/ws_user`);
+        websocket.onopen = () => {
+          websocket.send('{"RequestForBoard":""}');
+        };
+        websocket.onmessage = (message) => {
+          let msg = JSON.parse(message.data);
+          console.log(msg);
+          if (msg["BoardAllocateResult"]) {
+            dispatch(setBoard({
+              websocket,
+              hasBoard: true,
+            }));
+          } else if (msg["BoardDisconnected"] !== undefined) {
+            dispatch(setBoard({
+              websocket,
+              hasBoard: false,
+            }));
+          }
+        };
+        websocket.onclose = () => {
+          dispatch(setBoard({
+            hasBoard: false,
+          }));
+        }
+      }
+
+      dispatch(setBoard({
+        websocket,
+        hasBoard: false,
+      }));
+      return true;
+    } catch (e) {
       console.error(e);
       return false;
     }
