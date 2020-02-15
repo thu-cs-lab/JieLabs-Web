@@ -3,15 +3,17 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import Icon from '../comps/Icon';
 
-import { submitBuild, connectToBoard, programBitstream } from '../store/actions';
+import { updateCode, submitBuild, connectToBoard, programBitstream } from '../store/actions';
 
 import Monaco from 'react-monaco-editor';
 import Sandbox from '../Sandbox';
 
 export default React.memo(() => {
-  const [code, setCode] = useState('');
-
   const dispatch = useDispatch();
+
+  const code = useSelector(store => store.code);
+  const setCode = useCallback(code => dispatch(updateCode(code)), [dispatch]);
+
   // TODO: disable button when polling
   const isPolling = useSelector(store => store.build.isPolling);
   const doUpload = useCallback(async () => {

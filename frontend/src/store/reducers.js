@@ -12,6 +12,12 @@ export function lib(state = null, action) {
   return state;
 }
 
+export function code(state = null, action) {
+  if(action.type === TYPES.SET_CODE)
+    return action.code;
+  return state;
+}
+
 export function build(state = {}, action) {
   if(action.type === TYPES.SET_BUILD)
     return action.build;

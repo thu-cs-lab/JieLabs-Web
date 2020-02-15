@@ -4,6 +4,7 @@ import { WS_BACKEND } from '../config';
 export const TYPES = {
   SET_USER: Symbol('SET_USER'),
   LOAD_LIB: Symbol('LOAD_LIB'),
+  SET_CODE: Symbol('SET_CODE'),
   SET_BUILD: Symbol('SET_BUILD'),
   SET_BOARD: Symbol('SET_BOARD'),
 };
@@ -19,6 +20,13 @@ export function loadLib(lib) {
   return {
     type: TYPES.LOAD_LIB,
     lib,
+  };
+}
+
+export function setCode(code) {
+  return {
+    type: TYPES.SET_CODE,
+    code,
   };
 }
 
@@ -105,10 +113,10 @@ export function init() {
   }
 }
 
-export function submitBuild(code) {
+export function submitBuild() {
   return async (dispatch, getState) => {
     try {
-      let { build } = getState();
+      let { build, code } = getState();
       if (build && build.intervalID) {
         clearInterval(build.intervalID);
       }
@@ -146,7 +154,7 @@ export function submitBuild(code) {
   }
 }
 
-export function connectToBoard(code) {
+export function connectToBoard() {
   return async (dispatch, getState) => {
     try {
       let { board } = getState();
@@ -195,7 +203,7 @@ export function connectToBoard(code) {
   }
 }
 
-export function programBitstream(code) {
+export function programBitstream() {
   return async (dispatch, getState) => {
     try {
       let { board, build } = getState();
@@ -208,5 +216,13 @@ export function programBitstream(code) {
       console.error(e);
       return false;
     }
+  }
+}
+
+export function updateCode(code) {
+  return async (dispatch, getState) => {
+    // TODO: debounce and run lang server checks
+
+    dispatch(setCode(code));
   }
 }
