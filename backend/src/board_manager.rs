@@ -153,6 +153,7 @@ impl Handler<RequestForBoard> for BoardManagerActor {
             self.connections.insert(user_stat, board);
             true
         } else {
+            info!("no idle boards, can't allocate");
             false
         };
         addr.do_send(RequestForBoardResult(res));

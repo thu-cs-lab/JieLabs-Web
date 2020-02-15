@@ -163,9 +163,14 @@ export function connectToBoard() {
         websocket = board.websocket;
         if (websocket.readyState === WebSocket.OPEN) {
           websocket.send('{"RequestForBoard":""}');
+        } else {
+          websocket.close();
+          websocket = null;
         }
-      } else {
-        let websocket = new WebSocket(`${WS_BACKEND}/api/ws_user`);
+      }
+
+      if (!websocket) {
+        websocket = new WebSocket(`${WS_BACKEND}/api/ws_user`);
         websocket.onopen = () => {
           websocket.send('{"RequestForBoard":""}');
         };
@@ -188,13 +193,13 @@ export function connectToBoard() {
           dispatch(setBoard({
             hasBoard: false,
           }));
-        }
+        };
+        dispatch(setBoard({
+          websocket,
+          hasBoard: false,
+        }));
       }
 
-      dispatch(setBoard({
-        websocket,
-        hasBoard: false,
-      }));
       return true;
     } catch (e) {
       console.error(e);
