@@ -23,12 +23,12 @@ export function Connector({ onChange, output, master, className, ...rest }) {
     return () => {
       snd.unregister(nid);
     }
-  }, []);
+  }, [master, snd]);
 
   useEffect(() => {
     if(id !== null)
       snd.setHook(id, onChange);
-  }, [onChange, id]);
+  }, [onChange, id, snd]);
 
   const { onClick } = snd.update(id, output);
 
@@ -37,3 +37,4 @@ export function Connector({ onChange, output, master, className, ...rest }) {
 }
 
 export { default as Switch4 } from './Switch4.js';
+export { default as FPGA } from './FPGA.js';

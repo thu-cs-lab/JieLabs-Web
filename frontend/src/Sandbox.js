@@ -120,7 +120,8 @@ function center(rect, ref) {
 export default function Sandbox() {
   const [field, setField] = useState(List(
     [
-      { type: 'Switch4', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
+      { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
+      { type: 'Switch4', x: 0, y: 200, id: 'switch4_1' },
     ]
   ));
 
@@ -168,7 +169,7 @@ export default function Sandbox() {
       canvas.current.height = height;
       redraw();
     }
-  }), [canvas]);
+  }), [redraw]);
 
   React.useEffect(() => {
     if(container.current) {
@@ -184,7 +185,7 @@ export default function Sandbox() {
     return () => {
       observer.unobserve(container.current);
     };
-  }, [canvas, container, observer]);
+  }, [canvas, container, observer, redraw]);
 
   setTimeout(() => redraw());
 
