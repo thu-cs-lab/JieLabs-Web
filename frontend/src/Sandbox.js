@@ -143,7 +143,7 @@ export default function Sandbox() {
   ));
 
   const [scroll, setScroll] = useState({ x: 20, y: 20 });
-  const [moving, setMoving] = useState({ x: 0, y: 0, show: false });
+  const [moving, setMoving] = useState(null);
   const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
@@ -209,6 +209,15 @@ export default function Sandbox() {
 
   const [ctxMenu, setCtxMenu] = useState(null);
 
+  const movingX = moving !== null ? alignToBlock(field.get(moving).x) : null;
+  const movingY = moving !== null ? alignToBlock(field.get(moving).y) : null;
+  const movingStyle = useMemo(() => {
+    return {
+      transform: `translate(${movingX + scroll.x}px, ${movingY + scroll.y}px)`,
+      opacity: .5,
+    }
+  }, [movingX, movingY, scroll])
+
   return <div
     ref={container}
     className="sandbox"
@@ -244,15 +253,14 @@ export default function Sandbox() {
     }}
   >
     <SandboxContext.Provider value={ctx}>
-      <div
-          style={{
-            transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
-            opacity: moving.show ? "0.5" : "0",
-          }}
-          className="block-wrapper"
-      >
-        <div className="block"></div>
-      </div>
+      { moving !== null ? 
+        <div
+            style={movingStyle}
+            className="block-wrapper"
+        >
+          <div className="block"></div>
+        </div> : null
+      }
       { field.map(({ type, x, y, id }, idx) => {
         const Block = blocks[type];
         return <div
@@ -272,26 +280,16 @@ export default function Sandbox() {
               let curScroll = { x, y };
               let curMoving = { ...curScroll };
 
-              setMoving({ show: true, ...curScroll });
+              setMoving(idx);
 
               const move = ev => {
                 curScroll.x += ev.movementX;
                 curScroll.y += ev.movementY;
-                let realPos = {
-                  x: alignToBlock(curScroll.x),
-                  y: alignToBlock(curScroll.y),
-                };
-
-                if(realPos.x !== curMoving.x || realPos.y !== curMoving.y)
-                  setMoving({ show: true, ...realPos });
-
-                curMoving = realPos;
-
                 setField(field.set(idx, { type, id, ...curScroll }));
               };
 
               const up = ev => {
-                setMoving({ ...curMoving, show: false });
+                setMoving(null);
                 let realPos = findAlignedPos(field, curScroll, id);
                 setField(field.set(idx, { type, id, ...realPos }));
                 document.removeEventListener('mousemove', move, false);
