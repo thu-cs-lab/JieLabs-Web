@@ -184,7 +184,10 @@ impl WSUser {
                     let mut fail = true;
                     if let Ok(conn) = self.pool.get() {
                         if let Ok(job) = jobs::dsl::jobs.find(job_id).first::<Job>(&conn) {
-                            if job.status.is_some() && job.destination.is_some() {
+                            if job.status.is_some()
+                                && job.destination.is_some()
+                                && job.submitter == self.user_name
+                            {
                                 // job is done
                                 fail = false;
                                 let download = download_s3(job.destination.unwrap().clone());
@@ -199,7 +202,11 @@ impl WSUser {
                                     }
                                 });
                                 ctx.spawn(then);
+                            } else {
+                                info!("bitstream program rejected by wrong status/user");
                             }
+                        } else {
+                            info!("bitstream program rejected by wrong job id");
                         }
                     }
                     if fail {
