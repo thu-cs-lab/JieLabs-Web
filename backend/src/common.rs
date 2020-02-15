@@ -1,9 +1,14 @@
+use actix::spawn;
 use actix_web::{error::ErrorInternalServerError, Error};
+use lazy_static::*;
 use log::*;
-use rusoto_core::credential::AwsCredentials;
+use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::Region;
 use rusoto_s3::util::PreSignedRequest;
-use rusoto_s3::{GetObjectRequest, PutObjectRequest};
+use rusoto_s3::S3;
+use rusoto_s3::{
+    CORSConfiguration, CORSRule, GetObjectRequest, PutBucketCorsRequest, PutObjectRequest, S3Client,
+};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::time::SystemTime;
@@ -38,6 +43,38 @@ pub fn s3_credentials() -> AwsCredentials {
     )
 }
 
+lazy_static! {
+    static ref S3_BUCKET: String = setup_s3_bucket();
+}
+
+async fn setup_s3_cors(bucket: String) {
+    let conf = CORSConfiguration {
+        cors_rules: vec![CORSRule {
+            allowed_methods: vec![String::from("GET"), String::from("PUT")],
+            allowed_origins: vec![String::from("*")],
+            ..Default::default()
+        }],
+    };
+    let client = S3Client::new_with(
+        rusoto_core::request::HttpClient::new().expect("Failed to creat HTTP client"),
+        StaticProvider::from(s3_credentials()),
+        s3_region(),
+    );
+    let req = PutBucketCorsRequest {
+        bucket: bucket,
+        cors_configuration: conf,
+        ..Default::default()
+    };
+    let result = client.put_bucket_cors(req).await;
+    info!("setup s3 cors {:?}", result);
+}
+
+fn setup_s3_bucket() -> String {
+    let bucket = std::env::var("S3_BUCKET").expect("S3_BUCKET");
+    spawn(setup_s3_cors(bucket.clone()));
+    bucket
+}
+
 pub fn s3_region() -> Region {
     Region::Custom {
         name: std::env::var("S3_REGION").expect("S3_REGION"),
@@ -46,7 +83,7 @@ pub fn s3_region() -> Region {
 }
 
 pub fn get_upload_url(file_name: &String) -> String {
-    let bucket = std::env::var("S3_BUCKET").expect("S3_BUCKET");
+    let bucket = S3_BUCKET.clone();
     let req = PutObjectRequest {
         bucket,
         key: file_name.clone(),
@@ -57,7 +94,7 @@ pub fn get_upload_url(file_name: &String) -> String {
 }
 
 pub fn get_download_url(file_name: &String) -> String {
-    let bucket = std::env::var("S3_BUCKET").expect("S3_BUCKET");
+    let bucket = S3_BUCKET.clone();
     let req = GetObjectRequest {
         bucket,
         key: file_name.clone(),
