@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useCallback, useState, useMemo } from 'react';
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 
@@ -134,7 +134,7 @@ function findAlignedPos(field, pos, id) {
   return realPos;
 }
 
-export default function Sandbox() {
+export default React.memo(() => {
   const [field, setField] = useState(List(
     [
       { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
@@ -143,7 +143,6 @@ export default function Sandbox() {
   ));
 
   const [scroll, setScroll] = useState({ x: 20, y: 20 });
-  const [moving, setMoving] = useState(null);
   const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
@@ -209,14 +208,14 @@ export default function Sandbox() {
 
   const [ctxMenu, setCtxMenu] = useState(null);
 
-  const movingX = moving !== null ? alignToBlock(field.get(moving).x) : null;
-  const movingY = moving !== null ? alignToBlock(field.get(moving).y) : null;
-  const movingStyle = useMemo(() => {
-    return {
-      transform: `translate(${movingX + scroll.x}px, ${movingY + scroll.y}px)`,
-      opacity: .5,
-    }
-  }, [movingX, movingY, scroll])
+  const requestSettle = useCallback((idx, { x, y }) => {
+    let aligned = findAlignedPos(field, { x, y }, field.get(idx).id);
+    setField(field.set(idx, { ...field.get(idx), ...aligned }));
+  }, [setField, field]);
+
+  const requestDelete = useCallback(idx => {
+    setField(field.delete(idx));
+  }, [setField, field]);
 
   return <div
     ref={container}
@@ -253,59 +252,17 @@ export default function Sandbox() {
     }}
   >
     <SandboxContext.Provider value={ctx}>
-      { moving !== null ? 
-        <div
-            style={movingStyle}
-            className="block-wrapper"
+      { field.map((spec, idx) => (
+        <BlockWrapper
+          key={spec.id}
+          idx={idx}
+          spec={spec}
+          requestSettle={requestSettle}
+          requestDelete={requestDelete}
+          scroll={scroll}
         >
-          <div className="block"></div>
-        </div> : null
-      }
-      { field.map(({ type, x, y, id }, idx) => {
-        const Block = blocks[type];
-        return <div
-            key={id}
-            style={{
-              transform: `translate(${scroll.x + x}px,${scroll.y + y}px)`,
-              zIndex: moving === idx ? 1 : 0,
-            }}
-            className="block-wrapper"
-          >
-          <div className="block-ops">
-            <button className="delete" onClick={() => setField(field.delete(idx))}>
-              <Icon>close</Icon>
-            </button>
-          </div>
-          <Block
-            onMouseDown={ev => {
-              let curScroll = { x, y };
-              let curMoving = { ...curScroll };
-
-              setMoving(idx);
-
-              const move = ev => {
-                curScroll.x += ev.movementX;
-                curScroll.y += ev.movementY;
-                setField(field.set(idx, { type, id, ...curScroll }));
-              };
-
-              const up = ev => {
-                setMoving(null);
-                let realPos = findAlignedPos(field, curScroll, id);
-                setField(field.set(idx, { type, id, ...realPos }));
-                document.removeEventListener('mousemove', move, false);
-                document.removeEventListener('mouseup', up, false);
-              };
-
-              document.addEventListener('mousemove', move, false);
-              document.addEventListener('mouseup', up, false);
-
-              ev.stopPropagation();
-            }}
-          >
-          </Block>
-        </div>;
-      })}
+        </BlockWrapper>
+      ))}
 
       <canvas ref={canvas} className="lines"></canvas>
     </SandboxContext.Provider>
@@ -328,4 +285,83 @@ export default function Sandbox() {
       </div> : null
     }
   </div>;
-}
+});
+
+const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDelete, ...rest }) => {
+  const [moving, setMoving] = useState(null);
+
+  const style = useMemo(() => {
+    if(moving) {
+      return {
+        transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
+        zIndex: 2,
+      }
+    } else {
+      return {
+        transform: `translate(${scroll.x + spec.x}px,${scroll.y + spec.y}px)`,
+        zIndex: 1,
+      }
+    }
+  }, [spec, scroll, moving]);
+
+  const movingStyle = useMemo(() => moving ? {
+    transform: `translate(${scroll.x + alignToBlock(moving.x)}px,${scroll.y + alignToBlock(moving.y)}px)`,
+    zIndex: 0,
+    opacity: 0.5,
+  } : {}, [moving]);
+
+  const onMouseDown = useCallback(ev => {
+    const cur = { x: spec.x, y: spec.y };
+    setMoving(cur);
+
+    const move = ev => {
+      cur.x += ev.movementX;
+      cur.y += ev.movementY;
+      // Bypass weak equality
+      setMoving({ ...cur });
+    };
+
+    const up = ev => {
+      requestSettle(idx, cur);
+      setMoving(null);
+      document.removeEventListener('mousemove', move, false);
+      document.removeEventListener('mouseup', up, false);
+    };
+
+    document.addEventListener('mousemove', move, false);
+    document.addEventListener('mouseup', up, false);
+
+    ev.stopPropagation();
+    ev.preventDefault();
+  }, [idx, spec, requestSettle, setMoving]);
+
+  const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
+
+  const Block = blocks[spec.type];
+
+  return <>
+    { moving !== null ? 
+      <div
+          style={movingStyle}
+          className="block-wrapper"
+      >
+        <div className="block"></div>
+      </div> : null
+    }
+
+    <div
+      style={style}
+      className="block-wrapper"
+    >
+      <div className="block-ops">
+        <button className="delete" onClick={requestDelete}>
+          <Icon>close</Icon>
+        </button>
+      </div>
+      <Block
+        onMouseDown={onMouseDown}
+      >
+      </Block>
+    </div>
+  </>;
+});
