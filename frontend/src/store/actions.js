@@ -154,7 +154,7 @@ export function submitBuild() {
       const uuid = data.uuid;
       const url = data.url;
 
-      let tar = createTarFile('src/mod_top.vhdl', code);
+      let tar = createTarFile('src/mod_top.vhd', code);
       await putS3(url, tar);
       const result = await post('/api/task/build', { source: uuid });
       let intervalID = null;
