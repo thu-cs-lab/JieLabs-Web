@@ -207,6 +207,7 @@ export function connectToBoard() {
           let msg = JSON.parse(message.data);
           console.log(msg);
           if (msg["BoardAllocateResult"]) {
+            websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');
             dispatch(setBoard({
               websocket,
               hasBoard: true,
