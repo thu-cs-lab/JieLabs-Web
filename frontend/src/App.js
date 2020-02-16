@@ -9,6 +9,7 @@ import { init, logout } from './store/actions';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
+import Admin from './routes/Admin';
 import Icon from './comps/Icon';
 
 export default React.memo(() => {
@@ -22,7 +23,7 @@ export default React.memo(() => {
       if(!restored) history.push('/login');
       setLoading(false);
     });
-  }, []);
+  }, [dispatch, history]);
 
   const logined = useSelector(store => store.user !== null);
   const doLogout = useCallback(async () => {
@@ -62,6 +63,9 @@ export default React.memo(() => {
     <Switch>
       <Route path="/login" exact>
         <Login />
+      </Route>
+      <Route path="/admin" exact>
+        <Admin />
       </Route>
       <Route path="/" exact>
         <Workspace />

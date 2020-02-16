@@ -1,4 +1,3 @@
-use log::*;
 use crate::common::err;
 use crate::models::*;
 use crate::schema::users::dsl;
