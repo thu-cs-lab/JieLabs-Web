@@ -50,6 +50,20 @@ GET /api/board/list
 
 仅 admin 可用
 
+### 设置固件信息
+
+POST /api/board/version
+
+字段：version，版本信息；url，下载地址；hash，文件的 sha1sum
+
+仅 admin 可用
+
+### 获取固件信息
+
+GET /api/board/version
+
+内容有三行：版本信息；下载地址；文件哈希
+
 ## 文件管理
 
 ### 上传文件
