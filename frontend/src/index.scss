@@ -422,6 +422,37 @@ main {
   }
 }
 
+.digit4 {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px;
+
+  .pins, .digits {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    > div {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+  }
+
+  .pins {
+    display: grid;
+    padding: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+  }
+}
+
 .led {
   width: 10px;
   height: 20px;

@@ -139,6 +139,7 @@ export default React.memo(() => {
     [
       { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
       { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
+      { type: 'Digit4', x: 0, y: 2 * BLOCK_ALIGNMENT, id: 'digit4_1' },
     ]
   ));
 

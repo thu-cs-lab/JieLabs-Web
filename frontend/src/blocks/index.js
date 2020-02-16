@@ -38,3 +38,4 @@ export function Connector({ onChange, output, master, className, ...rest }) {
 
 export { default as Switch4 } from './Switch4.js';
 export { default as FPGA } from './FPGA.js';
+export { default as Digit4 } from './Digit4.js';
