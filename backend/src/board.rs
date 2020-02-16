@@ -3,7 +3,7 @@ use crate::common::err;
 use crate::session::get_user;
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{get, web, HttpResponse, Result};
+use actix_web::{get, post, web, HttpResponse, Result};
 
 #[get("/list")]
 async fn list(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
@@ -16,5 +16,22 @@ async fn list(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
             }
         }
     }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
+#[post("/version")]
+async fn get_version(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let Some(user) = get_user(&id, &conn) {
+        if user.role == "admin" {
+            return Ok(HttpResponse::Ok().json(true));
+        }
+    }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
+#[get("/version")]
+async fn update_version(pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
     Ok(HttpResponse::Forbidden().finish())
 }

@@ -1,4 +1,12 @@
 table! {
+    configs (id) {
+        id -> Integer,
+        key -> Text,
+        value -> Nullable<Text>,
+    }
+}
+
+table! {
     jobs (id) {
         id -> Integer,
         submitter -> Text,
@@ -23,4 +31,4 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(jobs, users,);
+allow_tables_to_appear_in_same_query!(configs, jobs, users,);

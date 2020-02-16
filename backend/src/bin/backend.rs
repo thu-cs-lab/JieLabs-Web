@@ -46,7 +46,12 @@ async fn main() -> std::io::Result<()> {
                             .service(user::remove),
                     )
                     .service(web::scope("/file").service(file::upload))
-                    .service(web::scope("/board").service(board::list))
+                    .service(
+                        web::scope("/board")
+                            .service(board::list)
+                            .service(board::get_version)
+                            .service(board::update_version),
+                    )
                     .service(
                         web::scope("/task")
                             .service(task::build)
