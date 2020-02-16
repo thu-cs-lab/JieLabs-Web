@@ -115,7 +115,7 @@ async fn list(
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
-            let limit = query.offset.unwrap_or(5);
+            let limit = query.limit.unwrap_or(5);
             if let Ok(jobs) = jobs::dsl::jobs
                 .offset(offset)
                 .limit(limit)

@@ -1,3 +1,4 @@
+use log::*;
 use crate::common::err;
 use crate::models::*;
 use crate::schema::users::dsl;
@@ -40,7 +41,7 @@ async fn list(
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
-            let limit = query.offset.unwrap_or(5);
+            let limit = query.limit.unwrap_or(5);
             if let Ok(users) = dsl::users.offset(offset).limit(limit).load::<User>(&conn) {
                 let mut res = vec![];
                 for user in users {
