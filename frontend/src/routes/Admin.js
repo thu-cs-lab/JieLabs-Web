@@ -29,44 +29,74 @@ export default React.memo(() => {
     setJobs(result.jobs);
   }, []);
 
-  return <Container>
-    <Button variant="contained" onClick={doRefresh}>
-      Refresh
+  return <main>
+    <Container>
+      <Button variant="contained" onClick={doRefresh}>
+        Refresh
     </Button>
-    <TableContainer component={Paper} style={{
-      minHeight: 300,
-    }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>User Name</TableCell>
-            <TableCell>Real Name</TableCell>
-            <TableCell>Class</TableCell>
-            <TableCell>Student Id</TableCell>
-            <TableCell>Action</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map(user => (
-            <TableRow key={user.user_name}>
-              <TableCell component="th" scope="row">
-                {user.user_name}
-              </TableCell>
-              <TableCell>{user.real_name}</TableCell>
-              <TableCell>{user.class}</TableCell>
-              <TableCell>{user.student_id}</TableCell>
-              <TableCell></TableCell>
+      <TableContainer component={Paper} style={{
+        minHeight: 300,
+      }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>User Name</TableCell>
+              <TableCell>Real Name</TableCell>
+              <TableCell>Class</TableCell>
+              <TableCell>Student Id</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    {boards.map(board => 
-      <div>
-        <p>{`Remove: ${board.remote}`}</p>
-        <p>{`Software Version: ${board.software_version}`}</p>
-        <p>{`Hardware Version: ${board.hardware_version}`}</p>
-      </div>
-    )}
-  </Container>;
+          </TableHead>
+          <TableBody>
+            {users.map(user => (
+              <TableRow key={user.user_name}>
+                <TableCell component="th" scope="row">
+                  {user.user_name}
+                </TableCell>
+                <TableCell>{user.real_name}</TableCell>
+                <TableCell>{user.class}</TableCell>
+                <TableCell>{user.student_id}</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {boards.map(board =>
+        <div>
+          <p>{`Remove: ${board.remote}`}</p>
+          <p>{`Software Version: ${board.software_version}`}</p>
+          <p>{`Hardware Version: ${board.hardware_version}`}</p>
+        </div>
+      )}
+      <TableContainer component={Paper} style={{
+        minHeight: 300,
+      }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Job Id</TableCell>
+              <TableCell>Submitter</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {jobs.map(job => (
+              <TableRow key={job.id}>
+                <TableCell component="th" scope="row">
+                  {job.id}
+                </TableCell>
+                <TableCell>{job.submitter}</TableCell>
+                <TableCell>{job.type_}</TableCell>
+                <TableCell>{job.status}</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
+  </main>;
 });
