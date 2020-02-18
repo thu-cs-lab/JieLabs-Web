@@ -46,7 +46,7 @@ export const BOARDS = {
       { pin: 'PIN_P24',  input: true, output: true,  clock: false },
       { pin: 'PIN_P23',  input: true, output: true,  clock: false },
       { pin: 'PIN_T25',  input: true, output: true,  clock: false },
-      { pin: 'PIN_R25',  input: true, output: false, clock: true  }
+      { pin: 'PIN_R25',  input: false, output: true, clock: true  }
     ],
   },
 };

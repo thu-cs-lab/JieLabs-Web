@@ -70,6 +70,7 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
         if(dir === undefined) return false;
 
         const spec = board.pins[v];
+        console.log(spec, dir);
 
         if(dir === 'input' && !spec.output) return false;
         if(dir === 'output' && !spec.input) return false;

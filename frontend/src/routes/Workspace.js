@@ -80,8 +80,8 @@ export default React.memo(() => {
   const availablePins = useMemo(() => {
     if(!assigning) return [];
     else return board.pins.map((e, i) => ({ idx: i, ...e })).filter(e => {
-      if(assigning.dir === 'input') return e.input;
-      else if(assigning.dir === 'output') return e.output;
+      if(assigning.dir === 'input') return e.output;
+      else if(assigning.dir === 'output') return e.input;
       else return true;
     });
   }, [board, assigning]);
