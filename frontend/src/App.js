@@ -12,6 +12,8 @@ import Workspace from './routes/Workspace';
 import Admin from './routes/Admin';
 import Icon from './comps/Icon';
 
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
 export default React.memo(() => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -36,6 +38,12 @@ export default React.memo(() => {
       history.push('/login');
     }
   }, [dispatch, history]);
+
+  const darkTheme = createMuiTheme({
+    palette: {
+      type: 'dark',
+    },
+  });
 
   if(loading)
     return <div className="container loading"></div>;
@@ -64,9 +72,11 @@ export default React.memo(() => {
       <Route path="/login" exact>
         <Login />
       </Route>
-      <Route path="/admin" exact>
-        <Admin />
-      </Route>
+      <ThemeProvider theme={darkTheme}>
+        <Route path="/admin" exact>
+          <Admin />
+        </Route>
+      </ThemeProvider>
       <Route path="/" exact>
         <Workspace />
       </Route>

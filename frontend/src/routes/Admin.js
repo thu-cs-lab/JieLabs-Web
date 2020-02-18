@@ -3,6 +3,16 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { get } from '../util';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
+
 export default React.memo(() => {
   const [users, setUsers] = useState([]);
   const [boards, setBoards] = useState([]);
@@ -19,18 +29,38 @@ export default React.memo(() => {
     setJobs(result.jobs);
   }, []);
 
-  return <main className="centering">
-    <button onClick={doRefresh}>
+  return <Container>
+    <Button variant="contained" onClick={doRefresh}>
       Refresh
-    </button>
-    {users.map(user => 
-      <div>
-        <p>{`Name: ${user.user_name}`}</p>
-        <p>{`Real Name: ${user.real_name}`}</p>
-        <p>{`Student Id: ${user.student_id}`}</p>
-        <p>{`Class: ${user.class}`}</p>
-      </div>
-    )}
+    </Button>
+    <TableContainer component={Paper} style={{
+      minHeight: 300,
+    }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>User Name</TableCell>
+            <TableCell>Real Name</TableCell>
+            <TableCell>Class</TableCell>
+            <TableCell>Student Id</TableCell>
+            <TableCell>Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {users.map(user => (
+            <TableRow key={user.user_name}>
+              <TableCell component="th" scope="row">
+                {user.user_name}
+              </TableCell>
+              <TableCell>{user.real_name}</TableCell>
+              <TableCell>{user.class}</TableCell>
+              <TableCell>{user.student_id}</TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
     {boards.map(board => 
       <div>
         <p>{`Remove: ${board.remote}`}</p>
@@ -38,12 +68,5 @@ export default React.memo(() => {
         <p>{`Hardware Version: ${board.hardware_version}`}</p>
       </div>
     )}
-    {jobs.map(job => 
-      <div>
-        <p>{`Submitter: ${job.submitter}`}</p>
-        <p>{`Src: ${job.src_url}`}</p>
-        <p>{`Dst: ${job.dst_url}`}</p>
-      </div>
-    )}
-  </main>;
+  </Container>;
 });
