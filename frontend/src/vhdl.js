@@ -106,7 +106,7 @@ export function registerCodeLens(cmds) {
     },
 
     provideCodeLenses: (_model, _token) => {
-      const { analysis } = store.getState();
+      const { analysis, signals } = store.getState();
 
       if(!analysis) return { lenses: [], dispose: () => {} };
 
@@ -136,6 +136,9 @@ export function registerCodeLens(cmds) {
         };
 
         for(const signal of analysis.entities[topIdx].signals) {
+          const assigned = signals.signals.get(signal.name)
+          const title = assigned !== undefined ? `Assigned to pin ${assigned}` : `Assign pin for ${signal.name}`;
+
           lenses.push({
             range: {
               startLineNumber: signal.pos.from_line + 1,
@@ -145,7 +148,7 @@ export function registerCodeLens(cmds) {
             },
             id: `assign-pin:${signal.name}`,
             command: {
-              title: `Assign pin for ${signal.name}`,
+              title,
               id: assignPin,
               arguments: [signal],
             },

@@ -49,7 +49,7 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
 
     return {
       board, top,
-      signals: state.signals.filter((_, v) => v !== pin).set(signal, pin),
+      signals: state.signals.filter(v => v !== pin).set(signal, pin),
     };
   }
 
