@@ -64,7 +64,7 @@ export default React.memo(() => {
     });
 
     registerCodeLens({ asTop, assignPin });
-  }, []);
+  }, [dispatch]);
 
   const top = useSelector(state => state.signals.top);
   const blocker = useCallback(e => {
@@ -162,7 +162,7 @@ export default React.memo(() => {
         { pin.current && <div className="pin-enter-hint">ESC</div> }
       </div>
     );
-  }), [filteredPins, revAssignment, firstFilteredIndex]);
+  }), [filteredPins, revAssignment, firstFilteredIndex, handleAssign]);
 
   const checkKey= useCallback(ev => {
     if(ev.key === 'Escape')
@@ -246,6 +246,7 @@ export default React.memo(() => {
           theme: 'vs-dark',
           language: 'vhdl',
           glyphMargin: true,
+          automaticLayout: true,
         }}
         value={code}
         onChange={setCode}
