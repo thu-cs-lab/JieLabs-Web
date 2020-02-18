@@ -11,12 +11,22 @@ import store from './store';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
 initVhdl(store);
 
+const darkTheme = createMuiTheme({
+  palette: {
+    type: 'dark',
+  },
+});
+
 const Render = () => <Provider store={store}>
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <ThemeProvider theme={darkTheme}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ThemeProvider>
 </Provider>;
 
 ReactDOM.render(<Render />, document.getElementById('root'));
