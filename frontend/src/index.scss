@@ -665,9 +665,14 @@ main {
       align-self: flex-end;
       margin-right: 10px;
       color: rgba(255, 255, 255, .38);
+      font-size: 12px;
+      line-height: 16px;
+      height: 16px;
+      margin-bottom: 10px;
 
       .material-icons {
         font-size: 18px;
+        line-height: 16px;
       }
     }
 

@@ -45,6 +45,8 @@ export default React.memo(() => {
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
 
+  const [search, setSearch] = useState('');
+  const searchChange = useCallback(e => setSearch(e.target.value), []);
   const searchRef = useRef();
 
   const editorDidMount = useCallback((editor, monaco) => {
@@ -54,6 +56,7 @@ export default React.memo(() => {
 
     const assignPin = editor.addCommand(0, (ctx, { name, dir }) => {
       setAssigning({ name, dir });
+      setSearch('');
       setTimeout(() => searchRef.current.focus());
     });
 
@@ -80,22 +83,26 @@ export default React.memo(() => {
   const [sortedPins, revAssignment] = useMemo(() => {
     const assignedResult = [], unassignedResult = [];
     const rev = new Map();
-    console.log(assignments.entries());
 
     for(const [signal, pin] of assignments.entries())
       rev.set(pin, signal);
 
+    let current = null;
+
     for(const p of availablePins) {
-      if(rev.get(p.idx) !== undefined)
+      const sig = rev.get(p.idx);
+      if(sig === assigning.name)
+        current = p;
+      else if(sig !== undefined)
         assignedResult.push(p);
       else unassignedResult.push(p);
     }
 
-    return [unassignedResult.concat(assignedResult), rev];
-  }, [availablePins, assignments]);
-  
-  const [search, setSearch] = useState('');
-  const searchChange = useCallback(e => setSearch(e.target.value), []);
+    const tail = unassignedResult.concat(assignedResult);
+    const sorted = current !== null ? [{ current: true, ...current }, ...tail] : tail;
+
+    return [sorted, rev];
+  }, [availablePins, assignments, assigning]);
 
   const filteredPins = useMemo(() => {
     if(search === '') return sortedPins;
@@ -123,6 +130,8 @@ export default React.memo(() => {
     setAssigning(null);
   }, [dispatch, assigning]);
 
+  let firstFilteredIndex = filteredPins.findIndex(e => !e.current);
+
   const pinDisp = useMemo(() => filteredPins.map((pin, fidx) => {
     const directions = [];
 
@@ -143,16 +152,20 @@ export default React.memo(() => {
           <div className="pin-assignment">{ signal || 'Unassigned' }</div>
           <div className="pin-direction">{ directions.join(' / ') }</div>
         </div>
-        { fidx === 0 && <div className="pin-enter-hint"><Icon>keyboard_return</Icon></div> }
+        { fidx === firstFilteredIndex && <div className="pin-enter-hint"><Icon>keyboard_return</Icon></div> }
+        { pin.current && <div className="pin-enter-hint">ESC</div> }
       </div>
     );
-  }), [filteredPins, revAssignment]);
+  }), [filteredPins, revAssignment, firstFilteredIndex]);
 
-  const checkEnter = useCallback(ev => {
-    if(ev.key === 'Enter')
-      if(filteredPins.length > 0)
-        handleAssign(filteredPins[0].idx)
-  }, [handleAssign, filteredPins]);
+  const checkKey= useCallback(ev => {
+    if(ev.key === 'Escape')
+      setAssigning(null);
+    if(ev.key === 'Enter') {
+      if(firstFilteredIndex != -1)
+        handleAssign(filteredPins[firstFilteredIndex].idx)
+    }
+  }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex]);
 
   return <main className="workspace">
     <div className="left">
@@ -205,7 +218,7 @@ export default React.memo(() => {
                   placeholder="Number | Signal | 'clock'"
                   value={search}
                   onChange={searchChange}
-                  onKeyDown={checkEnter}
+                  onKeyDown={checkKey}
                   ref={searchRef}
                 />
               </div>
