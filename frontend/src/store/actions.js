@@ -63,7 +63,7 @@ export function assignTop(top) {
 
 export function assignPin(signal, pin) {
   return {
-    type: TYPES.ASSIGN_TOP,
+    type: TYPES.ASSIGN_PIN,
     signal, pin,
   };
 }

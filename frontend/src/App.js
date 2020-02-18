@@ -3,7 +3,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 
-import { HARD_LOGOUT } from './config';
+import { HARD_LOGOUT, BOARDS } from './config';
 
 import { init, logout } from './store/actions';
 
@@ -17,6 +17,9 @@ export default React.memo(() => {
   const history = useHistory();
 
   const [loading, setLoading] = useState(true);
+
+  const boardTmpl = useSelector(state => state.signals.board);
+  const boardTmplName = BOARDS[boardTmpl].name;
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
@@ -46,7 +49,7 @@ export default React.memo(() => {
 
       <div className={cn("stub", { 'stub-disabled': !logined })}>
         <div className="stub-text">
-          Login
+          { logined ? boardTmplName : 'Login' }
         </div>
         <span className="stub-caret">
         </span>

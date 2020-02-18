@@ -1,5 +1,6 @@
-@import "styles/icon.scss";
+@import "styles/font.scss";
 @import "styles/consts.scss";
+@import "styles/transition.scss";
 
 * {
   box-sizing: inherit;
@@ -28,6 +29,12 @@ code {
   border: none;
   outline: none;
   padding: 0;
+}
+
+@mixin centering {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Frame */
@@ -162,9 +169,7 @@ main {
   flex: 1;
 
   &.centering {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include centering;
   }
 }
 
@@ -524,4 +529,160 @@ main {
       color: rgba(255,255,255,1);
     }
   }
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 1000;
+
+  &.centering {
+    @include centering;
+  }
+}
+
+.hint {
+  color: rgba(255,255,255,.54);
+  font-weight: 200;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.dimmed {
+  opacity: .54;
+  font-weight: 400;
+}
+
+.dialog {
+  width: 400px;
+  background: $bg;
+  padding: 20px 30px;
+  box-shadow: rgba(0,0,0,.3) 0 4px 12px;
+
+  .dialog-title {
+    margin: 0;
+    color: white;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: bold;
+
+    margin-bottom: 20px;
+  }
+}
+
+.search-box {
+  height: 32px;
+  display: flex;
+
+  .material-icons {
+    color: rgba(255,255,255,.54);
+    font-size: 24px;
+    line-height: 32px;
+    margin-right: 10px;
+  }
+
+  .search-input {
+    @include rst-input;
+    color: white;
+    font-size: 18px;
+    line-height: 32px;
+    flex: 1;
+  }
+}
+
+.pin-selector {
+  margin-top: 20px;
+  height: 300px;
+  overflow-y: auto;
+  box-shadow: rgba(0,0,0,.3) 0 2px 6px inset;
+  padding: 10px;
+
+  background: rgba(0, 0, 0, .2);
+
+  .pin {
+    box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+
+    height: 80px;
+
+    display: flex;
+
+    cursor: pointer;
+    color: white;
+
+    margin-bottom: 10px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    background: $bg;
+
+    .pin-ident {
+      width: 80px;
+      background: $primary-color;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      .pin-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+      }
+
+      .pin-name {
+        font-size: 12px;
+        color: rgba(255, 255, 255, .38);
+      }
+    }
+
+    .pin-info {
+      flex: 1;
+      padding: 10px;
+
+      display: flex;
+      flex-direction: column;
+
+      .pin-assignment {
+        flex: 1;
+        font-size: 18px;
+        opacity: .54;
+      }
+
+      .pin-direction {
+        font-size: 12px;
+        color: rgba(255, 255, 255, .38);
+      }
+    }
+
+    .pin-enter-hint {
+      align-self: flex-end;
+      margin-right: 10px;
+      color: rgba(255, 255, 255, .38);
+
+      .material-icons {
+        font-size: 18px;
+      }
+    }
+
+    &.pin-assigned {
+      .pin-ident {
+        background: rgba(255,255,255, .05);
+      }
+
+      .pin-assignment {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.monospace {
+  font-family: 'Roboto Mono', monospace;
 }

@@ -77,7 +77,7 @@ export default _store => {
 };
 
 export function registerCodeLens(cmds) {
-  const { asTop } = cmds;
+  const { asTop, assignPin } = cmds;
 
   const codeLensProvider = {
     onDidChange: cb => {
@@ -146,9 +146,10 @@ export function registerCodeLens(cmds) {
             id: `assign-pin:${signal.name}`,
             command: {
               title: `Assign pin for ${signal.name}`,
-              arguments: [signal.name, signal.dir],
+              id: assignPin,
+              arguments: [signal],
             },
-          })
+          });
         }
       }
 

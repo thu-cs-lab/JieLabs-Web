@@ -1,4 +1,6 @@
 import { TYPES } from './actions';
+import { Map } from 'immutable';
+import { DEFAULT_BOARD } from '../config';
 
 export function user(state = null, action) {
   if(action.type === TYPES.SET_USER)
@@ -36,14 +38,17 @@ export function board(state = {}, action) {
   return state;
 }
 
-export function signals(state = { top: null, signals: new Map() }, action) {
-  if(action.type === TYPES.ASSIGN_TOP) {
-    return { top: action.top, signals: new Map() };
+export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new Map() }, action) {
+  if(action.type === TYPES.SELECT_BOARD) {
+    return { board: action.board, top: null, signals: new Map() }
+  } else if(action.type === TYPES.ASSIGN_TOP) {
+    return { board: state.board, top: action.top, signals: new Map() };
   } else if(action.type === TYPES.ASSIGN_PIN) {
     const { signal, pin } = action;
+    const { board, top } = state;
 
     return {
-      top: state.top,
+      board, top,
       signals: state.signals.filter((_, v) => v !== pin).set(signal, pin),
     };
   }
