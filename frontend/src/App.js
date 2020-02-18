@@ -75,11 +75,11 @@ export default React.memo(() => {
       <Route path="/login" exact>
         <Login />
       </Route>
-      <ThemeProvider theme={darkTheme}>
-        <Route path="/admin" exact>
+      <Route path="/admin" exact>
+        <ThemeProvider theme={darkTheme}>
           <Admin />
-        </Route>
-      </ThemeProvider>
+        </ThemeProvider>
+      </Route>
       <Route path="/" exact>
         <Workspace />
       </Route>
