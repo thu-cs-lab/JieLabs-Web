@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import cn from 'classnames';
@@ -12,6 +12,8 @@ import { updateCode, submitBuild, connectToBoard, programBitstream, updateTop, a
 import { registerCodeLens } from '../vhdl';
 
 import Monaco from 'react-monaco-editor';
+import { Range } from 'monaco-editor/esm/vs/editor/editor.api';
+
 import Sandbox from '../Sandbox';
 
 export default React.memo(() => {
@@ -49,6 +51,7 @@ export default React.memo(() => {
   const searchChange = useCallback(e => setSearch(e.target.value), []);
   const searchRef = useRef();
 
+  const editorRef = useRef();
   const editorDidMount = useCallback((editor, monaco) => {
     const asTop = editor.addCommand(0, (ctx, { name }) => {
       dispatch(updateTop(name));
@@ -170,6 +173,52 @@ export default React.memo(() => {
     }
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex]);
 
+  const analysis = useSelector(state => state.analysis);
+
+  useEffect(() => {
+    if(!analysis || analysis.top === null) return;
+    if(!editorRef.current) return;
+
+    const editor = editorRef.current.editor;
+
+    const topEntity = analysis.entities[analysis.top-1]; // TODO: fix backend counting
+
+    const decorations = [
+      {
+        range: new Range(
+          topEntity.decl.from_line + 1,
+          topEntity.decl.from_char + 1,
+          topEntity.decl.to_line + 1,
+          topEntity.decl.to_char + 1,
+        ),
+        options: {
+          isWholeLine: true,
+          className: 'top-line',
+          glyphMarginClassName: 'top-glyph',
+        },
+      },
+      ...topEntity.signals.map(signal => ({
+        range: new Range(
+          signal.pos.from_line + 1,
+          signal.pos.from_char + 1,
+          signal.pos.to_line + 1,
+          signal.pos.to_char + 1,
+        ),
+        options: {
+          isWholeLine: true,
+          className: assignments.get(signal.name) === undefined ? 'unassigned-signal-line' : 'assigned-signal-line',
+          glyphMarginClassName: assignments.get(signal.name) === undefined ? 'unassigned-signal-glyph' : 'assigned-signal-glyph',
+        },
+      }))
+    ];
+
+    const ids = editor.deltaDecorations([], decorations);
+
+    return () => {
+      editor.deltaDecorations(ids, []);
+    };
+  }, [analysis, assignments]);
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
@@ -196,10 +245,12 @@ export default React.memo(() => {
         options={{
           theme: 'vs-dark',
           language: 'vhdl',
+          glyphMargin: true,
         }}
         value={code}
         onChange={setCode}
         editorDidMount={editorDidMount}
+        ref={editorRef}
       />
     </div>
 

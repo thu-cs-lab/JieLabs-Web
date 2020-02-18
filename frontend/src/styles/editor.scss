@@ -1,0 +1,22 @@
+$warning: #D4CE24;
+$confirm: #29C2BD;
+
+.unassigned-signal-line {
+  background: fade-out($warning, 0.9);
+}
+
+.unassigned-signal-glyph {
+  background: $warning;
+}
+
+.assigned-signal-glyph {
+  background: fade-out($confirm, 0.5);
+}
+
+.top-line {
+  background: fade-out($confirm, 0.9);
+}
+
+.top-glyph {
+  background: $confirm;
+}
