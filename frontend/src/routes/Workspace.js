@@ -64,7 +64,10 @@ export default React.memo(() => {
   }, []);
 
   const top = useSelector(state => state.signals.top);
-  const blocker = useCallback(e => e.stopPropagation());
+  const blocker = useCallback(e => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
   const boardName = useSelector(state => state.signals.board);
   const board = BOARDS[boardName];
