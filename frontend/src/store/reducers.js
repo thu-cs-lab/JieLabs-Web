@@ -1,6 +1,6 @@
 import { TYPES } from './actions';
 import { Map } from 'immutable';
-import { DEFAULT_BOARD } from '../config';
+import { DEFAULT_BOARD, BOARDS } from '../config';
 
 export function user(state = null, action) {
   if(action.type === TYPES.SET_USER)
@@ -51,6 +51,32 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
       board, top,
       signals: state.signals.filter(v => v !== pin).set(signal, pin),
     };
+  } else if(action.type === TYPES.SET_ANALYSIS) {
+    const { analysis } = action;
+    if(analysis.top === null) return state;
+
+    const entity = analysis.entities[analysis.top-1];
+    const board = BOARDS[state.board];
+
+    let mapper = new Map();
+    for(const signal of entity.signals) mapper = mapper.set(signal.name, signal.dir);
+
+    return {
+      board: state.board,
+      top: state.top,
+
+      signals: state.signals.filter((v, k) => {
+        const dir = mapper.get(k);
+        if(dir === undefined) return false;
+
+        const spec = board.pins[v];
+
+        if(dir === 'input' && !spec.output) return false;
+        if(dir === 'output' && !spec.input) return false;
+
+        return true;
+      }),
+    }
   }
 
   return state;

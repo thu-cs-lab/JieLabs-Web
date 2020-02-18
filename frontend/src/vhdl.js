@@ -81,19 +81,20 @@ export function registerCodeLens(cmds) {
 
   const codeLensProvider = {
     onDidChange: cb => {
-      let lastAnalysis = null;
-      let lastSignals = null;
+      let { analysis: lastAnalysis, signals: lastSignals } = store.getState();
 
       const unsubscribe = store.subscribe(() => {
         const { analysis, signals } = store.getState();
         let changed = false;
         // Analysis is returned from WASM call, so weak comparasion should work here
         if(analysis !== lastAnalysis) {
+          console.log('Analysis changed');
           lastAnalysis = analysis;
           changed = true;
         }
 
         if(signals !== lastSignals) {
+          console.log('Signals changed');
           lastSignals = signals;
           changed = true;
         }
