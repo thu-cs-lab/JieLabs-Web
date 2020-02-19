@@ -304,10 +304,15 @@ export default React.memo(() => {
     else if(ev.key === 'Enter') {
       if(firstFilteredIndex !== -1)
         handleAssign(filteredPins[firstFilteredIndex].idx)
-    } else if(ev.key === 'ArrowUp')
-      subscriptInc();
-    else if(ev.key === 'ArrowDown')
-      subscriptDec();
+    } else if(ev.key === 'Tab') {
+      // TODO: add hint/guide for this
+      if(ev.shiftKey)
+        subscriptDec();
+      else
+        subscriptInc();
+
+      ev.preventDefault();
+    }
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
 
   return <main className="workspace">
