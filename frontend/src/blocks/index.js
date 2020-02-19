@@ -23,9 +23,18 @@ export const MODE = Object.freeze({
 });
 
 /**
- * Note: the `mode` property is currently not reactive
+ * Note: currently, `mode`, `onReg` and `onUnreg` are not reactive
  */
-export const Connector = React.memo(({ onChange, output: _output, className, mode: _mode, ...rest }) => {
+export const Connector = React.memo(({
+  output: _output,
+  mode: _mode,
+  data,
+  onChange,
+  onReg,
+  onUnreg,
+  className,
+  ...rest
+}) => {
   const output = _output || SIGNAL.X;
   const mode = _mode || MODE.NORMAL;
 
@@ -35,17 +44,28 @@ export const Connector = React.memo(({ onChange, output: _output, className, mod
   const [ref, setRef] = useState(null);
 
   const cb = useRef(onChange);
+  const dataref = useRef(data);
+
   useEffect(() => {
     cb.current = onChange;
   }, [onChange]);
 
   useEffect(() => {
-    const { id: nid, ref: nref } = snd.register(cb, mode);
+    dataref.current = data;
+  }, [data]);
+
+  useEffect(() => {
+    const { id: nid, ref: nref } = snd.register(cb, mode, dataref);
     setId(nid);
     setRef(nref);
 
+    if(onReg)
+      onReg(nid);
+
     return () => {
       snd.unregister(nid);
+      if(onUnreg)
+        onUnreg();
     }
   }, [snd]);
 

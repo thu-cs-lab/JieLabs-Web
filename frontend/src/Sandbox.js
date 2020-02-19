@@ -8,6 +8,7 @@ import { SIGNAL, MODE } from './blocks';
 import Icon from './comps/Icon';
 
 export const SandboxContext = React.createContext(null);
+export const FPGAEnvContext = React.createContext(null);
 
 function negotiateSignal(a, b) {
   if(a === SIGNAL.X) return b;
@@ -25,10 +26,10 @@ class Handler {
 
   selecting = null;
 
-  register(cbref, mode) {
+  register(cbref, mode, data) {
     const id = uuidv4();
     const ref = React.createRef();
-    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode };
+    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode, data };
     return { ref, id };
   }
 
@@ -128,6 +129,14 @@ class Handler {
     }
 
     this.onLineChange(List(result));
+  }
+
+  getConnected(id) {
+    return this.connectors[id]?.connected;
+  }
+
+  getData(id) {
+    return this.connectors[id]?.data.current;
   }
 }
 
@@ -240,6 +249,17 @@ export default React.memo(() => {
     setField(field.delete(idx));
   }, [setField, field]);
 
+  // FPGA Context related stuff
+
+  // cpid = Clocking Pin ID
+  const [cpid, setCpid] = useState(null);
+  const fpgaCtx = useMemo(() => {
+    return {
+      regClocking: setCpid,
+      unregClocking: () => setCpid(null),
+    };
+  }, []);
+
   return <div
     ref={container}
     className="sandbox"
@@ -274,22 +294,24 @@ export default React.memo(() => {
       document.addEventListener('mouseup', up, false);
     }}
   >
-    <SandboxContext.Provider value={ctx}>
-      { field.map((spec, idx) => (
-        <BlockWrapper
-          key={spec.id}
-          idx={idx}
-          spec={spec}
-          requestSettle={requestSettle}
-          requestDelete={requestDelete}
-          requestRedraw={redraw}
-          scroll={scroll}
-        >
-        </BlockWrapper>
-      ))}
+    <FPGAEnvContext.Provider value={fpgaCtx}>
+      <SandboxContext.Provider value={ctx}>
+        { field.map((spec, idx) => (
+          <BlockWrapper
+            key={spec.id}
+            idx={idx}
+            spec={spec}
+            requestSettle={requestSettle}
+            requestDelete={requestDelete}
+            requestRedraw={redraw}
+            scroll={scroll}
+          >
+          </BlockWrapper>
+        ))}
 
-      <canvas ref={canvas} className="lines"></canvas>
-    </SandboxContext.Provider>
+        <canvas ref={canvas} className="lines"></canvas>
+      </SandboxContext.Provider>
+    </FPGAEnvContext.Provider>
 
     { ctxMenu !== null ?
       <div className="ctx" style={{

@@ -15,7 +15,10 @@ export default React.memo(rest => {
         {
           CLOCK_FREQUENCY.map((f, idx) =>
             <div className="clock-box" key={idx}>
-              <Connector mode={MODE.CLOCK_SRC}></Connector>
+              <Connector
+                mode={MODE.CLOCK_SRC}
+                data={f}
+              />
               <div className="clock-label">{f}<small>M</small></div>
             </div>)
         }
