@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import cn from 'classnames';
 
-import { Connector, SIGNAL } from './index.js';
+import { Connector, SIGNAL, MODE } from './index.js';
 
 const CLOCK_FREQUENCY = [16, 8, 4, 2, 1];
 
@@ -15,7 +15,7 @@ export default function Digit4(rest) {
         {
           CLOCK_FREQUENCY.map((f, idx) =>
             <div className="clock-box" key={idx}>
-              <Connector className="clocking"></Connector>
+              <Connector mode={MODE.CLOCK_SRC}></Connector>
               <div className="clock-label">{f}<small>M</small></div>
             </div>)
         }

@@ -3,7 +3,7 @@ import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 
 import * as blocks from './blocks';
-import { SIGNAL } from './blocks';
+import { SIGNAL, MODE } from './blocks';
 
 import Icon from './comps/Icon';
 
@@ -25,10 +25,10 @@ class Handler {
 
   selecting = null;
 
-  register(cbref) {
+  register(cbref, mode) {
     const id = uuidv4();
     const ref = React.createRef();
-    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null };
+    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode };
     return { ref, id };
   }
 
@@ -84,16 +84,27 @@ class Handler {
     if(this.selecting === null) this.selecting = id;
     else if(this.selecting === id) this.selecting = null;
     else {
-      this.connectors[this.selecting].connected = id;
-      this.connectors[id].connected = this.selecting;
+      if(this.checkConnectable(id, this.selecting)) {
+        this.connectors[this.selecting].connected = id;
+        this.connectors[id].connected = this.selecting;
 
-      this.tryUpdate(this.selecting);
-      this.tryUpdate(id);
+        this.tryUpdate(this.selecting);
+        this.tryUpdate(id);
+      }
 
       this.selecting = null;
     }
 
     this.updateLines();
+  }
+
+  checkConnectable(aid, bid) {
+    const { mode: am } = this.connectors[aid];
+    const { mode: bm } = this.connectors[bid];
+
+    if(am === MODE.CLOCK_DEST || bm === MODE.CLOCK_DEST) return true;
+    if(am === MODE.CLOCK_SRC || bm === MODE.CLOCK_SRC) return false;
+    return true;
   }
 
   updateLines() {

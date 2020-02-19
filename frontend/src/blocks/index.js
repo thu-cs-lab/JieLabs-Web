@@ -3,13 +3,32 @@ import cn from 'classnames';
 
 import { SandboxContext } from '../Sandbox.js';
 
-export const SIGNAL = {
-  H: Symbol("High"),
-  L: Symbol("Low"),
-  X: Symbol("X"),
-}
+export const SIGNAL = Object.freeze({
+  H: Symbol('High'),
+  L: Symbol('Low'),
+  X: Symbol('X'),
+});
 
-export function Connector({ onChange, output, className, ...rest }) {
+/**
+ * Connector mode.
+ *
+ * Normal pins can be connected to normal pins or ClockDest pins
+ * ClockSrc pins can only be connected to ClockDest pins
+ * ClockDest pins can be connected to any pins
+ */
+export const MODE = Object.freeze({
+  NORMAL: Symbol('Normal'),
+  CLOCK_SRC: Symbol('ClockSrc'),
+  CLOCK_DEST: Symbol('ClockDest'),
+});
+
+/**
+ * Note: the `mode` property is currently not reactive
+ */
+export const Connector = React.memo(({ onChange, output: _output, className, mode: _mode, ...rest }) => {
+  const output = _output || SIGNAL.X;
+  const mode = _mode || MODE.NORMAL;
+
   const snd = useContext(SandboxContext);
 
   const [id, setId] = useState(null);
@@ -21,7 +40,7 @@ export function Connector({ onChange, output, className, ...rest }) {
   }, [onChange]);
 
   useEffect(() => {
-    const { id: nid, ref: nref } = snd.register(cb);
+    const { id: nid, ref: nref } = snd.register(cb, mode);
     setId(nid);
     setRef(nref);
 
@@ -32,7 +51,7 @@ export function Connector({ onChange, output, className, ...rest }) {
 
   useEffect(() => {
     if(id !== null)
-      snd.update(id, output || SIGNAL.X);
+      snd.update(id, output);
   }, [id, output]);
 
   const onClick = useCallback(() => {
@@ -41,8 +60,13 @@ export function Connector({ onChange, output, className, ...rest }) {
   }, [id]);
 
   if(!id) return <div className={className} {...rest}></div>;
-  return <div ref={ref} className={cn("connector", className)} onClick={onClick} onMouseDown={e => e.stopPropagation()}></div>;
-}
+  return <div
+    ref={ref}
+    className={cn("connector", className, { clocking: mode === MODE.CLOCK_DEST || mode === MODE.CLOCK_SRC })}
+    onClick={onClick}
+    onMouseDown={e => e.stopPropagation()}
+  ></div>;
+});
 
 export { default as Switch4 } from './Switch4.js';
 export { default as FPGA } from './FPGA.js';
