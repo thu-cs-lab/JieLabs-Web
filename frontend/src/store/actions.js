@@ -1,5 +1,5 @@
 import { get, post, putS3, createTarFile } from '../util';
-import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE } from '../config';
+import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS } from '../config';
 
 export const TYPES = {
   SET_USER: Symbol('SET_USER'),
@@ -145,7 +145,7 @@ export function init() {
 export function submitBuild() {
   return async (dispatch, getState) => {
     try {
-      let { build, code } = getState();
+      let { build, code, signals } = getState();
       if (build && build.intervalID) {
         clearInterval(build.intervalID);
       }
@@ -154,8 +154,16 @@ export function submitBuild() {
       const uuid = data.uuid;
       const url = data.url;
 
+      let assignments = "";
+      const board = BOARDS[signals.board];
+      signals.signals.mapEntries((entry) => {
+        const [signal, pin] = entry;
+        const pinName = board.pins[pin].pin;
+        assignments += `set_location_assignment ${pinName} -to ${signal}\n`;
+      });
+
       let tar = createTarFile([{ name: 'src/mod_top.vhd', body: code },
-      { name: 'src/mod_top.qsf', body: 'set_location_assignment PIN_N1 -to M_nRESET' }]);
+      { name: 'src/mod_top.qsf', body: assignments }]);
       await putS3(url, tar);
       const result = await post('/api/task/build', { source: uuid });
       let intervalID = null;
