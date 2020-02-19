@@ -453,13 +453,14 @@ main {
 
   .pins {
     display: grid;
-    padding: 10px;
+    padding-top: 10px;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr;
   }
 
   .digit {
     font-family: 'Segment7Standard';
+    font-size: 30px;
   }
 }
 
