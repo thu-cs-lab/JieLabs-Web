@@ -505,6 +505,19 @@ main {
       padding-left: 20px;
       padding-right: 20px;
     }
+
+    .press-btn {
+      height: 26px;
+      width: 13px;
+      background: rgba(255,255,255,.2);
+      cursor: pointer;
+      
+      transition: transform .2s ease;
+
+      &.pusheen {
+        transform: scale(0.8);  
+      }
+    }
   }
 }
 

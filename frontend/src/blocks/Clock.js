@@ -26,7 +26,7 @@ export default function Digit4(rest) {
         <Connector output={manualClock} master={true}></Connector>
         CLK
         <div
-          className={cn("switch", { pusheen: manualClock === SIGNAL.H })}
+          className={cn("press-btn", { pusheen: manualClock === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualClock(SIGNAL.H); }}
           onMouseUp={e => { e.stopPropagation(); setManualClock(SIGNAL.L); }}
         ></div>
@@ -35,7 +35,7 @@ export default function Digit4(rest) {
         <Connector output={manualReset} master={true}></Connector>
         RST
         <div
-          className={cn("switch", { pusheen: manualReset === SIGNAL.H })}
+          className={cn("press-btn", { pusheen: manualReset === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualReset(SIGNAL.H); }}
           onMouseUp={e => { e.stopPropagation(); setManualReset(SIGNAL.L); }}
         ></div>
