@@ -59,9 +59,9 @@ export default React.memo(() => {
 
     const assignPin = editor.addCommand(0, (ctx, { name, dir }, subscript) => {
       if(subscript === null)
-        setAssigning({ name, dir });
+        setAssigning({ name, dir, subscript: null });
       else
-        setAssigning({ name: name + `[${subscript}]`, dir });
+        setAssigning({ name, dir, subscript });
       setSearch('');
       setTimeout(() => searchRef.current.focus());
     });
@@ -72,6 +72,10 @@ export default React.memo(() => {
   const top = useSelector(state => state.signals.top);
   const blocker = useCallback(e => {
     e.preventDefault();
+    e.stopPropagation();
+  });
+
+  const weakBlocker = useCallback(e => {
     e.stopPropagation();
   });
 
@@ -90,6 +94,7 @@ export default React.memo(() => {
   }, [board, assigning]);
 
   const [sortedPins, revAssignment] = useMemo(() => {
+    if(assigning === null) return [[], new Map()];
     const assignedResult = [], unassignedResult = [];
     const rev = new Map();
 
@@ -98,9 +103,12 @@ export default React.memo(() => {
 
     let current = null;
 
+    if(assigning.subscript === -1) return [[], new Map()];
+    const fullName = assigning.subscript === null ? assigning.name : assigning.name + `[${assigning.subscript}]`;
+
     for(const p of availablePins) {
       const sig = rev.get(p.idx);
-      if(sig === assigning.name)
+      if(sig === fullName)
         current = p;
       else if(sig !== undefined)
         assignedResult.push(p);
@@ -135,7 +143,9 @@ export default React.memo(() => {
   }, [search, sortedPins, revAssignment])
 
   const handleAssign= useCallback(idx => {
-    dispatch(assignPin(assigning.name, idx));
+    if(assigning.subscript === -1) throw new Error('Condition failed');
+    const fullName = assigning.subscript === null ? assigning.name : assigning.name + `[${assigning.subscript}]`;
+    dispatch(assignPin(fullName, idx));
     setAssigning(null);
   }, [dispatch, assigning]);
 
@@ -222,6 +232,61 @@ export default React.memo(() => {
     };
   }, [analysis, assignments]);
 
+  const [pendingSubscript, setPendingSubscript] = useState('');
+
+  const subscriptChange = useCallback(e => {
+    const nv = e.target.value;
+    const parsed = Number.parseInt(nv, 10);
+
+    const target = analysis.entities[analysis.top-1].signals.find(e => e.name === assigning.name);
+    if(!target || target.arity === null) return;
+
+    let valid;
+    if(Number.isInteger(parsed)) {
+      if(target.arity.from >= target.arity.to) {
+        valid = parsed <= target.arity.from && parsed >= target.arity.to;
+      } else {
+        valid = parsed <= target.arity.to && parsed >= target.arity.from;
+      }
+    } else {
+      valid = false;
+    }
+
+    setPendingSubscript(nv);
+    setAssigning({
+      ...assigning,
+      subscript: valid ? parsed : -1,
+    });
+  }, [assigning, analysis]);
+
+  const subscriptStep = step => {
+    // Asserts step \in {1, -1}
+    if(assigning.subscript === -1 || assigning.subscript === null) return;
+
+    const target = analysis.entities[analysis.top-1].signals.find(e => e.name === assigning.name);
+    if(!target || target.arity === null) return;
+
+    let next;
+    if(target.arity.from >= target.arity.to) {
+      // Inc = -1
+      next = assigning.subscript - step;
+      if(next === target.arity.from+1) next = target.arity.to;
+      if(next === target.arity.to-1) next = target.arity.from;
+    } else {
+      next = assigning.subscript + step;
+      if(next === target.arity.from-1) next = target.arity.to;
+      if(next === target.arity.to+1) next = target.arity.from;
+    }
+
+    setAssigning({
+      ...assigning,
+      subscript: next,
+    });
+  };
+
+  const subscriptInc = useCallback(() => subscriptStep(1), [analysis, assigning]);
+  const subscriptDec = useCallback(() => subscriptStep(-1), [analysis, assigning]);
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
@@ -267,7 +332,35 @@ export default React.memo(() => {
           <div className="backdrop centering" onMouseDown={dismissAssigning}>
             <div className="dialog" onMouseDown={blocker}>
               <div className="hint">Pin Assignment</div>
-              <div className="dialog-title monospace"><span className="dimmed">{ top } / </span>{ assigning.name }</div>
+              <div className="dialog-title monospace">
+                <span className="dimmed">
+                  { top }
+                  <span className="spacer"></span>
+                  /
+                  <span className="spacer"></span>
+                </span>
+                { assigning.name }
+                { assigning.subscript !== null && (
+                  <span>
+                    <span className="dimmed">[</span>
+                    <Icon
+                      className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
+                      onClick={subscriptDec}
+                    >keyboard_arrow_left</Icon>
+                    <input
+                      className={cn("subscript-input-region", { invalid: assigning.subscript === -1 })}
+                      value={assigning.subscript !== -1 ? assigning.subscript.toString() : pendingSubscript}
+                      onMouseDown={weakBlocker}
+                      onChange={subscriptChange}
+                    />
+                    <Icon
+                      className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
+                      onClick={subscriptInc}
+                    >keyboard_arrow_right</Icon>
+                    <span className="dimmed">]</span>
+                  </span>
+                )}
+              </div>
 
               <div className="search-box">
                 <Icon className="search-icon">search</Icon>
@@ -275,6 +368,7 @@ export default React.memo(() => {
                   className="search-input monospace"
                   placeholder="Number | Signal | 'clock'"
                   value={search}
+                  onMouseDown={weakBlocker}
                   onChange={searchChange}
                   onKeyDown={checkKey}
                   ref={searchRef}
