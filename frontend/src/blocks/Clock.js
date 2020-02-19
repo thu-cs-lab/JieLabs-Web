@@ -23,22 +23,22 @@ export default function Digit4(rest) {
     </div>
     <div className="clock-bottom">
       <div className="clock-box">
+        <Connector output={manualClock} master={true}></Connector>
         CLK
         <div
           className={cn("switch", { pusheen: manualClock === SIGNAL.H })}
-          onClick={() => setManualClock(manualClock === SIGNAL.L ? SIGNAL.H : SIGNAL.L)}
-          onMouseDown={e => e.stopPropagation()}
+          onMouseDown={e => { e.stopPropagation(); setManualClock(SIGNAL.H); }}
+          onMouseUp={e => { e.stopPropagation(); setManualClock(SIGNAL.L); }}
         ></div>
-        <Connector output={manualClock} master={true}></Connector>
       </div>
       <div className="clock-box">
+        <Connector output={manualReset} master={true}></Connector>
         RST
         <div
           className={cn("switch", { pusheen: manualReset === SIGNAL.H })}
-          onClick={() => setManualReset(manualReset === SIGNAL.L ? SIGNAL.H : SIGNAL.L)}
-          onMouseDown={e => e.stopPropagation()}
+          onMouseDown={e => { e.stopPropagation(); setManualReset(SIGNAL.H); }}
+          onMouseUp={e => { e.stopPropagation(); setManualReset(SIGNAL.L); }}
         ></div>
-        <Connector output={manualReset} master={true}></Connector>
       </div>
     </div>
   </div>
