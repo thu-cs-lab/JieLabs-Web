@@ -105,3 +105,9 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
 
   return state;
 }
+
+export function clock(state = null, action) {
+  if(action.type === TYPES.SET_CLOCK)
+    return action.clock;
+  return state;
+}

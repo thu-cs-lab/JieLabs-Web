@@ -1,9 +1,11 @@
-import React, { useRef, useCallback, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
+import { useDispatch } from 'react-redux';
 
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
+import { setClock } from './store/actions';
 
 import Icon from './comps/Icon';
 
@@ -23,13 +25,14 @@ class Handler {
   }
 
   connectors = {};
-
   selecting = null;
+  listeners = new Set();
 
   register(cbref, mode, data) {
     const id = uuidv4();
     const ref = React.createRef();
     this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode, data };
+    this.fireListeners();
     return { ref, id };
   }
 
@@ -61,6 +64,7 @@ class Handler {
       this.tryUpdate(other);
     }
     this.connectors[id] = null;
+    this.fireListeners();
   }
 
   update(id, value) {
@@ -73,6 +77,7 @@ class Handler {
   }
 
   click(id) {
+    let updated = false;
     const original = this.connectors[id].connected;
     if(original !== null) {
       this.connectors[original].connected = null;
@@ -80,6 +85,7 @@ class Handler {
 
       this.tryUpdate(id);
       this.tryUpdate(original);
+      updated = true;
     }
 
     if(this.selecting === null) this.selecting = id;
@@ -91,12 +97,16 @@ class Handler {
 
         this.tryUpdate(this.selecting);
         this.tryUpdate(id);
+        updated = true;
       }
 
       this.selecting = null;
     }
 
-    this.updateLines();
+    if(updated) {
+      this.fireListeners();
+      this.updateLines();
+    }
   }
 
   checkConnectable(aid, bid) {
@@ -137,6 +147,19 @@ class Handler {
 
   getData(id) {
     return this.connectors[id]?.data.current;
+  }
+
+  /**
+   * Currently, onChange listeners only fires on topology changes, not on signal updates
+   */
+  onChange(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  fireListeners() {
+    for(const listener of this.listeners)
+      listener();
   }
 }
 
@@ -220,7 +243,7 @@ export default React.memo(() => {
     }
   }), [redraw]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if(container.current) {
       observer.observe(container.current);
       if(canvas.current) {
@@ -251,14 +274,39 @@ export default React.memo(() => {
 
   // FPGA Context related stuff
 
+  const dispatch = useDispatch();
+
   // cpid = Clocking Pin ID
-  const [cpid, setCpid] = useState(null);
+  const cpid = useRef(null);
   const fpgaCtx = useMemo(() => {
     return {
-      regClocking: setCpid,
-      unregClocking: () => setCpid(null),
+      regClocking: id => {
+        cpid.current = id;
+
+        const other = ctx.getConnected(id);
+        if(other !== null)
+          return dispatch(setClock(ctx.getData(other)));
+        else
+          return dispatch(setClock(null));
+      },
+      unregClocking: () => {
+        cpid.current = null;
+        dispatch(setClock(null));
+      }
     };
-  }, []);
+  }, [ctx, cpid]);
+
+  useEffect(() => {
+    return ctx.onChange(() => {
+      if(!cpid.current) return;
+
+      const other = ctx.getConnected(cpid.current);
+      if(other !== null)
+        return dispatch(setClock(ctx.getData(other)));
+      else
+        return dispatch(setClock(null));
+    });
+  }, [ctx, cpid]);
 
   return <div
     ref={container}

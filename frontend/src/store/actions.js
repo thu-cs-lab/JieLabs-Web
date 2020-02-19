@@ -10,6 +10,7 @@ export const TYPES = {
   SET_BOARD: Symbol('SET_BOARD'),
   ASSIGN_TOP: Symbol('ASSIGN_TOP'),
   ASSIGN_PIN: Symbol('ASSIGN_PIN'),
+  SET_CLOCK: Symbol('SET_CLOCK'),
 };
 
 export function setUser(user) {
@@ -65,6 +66,13 @@ export function assignPin(signal, pin) {
   return {
     type: TYPES.ASSIGN_PIN,
     signal, pin,
+  };
+}
+
+export function setClock(clock) {
+  return {
+    type: TYPES.SET_CLOCK,
+    clock,
   };
 }
 
