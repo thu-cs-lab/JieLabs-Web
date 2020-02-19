@@ -137,15 +137,13 @@ export function registerCodeLens(cmds) {
         };
 
         for(const signal of analysis.entities[topIdx].signals) {
-          function push(name, params, aliased = null) {
+          function push(name, params, isStandalone) {
             let title;
-            if(aliased === null) {
+            if(isStandalone) {
               const assigned = signals.signals.get(name);
               title = assigned !== undefined ? `Assigned to pin ${assigned}` : `Assign pin for ${name}`;
             } else {
-              const assigned = signals.signals.get(aliased);
-              // Is an array element, hide additional info
-              title = assigned === undefined ? name : `pin ${assigned}`;
+              title = `Assign pins for ${name}`;
             }
 
             lenses.push({
@@ -165,18 +163,9 @@ export function registerCodeLens(cmds) {
           }
 
           if(signal.arity === null) {
-            push(signal.name, [signal, null]);
+            push(signal.name, [signal, null], true);
           } else {
-            const { from, to } = signal.arity;
-            if(from < to) {
-              push(signal.name, null);
-              for(let i = from; i <= to; ++i)
-                push(`[${i}]`, [signal, i], `${signal.name}[${i}]`);
-            } else {
-              push(signal.name, null);
-              for(let i = from; i >= to; --i)
-                push(`[${i}]`, [signal, i], `${signal.name}[${i}]`);
-            }
+            push(signal.name, [signal, signal.arity.from], false);
           }
         }
       }

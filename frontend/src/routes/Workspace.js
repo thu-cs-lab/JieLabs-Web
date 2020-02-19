@@ -132,7 +132,7 @@ export default React.memo(() => {
         return true;
 
       const signal = revAssignment.get(e.idx);
-      if(signal && signal.indexOf(search) === 0)
+      if(signal && signal.indexOf(search) !== -1)
         return true;
 
       if('clock'.indexOf(search.toLowerCase()) === 0 && e.clock)
@@ -146,7 +146,6 @@ export default React.memo(() => {
     if(assigning.subscript === -1) throw new Error('Condition failed');
     const fullName = assigning.subscript === null ? assigning.name : assigning.name + `[${assigning.subscript}]`;
     dispatch(assignPin(fullName, idx));
-    setAssigning(null);
   }, [dispatch, assigning]);
 
   let firstFilteredIndex = filteredPins.findIndex(e => !e.current);
@@ -176,15 +175,6 @@ export default React.memo(() => {
       </div>
     );
   }), [filteredPins, revAssignment, firstFilteredIndex, handleAssign]);
-
-  const checkKey= useCallback(ev => {
-    if(ev.key === 'Escape')
-      setAssigning(null);
-    if(ev.key === 'Enter') {
-      if(firstFilteredIndex !== -1)
-        handleAssign(filteredPins[firstFilteredIndex].idx)
-    }
-  }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex]);
 
   const analysis = useSelector(state => state.analysis);
 
@@ -286,6 +276,18 @@ export default React.memo(() => {
 
   const subscriptInc = useCallback(() => subscriptStep(1), [analysis, assigning]);
   const subscriptDec = useCallback(() => subscriptStep(-1), [analysis, assigning]);
+
+  const checkKey= useCallback(ev => {
+    if(ev.key === 'Escape')
+      setAssigning(null);
+    else if(ev.key === 'Enter') {
+      if(firstFilteredIndex !== -1)
+        handleAssign(filteredPins[firstFilteredIndex].idx)
+    } else if(ev.key === 'ArrowUp')
+      subscriptInc();
+    else if(ev.key === 'ArrowDown')
+      subscriptDec();
+  }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
 
   return <main className="workspace">
     <div className="left">
