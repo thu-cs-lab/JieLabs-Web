@@ -200,19 +200,40 @@ export default React.memo(() => {
           glyphMarginClassName: 'top-glyph',
         },
       },
-      ...topEntity.signals.map(signal => ({
-        range: new Range(
-          signal.pos.from_line + 1,
-          signal.pos.from_char + 1,
-          signal.pos.to_line + 1,
-          signal.pos.to_char + 1,
-        ),
-        options: {
-          isWholeLine: true,
-          className: assignments.get(signal.name) === undefined ? 'unassigned-signal-line' : 'assigned-signal-line',
-          glyphMarginClassName: assignments.get(signal.name) === undefined ? 'unassigned-signal-glyph' : 'assigned-signal-glyph',
-        },
-      }))
+      ...topEntity.signals.map(signal => {
+        let mapped = false;
+        if(signal.arity === null)
+          mapped = assignments.get(signal.name) !== undefined;
+        else if(signal.arity.from >= signal.arity.to) {
+          mapped = true;
+          for(let i = signal.arity.to; i <= signal.arity.from; ++i)
+            if(assignments.get(signal.name + `[${i}]`) === undefined) {
+              mapped = false;
+              break;
+            }
+        } else {
+          mapped = true;
+          for(let i = signal.arity.from; i <= signal.arity.to; ++i)
+            if(assignments.get(signal.name + `[${i}]`) === undefined) {
+              mapped = false;
+              break;
+            }
+        }
+
+        return {
+          range: new Range(
+            signal.pos.from_line + 1,
+            signal.pos.from_char + 1,
+            signal.pos.to_line + 1,
+            signal.pos.to_char + 1,
+          ),
+          options: {
+            isWholeLine: true,
+            className: mapped ? 'assigned-signal-line' : 'unassigned-signal-line',
+            glyphMarginClassName: mapped ? 'assigned-signal-glyph' : 'unassigned-signal-glyph',
+          },
+        };
+      })
     ];
 
     const ids = editor.deltaDecorations([], decorations);
