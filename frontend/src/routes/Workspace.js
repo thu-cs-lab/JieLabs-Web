@@ -57,8 +57,11 @@ export default React.memo(() => {
       dispatch(updateTop(name));
     });
 
-    const assignPin = editor.addCommand(0, (ctx, { name, dir }) => {
-      setAssigning({ name, dir });
+    const assignPin = editor.addCommand(0, (ctx, { name, dir }, subscript) => {
+      if(subscript === null)
+        setAssigning({ name, dir });
+      else
+        setAssigning({ name: name + `[${subscript}]`, dir });
       setSearch('');
       setTimeout(() => searchRef.current.focus());
     });

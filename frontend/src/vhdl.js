@@ -137,23 +137,47 @@ export function registerCodeLens(cmds) {
         };
 
         for(const signal of analysis.entities[topIdx].signals) {
-          const assigned = signals.signals.get(signal.name)
-          const title = assigned !== undefined ? `Assigned to pin ${assigned}` : `Assign pin for ${signal.name}`;
+          function push(name, params, aliased = null) {
+            let title;
+            if(aliased === null) {
+              const assigned = signals.signals.get(name);
+              title = assigned !== undefined ? `Assigned to pin ${assigned}` : `Assign pin for ${name}`;
+            } else {
+              const assigned = signals.signals.get(aliased);
+              // Is an array element, hide additional info
+              title = assigned === undefined ? name : `pin ${assigned}`;
+            }
 
-          lenses.push({
-            range: {
-              startLineNumber: signal.pos.from_line + 1,
-              startColumn: signal.pos.from_char + 1,
-              endLineNumber: signal.pos.to_line + 1,
-              endColumn: signal.pos.to_char + 1,
-            },
-            id: `assign-pin:${signal.name}`,
-            command: {
-              title,
-              id: assignPin,
-              arguments: [signal],
-            },
-          });
+            lenses.push({
+              range: {
+                startLineNumber: signal.pos.from_line + 1,
+                startColumn: signal.pos.from_char + 1,
+                endLineNumber: signal.pos.to_line + 1,
+                endColumn: signal.pos.to_char + 1,
+              },
+              id: `assign-pin:${name}`,
+              command: {
+                title,
+                id: params === null ? undefined : assignPin,
+                arguments: params,
+              },
+            });
+          }
+
+          if(signal.arity === null) {
+            push(signal.name, [signal, null]);
+          } else {
+            const { from, to } = signal.arity;
+            if(from < to) {
+              push(signal.name, null);
+              for(let i = from; i <= to; ++i)
+                push(`[${i}]`, [signal, i], `${signal.name}[${i}]`);
+            } else {
+              push(signal.name, null);
+              for(let i = from; i >= to; --i)
+                push(`[${i}]`, [signal, i], `${signal.name}[${i}]`);
+            }
+          }
         }
       }
 
