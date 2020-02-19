@@ -14,7 +14,7 @@ export default function Digit4(rest) {
     let digit2 = pins.get(index * 4 + 2) === SIGNAL.H;
     let digit3 = pins.get(index * 4 + 3) === SIGNAL.H;
     let digit = digit3 * 8 + digit2 * 4 + digit1 * 2 + digit0;
-    return digit.toString(16);
+    return digit.toString(16).toUpperCase();
   }, [pins]);
 
   return <div className="block digit4" {...rest}>
