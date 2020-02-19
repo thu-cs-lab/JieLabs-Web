@@ -462,7 +462,7 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
     >
       <div className="block-ops">
         { (!spec.persistent) && (
-          <button className="delete" onClick={requestDelete}>
+          <button className="delete" onClick={onDelete}>
             <Icon>close</Icon>
           </button>
         )}
