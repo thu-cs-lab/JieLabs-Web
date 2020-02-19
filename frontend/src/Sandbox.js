@@ -273,8 +273,14 @@ export default React.memo(() => {
   const [ctxMenu, setCtxMenu] = useState(null);
 
   const requestSettle = useCallback((idx, { x, y }) => {
-    let aligned = findAlignedPos(field, { x, y }, field.get(idx).id);
-    setField(field.set(idx, { ...field.get(idx), ...aligned }));
+    const ax = alignToBlock(x);
+    const ay = alignToBlock(y);
+
+    for(const block of field)
+      if(block.x === ax && block.y === ay)
+        return;
+
+    setField(field.set(idx, { ...field.get(idx), x: ax, y: ay }));
   }, [setField, field]);
 
   const requestDelete = useCallback(idx => {
