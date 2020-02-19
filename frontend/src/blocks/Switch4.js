@@ -4,7 +4,7 @@ import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
 
-export default function Switch4(rest) {
+export default React.memo(rest => {
   const [leds, setLeds] = useState(List(Array(4).fill(SIGNAL.X)));
   const [switches, setSwitches] = useState(List(Array(4).fill(SIGNAL.L)));
 
@@ -32,4 +32,4 @@ export default function Switch4(rest) {
       }
     </div>
   </div>
-}
+});

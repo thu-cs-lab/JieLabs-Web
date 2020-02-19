@@ -5,7 +5,7 @@ import { Connector, SIGNAL, MODE } from './index.js';
 
 const CLOCK_FREQUENCY = [16, 8, 4, 2, 1];
 
-export default function Digit4(rest) {
+export default React.memo(rest => {
   const [manualClock, setManualClock] = useState(SIGNAL.L);
   const [manualReset, setManualReset] = useState(SIGNAL.L);
 
@@ -40,4 +40,4 @@ export default function Digit4(rest) {
       </div>
     </div>
   </div>
-}
+});

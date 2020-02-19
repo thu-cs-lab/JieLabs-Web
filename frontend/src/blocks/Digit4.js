@@ -4,8 +4,7 @@ import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
 
-
-export default function Digit4(rest) {
+export default React.memo(rest => {
   const [pins, setPins] = useState(List(Array(12).fill(SIGNAL.X)));
 
   const calcDigit = useCallback((index) => {
@@ -42,4 +41,4 @@ export default function Digit4(rest) {
       }
     </div>
   </div>
-}
+});

@@ -6,7 +6,7 @@ import { Connector, SIGNAL, MODE } from './index.js';
 
 const PIN_COUNT = 38;
 
-export default function FPGA(rest) {
+export default React.memo(rest => {
   const [io, setIO] = useState(List(Array(PIN_COUNT).fill(SIGNAL.X)));
   const [reset, setReset] = useState(SIGNAL.L);
 
@@ -20,4 +20,4 @@ export default function FPGA(rest) {
       </div>
     ))}
   </div>
-}
+});
