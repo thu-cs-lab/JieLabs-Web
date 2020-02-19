@@ -47,10 +47,17 @@ impl From<vhdl_lang::ast::Mode> for SignalDirection {
 }
 
 #[derive(Serialize, Deserialize)]
+struct ArityInfo {
+    from: u64,
+    to: u64,
+}
+
+#[derive(Serialize, Deserialize)]
 struct SignalInfo {
     name: String,
     pos: Pos,
     dir: SignalDirection,
+    arity: Option<ArityInfo>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -97,14 +104,32 @@ pub fn parse(s: &str, top_name: Option<String>) -> JsValue {
             if let Some(ref ports) = ent.port_clause {
                 for port in ports {
                     if let InterfaceDeclaration::Object(decl) = port {
+                        // Parse arity
+                        let mut arity = None;
+
+                        if let Some(ref constraint) = decl.subtype_indication.constraint {
+                            use vhdl_lang::ast::{SubtypeConstraint, Range, RangeConstraint, Expression, Literal, AbstractLiteral};
+                            let inner: &SubtypeConstraint = &constraint.item;
+
+                            if let &SubtypeConstraint::Range(Range::Range(RangeConstraint { ref left_expr, ref right_expr, .. })) = inner {
+                                if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(left))) = left_expr.item {
+                                    if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(right))) = right_expr.item {
+                                        arity = Some(ArityInfo {
+                                            from: left,
+                                            to: right,
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
                         entity.signals.push(SignalInfo {
                             name: decl.ident.to_string(),
                             pos: Pos::from_srcpos(decl.ident.as_ref()),
                             dir: decl.mode.into(),
+                            arity,
                         });
                     }
-
-                    // TODO: Support other types of interface decls
                 }
             }
 
