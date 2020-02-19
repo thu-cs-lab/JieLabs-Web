@@ -139,7 +139,8 @@ export default React.memo(() => {
     [
       { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
       { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
-      { type: 'Digit4', x: 0, y: 2 * BLOCK_ALIGNMENT, id: 'digit4_1' },
+      { type: 'Digit4', x: 1 * BLOCK_ALIGNMENT, y: 0, id: 'digit4_1' },
+      { type: 'Clock', x: 1 * BLOCK_ALIGNMENT, y: 1 * BLOCK_ALIGNMENT, id: 'clock_1' },
     ]
   ));
 
@@ -310,7 +311,7 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
     transform: `translate(${scroll.x + alignToBlock(moving.x)}px,${scroll.y + alignToBlock(moving.y)}px)`,
     zIndex: 0,
     opacity: 0.5,
-  } : {}, [moving]);
+  } : {}, [moving, scroll.x, scroll.y]);
 
   const onMouseDown = useCallback(ev => {
     const cur = { x: spec.x, y: spec.y };
