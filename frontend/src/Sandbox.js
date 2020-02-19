@@ -187,6 +187,12 @@ function findAlignedPos(field, pos, id) {
   return realPos;
 }
 
+const INSERTABLES = [
+  'Switch4',
+  'Digit4',
+  'Clock',
+];
+
 export default React.memo(() => {
   /**
    * Field configuration
@@ -381,16 +387,18 @@ export default React.memo(() => {
         top: ctxMenu.y,
         left: ctxMenu.x,
       }}>
-        <div className="ctx-entry" onClick={() => {
-          const cont = container.current.getBoundingClientRect();
-          let pos = findAlignedPos(field, {
-            x: ctxMenu.x - scroll.x - cont.x,
-            y: ctxMenu.y - scroll.y - cont.y,
-          }, null);
-          setField(field.push(
-            { type: 'Switch4', id: uuidv4(), ...pos },
-          ))
-        }}>Add</div>
+        { INSERTABLES.map(t => (
+          <div className="ctx-entry" onClick={() => {
+            const cont = container.current.getBoundingClientRect();
+            let pos = findAlignedPos(field, {
+              x: ctxMenu.x - scroll.x - cont.x,
+              y: ctxMenu.y - scroll.y - cont.y,
+            }, null);
+            setField(field.push(
+              { type: t, id: uuidv4(), ...pos },
+            ))
+          }}>Create {t}</div>
+        ))}
       </div> : null
     }
   </div>;
