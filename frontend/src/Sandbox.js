@@ -188,9 +188,18 @@ function findAlignedPos(field, pos, id) {
 }
 
 export default React.memo(() => {
+  /**
+   * Field configuration
+   *
+   * type: Type of the block
+   * x: current x position
+   * y: current y position
+   * id: id of the block
+   * persistent: if the deletion of the block is forbidden
+   */
   const [field, setField] = useState(List(
     [
-      { type: 'FPGA', x: 0, y: 0, id: 'fpga' }, // TODO: change to type fpga
+      { type: 'FPGA', x: 0, y: 0, id: 'fpga', persistent: true },
       { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
       { type: 'Digit4', x: 1 * BLOCK_ALIGNMENT, y: 0, id: 'digit4_1' },
       { type: 'Clock', x: 1 * BLOCK_ALIGNMENT, y: 1 * BLOCK_ALIGNMENT, id: 'clock_1' },
@@ -452,9 +461,11 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
       {...rest}
     >
       <div className="block-ops">
-        <button className="delete" onClick={requestDelete}>
-          <Icon>close</Icon>
-        </button>
+        { (!spec.persistent) && (
+          <button className="delete" onClick={requestDelete}>
+            <Icon>close</Icon>
+          </button>
+        )}
       </div>
       <Block
         onMouseDown={onMouseDown}
