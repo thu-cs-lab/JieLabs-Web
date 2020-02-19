@@ -9,6 +9,13 @@ import Icon from './comps/Icon';
 
 export const SandboxContext = React.createContext(null);
 
+function negotiateSignal(a, b) {
+  if(a === SIGNAL.X) return b;
+  if(b === SIGNAL.X) return a;
+  if(a === b) return a;
+  return SIGNAL.X;
+}
+
 class Handler {
   constructor(onLineChange) {
     this.onLineChange = onLineChange;
@@ -18,15 +25,30 @@ class Handler {
 
   selecting = null;
 
-  register(master) {
+  register(cbref) {
     const id = uuidv4();
     const ref = React.createRef();
-    this.connectors[id] = { onChange: null, ref, master, value: SIGNAL.X, connected: null };
+    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null };
     return { ref, id };
   }
 
-  setHook(id, onChange) {
-    this.connectors[id].onChange = onChange;
+  tryUpdate(id) {
+    if(this.connectors[id].connected === null)
+      this.tryNotify(id, this.connectors[id].input);
+    else {
+      const other = this.connectors[id].connected;
+      const handshaked = negotiateSignal(this.connectors[id].input, this.connectors[other].input);
+      this.tryNotify(id, handshaked);
+      this.tryNotify(other, handshaked);
+    }
+  }
+
+  tryNotify(id, signal) {
+    if(this.connectors[id].ack !== signal) {
+      if(this.connectors[id].cb.current)
+        this.connectors[id].cb.current(signal)
+      this.connectors[id].ack = this.connectors[id].input;
+    }
   }
 
   unregister(id) {
@@ -35,9 +57,7 @@ class Handler {
 
     if(other !== null) {
       this.connectors[other].connected = null;
-
-      if(!this.connectors[other].master)
-        this.connectors[other].onChange(SIGNAL.X);
+      this.tryUpdate(other);
     }
     this.connectors[id] = null;
   }
@@ -45,45 +65,35 @@ class Handler {
   update(id, value) {
     if(!this.connectors[id]) return {};
 
-    if(this.connectors[id].master && this.connectors[id].value !== value) {
-      this.connectors[id].value = value;
+    if(this.connectors[id].input !== value) {
+      this.connectors[id].input = value;
+      this.tryUpdate(id);
+    }
+  }
 
-      const connected = this.connectors[id].connected;
+  click(id) {
+    const original = this.connectors[id].connected;
+    if(original !== null) {
+      this.connectors[original].connected = null;
+      this.connectors[id].connected = null;
 
-      if(connected !== null && this.connectors[connected].onChange)
-        this.connectors[connected].onChange(value);
+      this.tryUpdate(id);
+      this.tryUpdate(original);
     }
 
-    return {
-      onClick: () => {
-        const original = this.connectors[id].connected;
-        if(original !== null) {
-          this.connectors[original].connected = null;
-          this.connectors[id].connected = null;
+    if(this.selecting === null) this.selecting = id;
+    else if(this.selecting === id) this.selecting = null;
+    else {
+      this.connectors[this.selecting].connected = id;
+      this.connectors[id].connected = this.selecting;
 
-          if(!this.connectors[original].master)
-            this.connectors[original].onChange(SIGNAL.X);
-          if(!this.connectors[id].master)
-            this.connectors[id].onChange(SIGNAL.X);
-        }
+      this.tryUpdate(this.selecting);
+      this.tryUpdate(id);
 
-        if(this.selecting === null) this.selecting = id;
-        else if(this.selecting === id) this.selecting = null;
-        else {
-          this.connectors[this.selecting].connected = id;
-          this.connectors[id].connected = this.selecting;
-
-          if(this.connectors[this.selecting].master && !this.connectors[id].master)
-            this.connectors[id].onChange(this.connectors[this.selecting].value);
-          else if(this.connectors[id].master && !this.connectors[this.selecting].master)
-            this.connectors[this.selecting].onChange(this.connectors[id].value);
-
-          this.selecting = null;
-        }
-
-        this.updateLines();
-      },
+      this.selecting = null;
     }
+
+    this.updateLines();
   }
 
   updateLines() {

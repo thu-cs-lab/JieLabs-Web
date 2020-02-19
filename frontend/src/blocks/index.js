@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useCallback, useRef, useState, useContext, useEffect } from 'react';
 import cn from 'classnames';
 
 import { SandboxContext } from '../Sandbox.js';
@@ -15,8 +15,13 @@ export function Connector({ onChange, output, master, className, ...rest }) {
   const [id, setId] = useState(null);
   const [ref, setRef] = useState(null);
 
+  const cb = useRef(onChange);
   useEffect(() => {
-    const { id: nid, ref: nref } = snd.register(master);
+    cb.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    const { id: nid, ref: nref } = snd.register(cb);
     setId(nid);
     setRef(nref);
 
@@ -27,10 +32,13 @@ export function Connector({ onChange, output, master, className, ...rest }) {
 
   useEffect(() => {
     if(id !== null)
-      snd.setHook(id, onChange);
-  }, [onChange, id, snd]);
+      snd.update(id, output || SIGNAL.X);
+  }, [id, output]);
 
-  const { onClick } = snd.update(id, output);
+  const onClick = useCallback(() => {
+    if(id !== null)
+      snd.click(id);
+  }, [id]);
 
   if(!id) return <div className={className} {...rest}></div>;
   return <div ref={ref} className={cn("connector", className)} onClick={onClick} onMouseDown={e => e.stopPropagation()}></div>;
