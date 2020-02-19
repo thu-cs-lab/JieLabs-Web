@@ -59,18 +59,41 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
     const board = BOARDS[state.board];
 
     let mapper = new Map();
-    for(const signal of entity.signals) mapper = mapper.set(signal.name, signal.dir);
+    for(const signal of entity.signals) mapper = mapper.set(signal.name, signal);
 
     return {
       board: state.board,
       top: state.top,
 
       signals: state.signals.filter((v, k) => {
-        const dir = mapper.get(k);
+        const regex = /^([^\[\]]+)(\[([0-9]+)\])?$/;
+        // Asserts to match
+        const [, base,, subscript] = k.match(regex);
+        const { dir, arity } = mapper.get(base);
         if(dir === undefined) return false;
 
+        if(subscript !== undefined) {
+          const numSub = Number.parseInt(subscript, 10);
+          // Signal not an array
+          if(arity === null)
+            return false;
+          if(arity.from <= arity.to && (
+            arity.from > numSub ||
+            arity.to < numSub
+          ))
+            return false;
+          else if(arity.from > arity.to && (
+            arity.from < numSub ||
+            arity.to > numSub
+          ))
+            return false;
+        } else {
+          // Signal changed into array
+          if(arity !== null)
+            return false;
+        }
+
         const spec = board.pins[v];
-        console.log(spec, dir);
 
         if(dir === 'input' && !spec.output) return false;
         if(dir === 'output' && !spec.input) return false;
