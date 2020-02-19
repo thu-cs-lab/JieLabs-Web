@@ -15,7 +15,7 @@ export default function Digit4(rest) {
         {
           CLOCK_FREQUENCY.map((f, idx) =>
             <div className="clock-box" key={idx}>
-              <Connector master={false} className="clocking"></Connector>
+              <Connector className="clocking"></Connector>
               <div className="clock-label">{f}<small>M</small></div>
             </div>)
         }
@@ -23,7 +23,7 @@ export default function Digit4(rest) {
     </div>
     <div className="clock-bottom">
       <div className="clock-box">
-        <Connector output={manualClock} master={true}></Connector>
+        <Connector output={manualClock}></Connector>
         <div
           className={cn("press-btn", { pusheen: manualClock === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualClock(SIGNAL.H); }}
@@ -31,7 +31,7 @@ export default function Digit4(rest) {
         ></div>
       </div>
       <div className="clock-box">
-        <Connector output={manualReset} master={true}></Connector>
+        <Connector output={manualReset}></Connector>
         <div
           className={cn("press-btn", { pusheen: manualReset === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualReset(SIGNAL.H); }}

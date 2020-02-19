@@ -15,7 +15,7 @@ export default function FPGA(rest) {
   return <div className="block fpga" {...rest}>
     { io.map((pin, idx) => (
       <div key={idx} className="pin-group">
-        <Connector className={cn("pin", { clocking: idx === 37 })} master={true} />
+        <Connector className={cn("pin", { clocking: idx === 37 })} />
         <div className="label">{ idx }</div>
       </div>
     ))}

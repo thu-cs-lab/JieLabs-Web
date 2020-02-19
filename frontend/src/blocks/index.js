@@ -9,7 +9,7 @@ export const SIGNAL = {
   X: Symbol("X"),
 }
 
-export function Connector({ onChange, output, master, className, ...rest }) {
+export function Connector({ onChange, output, className, ...rest }) {
   const snd = useContext(SandboxContext);
 
   const [id, setId] = useState(null);
@@ -28,7 +28,7 @@ export function Connector({ onChange, output, master, className, ...rest }) {
     return () => {
       snd.unregister(nid);
     }
-  }, [master, snd]);
+  }, [snd]);
 
   useEffect(() => {
     if(id !== null)

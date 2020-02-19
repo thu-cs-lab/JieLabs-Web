@@ -13,7 +13,7 @@ export default function Switch4(rest) {
       {
         leds.map((s, idx) => <div key={idx}>
           <div className={cn("led", { lighten: s === SIGNAL.H })}></div>
-          <Connector master={false} onChange={v => {
+          <Connector onChange={v => {
             setLeds(leds.set(idx, v))
           }}></Connector>
         </div>)
@@ -27,7 +27,7 @@ export default function Switch4(rest) {
             onClick={() => setSwitches(switches.set(idx, s === SIGNAL.L ? SIGNAL.H : SIGNAL.L))}
             onMouseDown={e => e.stopPropagation()}
           ></div>
-          <Connector output={s} master={true}></Connector>
+          <Connector output={s}></Connector>
         </div>)
       }
     </div>

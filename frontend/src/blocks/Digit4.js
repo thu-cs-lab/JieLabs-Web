@@ -25,7 +25,7 @@ export default function Digit4(rest) {
           gridColumn: Math.floor(idx / 4) + 1,
         }}>
           {idx % 2 === 1 ? (1 << idx % 4) : ""}
-          <Connector master={false} onChange={v => {
+          <Connector onChange={v => {
             setPins(pins.set(idx, v))
           }}></Connector>
           {idx % 2 === 0 ? (1 << idx % 4) : ""}
