@@ -3,6 +3,12 @@ use vhdl_lang::{Source, VHDLParser, SrcPos, Latin1String};
 use std::path::Path;
 use serde::{Serialize, Deserialize};
 
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace=console)]
+    fn log(s: &str);
+}
+
 #[derive(Serialize, Deserialize)]
 struct Pos {
     from_line: u32,
@@ -110,14 +116,20 @@ pub fn parse(s: &str, top_name: Option<String>) -> JsValue {
                         if let Some(ref constraint) = decl.subtype_indication.constraint {
                             use vhdl_lang::ast::{SubtypeConstraint, Range, RangeConstraint, Expression, Literal, AbstractLiteral};
                             let inner: &SubtypeConstraint = &constraint.item;
+                            log(&format!("{:#?}", constraint));
 
-                            if let &SubtypeConstraint::Range(Range::Range(RangeConstraint { ref left_expr, ref right_expr, .. })) = inner {
-                                if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(left))) = left_expr.item {
-                                    if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(right))) = right_expr.item {
-                                        arity = Some(ArityInfo {
-                                            from: left,
-                                            to: right,
-                                        });
+                            if let &SubtypeConstraint::Array(
+                                ref vec,
+                                None,
+                            ) = inner {
+                                if let [DiscreteRange::Range(Range::Range(RangeConstraint { ref left_expr, ref right_expr, .. }))] = &vec[..] {
+                                    if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(left))) = left_expr.item {
+                                        if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(right))) = right_expr.item {
+                                            arity = Some(ArityInfo {
+                                                from: left,
+                                                to: right,
+                                            });
+                                        }
                                     }
                                 }
                             }
