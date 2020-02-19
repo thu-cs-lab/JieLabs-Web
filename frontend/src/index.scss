@@ -468,34 +468,49 @@ main {
 .clock {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
   padding: 10px;
 
   .clocks {
-    flex: 1;
     width: 100%;
-    display: flex;
-    align-items: center;
-
-    > div {
-      flex: 1;
-      height: 100%;
-      padding-top: 3px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-    }
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: center;
   }
 
   .clock-box {
+    flex: 1;
     display: flex;
+    height: 100%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
 
+  .clock-label {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 900;
+    color: rgba(0,0,0,.7);
+    margin-top: 5px;
+    text-orientation: sideways;
+    writing-mode: vertical-lr;
+
+    small {
+      color: rgba(0,0,0,.38);
+    }
+  }
+
+  .clock-top {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
   .clock-bottom {
+    flex: 1;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -511,11 +526,14 @@ main {
       width: 13px;
       background: rgba(255,255,255,.2);
       cursor: pointer;
+      margin: 5px;
       
-      transition: transform .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: rgba(0,0,0,.3) 0 3px 9px;
 
       &.pusheen {
-        transform: scale(0.8);  
+        transform: scale(0.8);
+        box-shadow: rgba(0,0,0,.3) 0 1px 3px;
       }
     }
   }

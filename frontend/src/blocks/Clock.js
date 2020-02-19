@@ -10,20 +10,20 @@ export default function Digit4(rest) {
   const [manualReset, setManualReset] = useState(SIGNAL.L);
 
   return <div className="block clock" {...rest}>
-    <div className="clocks">
-      {
-        CLOCK_FREQUENCY.map((f, idx) => <div key={idx}>
-          <div className="clock-box">
-            {`${f}M`}
-            <Connector master={false}></Connector>
-          </div>
-        </div>)
-      }
+    <div className="clock-top">
+      <div className="clocks">
+        {
+          CLOCK_FREQUENCY.map((f, idx) =>
+            <div className="clock-box" key={idx}>
+              <Connector master={false}></Connector>
+              <div className="clock-label">{f}<small>M</small></div>
+            </div>)
+        }
+      </div>
     </div>
     <div className="clock-bottom">
       <div className="clock-box">
         <Connector output={manualClock} master={true}></Connector>
-        CLK
         <div
           className={cn("press-btn", { pusheen: manualClock === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualClock(SIGNAL.H); }}
@@ -32,7 +32,6 @@ export default function Digit4(rest) {
       </div>
       <div className="clock-box">
         <Connector output={manualReset} master={true}></Connector>
-        RST
         <div
           className={cn("press-btn", { pusheen: manualReset === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualReset(SIGNAL.H); }}
