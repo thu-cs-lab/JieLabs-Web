@@ -52,10 +52,10 @@ function octal(num, bytes) {
   return "0".repeat(bytes - num.length) + num + " ";
 }
 
-export function createTarFile(name, body) {
+function createTarOneFile(name, body) {
   let encoder = new TextEncoder();
   let bodyArray = encoder.encode(body);
-  let totalLength = 512 + ((bodyArray.length + 511) / 512) * 512 + 2 * 512;
+  let totalLength = 512 + Math.floor((bodyArray.length + 511) / 512) * 512;
   let file = new Uint8Array(totalLength);
   setString(file, name, 0);
   // mode
@@ -78,5 +78,22 @@ export function createTarFile(name, body) {
   checksum = checksum.toString(8);
   setString(file, "0".repeat(6 - checksum.length) + checksum + "\u0000 ", 148);
   file.set(bodyArray, 512);
+  return file;
+}
+
+export function createTarFile(files) {
+  let parts = files.map((file) => {
+    let { name, body } = file;
+    return createTarOneFile(name, body);
+  });
+  let totalLength = 0;
+  parts.map((part) => totalLength += part.length);
+  totalLength += 2 * 512;
+  let file = new Uint8Array(totalLength);
+  let offset = 0;
+  for (let i = 0; i < parts.length; i++) {
+    file.set(parts[i], offset);
+    offset += parts[i].length;
+  }
   return file;
 }

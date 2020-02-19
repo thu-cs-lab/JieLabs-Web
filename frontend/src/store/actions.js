@@ -137,7 +137,7 @@ export function init() {
     const restored = dispatch(restore());
     const libLoaded = dispatch(initLib());
 
-    const [logined, ] = await Promise.all([restored, libLoaded]);
+    const [logined,] = await Promise.all([restored, libLoaded]);
     return logined;
   }
 }
@@ -154,7 +154,8 @@ export function submitBuild() {
       const uuid = data.uuid;
       const url = data.url;
 
-      let tar = createTarFile('src/mod_top.vhd', code);
+      let tar = createTarFile([{ name: 'src/mod_top.vhd', body: code },
+      { name: 'src/mod_top.qsf', body: 'set_location_assignment PIN_N1 -to M_nRESET' }]);
       await putS3(url, tar);
       const result = await post('/api/task/build', { source: uuid });
       let intervalID = null;
@@ -262,7 +263,7 @@ export function updateCode(code) {
 
     dispatch(setCode(code));
 
-    if(debouncer !== null) {
+    if (debouncer !== null) {
       clearTimeout(debouncer);
     }
 
@@ -270,9 +271,9 @@ export function updateCode(code) {
       debouncer = null;
 
       let { lib, code: curCode, signals } = getState();
-      if(!lib) return;
+      if (!lib) return;
 
-      if(curCode !== code) {
+      if (curCode !== code) {
         // Raced between clearTimeout and setCode
         return;
       }
@@ -292,7 +293,7 @@ export function updateTop(top) {
     const { code, lib } = getState();
 
     dispatch(assignTop(top));
-    if(!lib) return;
+    if (!lib) return;
 
     const analysis = lib.parse(code, top);
     dispatch(setAnalysis(analysis));
