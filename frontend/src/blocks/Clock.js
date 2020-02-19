@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import cn from 'classnames';
-import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
 

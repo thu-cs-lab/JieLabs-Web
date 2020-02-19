@@ -171,7 +171,7 @@ export default React.memo(() => {
     if(ev.key === 'Escape')
       setAssigning(null);
     if(ev.key === 'Enter') {
-      if(firstFilteredIndex != -1)
+      if(firstFilteredIndex !== -1)
         handleAssign(filteredPins[firstFilteredIndex].idx)
     }
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex]);
