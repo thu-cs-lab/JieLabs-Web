@@ -375,7 +375,12 @@ main {
   width: 15px;
   height: 15px;
   border-radius: 10px;
-  border: rgba(0,0,0,.2) 5px solid;
+  border: rgba(0,0,0,.3) 5px solid;
+  box-shadow: rgba(0,0,0,.1) 0 1px 3px;
+
+  &.clocking {
+    border-color: mix($primary-color, #333);
+  }
 }
 
 .switch4 {
@@ -404,27 +409,35 @@ main {
 .fpga {
   display: grid;
   padding: 10px;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr;
+  // 6*7 grid
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   user-select: none;
 
-  > div {
-    flex: 1;
-    height: 100%;
+  .pin-group {
+    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
 
-  .clock {
-    grid-row: 1;
-    grid-column: 4;
-  }
+    .pin {
+      position: relative;
+      z-index: 2;
+    }
 
-  .altera {
-    grid-row: 1;
-    grid-column: 2 / span 2;
+    .label {
+      position: absolute;
+      z-index: 1;
+      right: -2px;
+      bottom: -4px;
+      font-size: 12px;
+      font-family: 'Roboto Mono', monospace;
+      width: 100%;
+      text-align: right;
+      font-weight: 900;
+      transform: scale(0.8);
+      color: rgba(0,0,0,.38);
+    }
   }
 }
 

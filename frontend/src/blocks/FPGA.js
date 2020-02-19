@@ -4,62 +4,20 @@ import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
 
-function getRow(index) {
-    if (index < 15) {
-        return 4 - (index % 3);
-    } else {
-        return 1;
-    }
-}
-
-function getCol(index) {
-    if (index < 15) {
-        return Math.floor(index / 3) + 1;
-    } else {
-        return 5;
-    }
-}
-
-function getLabel(index) {
-    if (index < 8) {
-        return index + 1;
-    } else {
-        return index + 6;
-    }
-}
+const PIN_COUNT = 38;
 
 export default function FPGA(rest) {
-    const [io, setIO] = useState(List(Array(16).fill(SIGNAL.X)));
-    const [clock, setClock] = useState(10_000_000); // 10M
-    const [reset, setReset] = useState(SIGNAL.L);
+  const [io, setIO] = useState(List(Array(PIN_COUNT).fill(SIGNAL.X)));
+  const [reset, setReset] = useState(SIGNAL.L);
 
-    return <div className="block fpga" {...rest}>
-        {
-            io.map((s, idx) => <div key={idx}
-                style={{
-                    gridRow: getRow(idx),
-                    gridColumn: getCol(idx),
-                }}>
-                {getLabel(idx)}
-                <Connector master={false} onChange={v => {
-                    setIO(io.set(idx, v))
-                }}></Connector>
-            </div>)
-        }
-        <div className="reset">
-            RST
-            <Connector master={false} onChange={v => {
-                setReset(v)
-            }}></Connector>
-        </div>
-        <div className="clock">
-            CLK
-            <Connector master={false} onChange={v => {
-                setClock(v)
-            }}></Connector>
-        </div>
-        <div className="altera">
-            ALTERA
-        </div>
-    </div>
+  // TODO: change fpga layout based on chosen board tempalte
+
+  return <div className="block fpga" {...rest}>
+    { io.map((pin, idx) => (
+      <div key={idx} className="pin-group">
+        <Connector className={cn("pin", { clocking: idx === 37 })} master={true} />
+        <div className="label">{ idx }</div>
+      </div>
+    ))}
+  </div>
 }

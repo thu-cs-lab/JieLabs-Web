@@ -15,7 +15,7 @@ export default function Digit4(rest) {
         {
           CLOCK_FREQUENCY.map((f, idx) =>
             <div className="clock-box" key={idx}>
-              <Connector master={false}></Connector>
+              <Connector master={false} className="clocking"></Connector>
               <div className="clock-label">{f}<small>M</small></div>
             </div>)
         }
