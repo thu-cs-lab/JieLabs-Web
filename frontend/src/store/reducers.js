@@ -71,7 +71,9 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
         const regex = /^([^\[\]]+)(\[([0-9]+)\])?$/;
         // Asserts to match
         const [, base,, subscript] = k.match(regex);
-        const { dir, arity } = mapper.get(base);
+        const lookup = mapper.get(base);
+        if(!lookup) return false;
+        const { dir, arity } = lookup;
         if(dir === undefined) return false;
 
         if(subscript !== undefined) {
@@ -117,10 +119,8 @@ export function clock(state = null, action) {
 export function input(state = null, action) {
   if(action.type === TYPES.UPDATE_INPUT) {
     const { data, mask } = action;
-    console.log(data);
     const dataArr = toBitArray(data);
     // Ignoring mask for now
-    console.log(dataArr);
     return dataArr.map(e => e ? SIGNAL.H : SIGNAL.L);
   }
 

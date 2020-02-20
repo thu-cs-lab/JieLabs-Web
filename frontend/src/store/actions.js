@@ -1,5 +1,8 @@
+import { Map as IMap } from 'immutable';
+
 import { get, post, putS3, createTarFile } from '../util';
 import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS } from '../config';
+import { SIGNAL } from '../blocks';
 
 export const TYPES = {
   SET_USER: Symbol('SET_USER'),
@@ -161,7 +164,10 @@ export function init() {
 export function submitBuild() {
   return async (dispatch, getState) => {
     try {
-      let { build, code, signals } = getState();
+      // TODO: force an analysis update immediately
+      // TODO: check for analysis errors, if there actually is a top modules, etc...
+
+      let { build, code, signals, analysis } = getState();
       if (build && build.intervalID) {
         clearInterval(build.intervalID);
       }
@@ -170,13 +176,25 @@ export function submitBuild() {
       const uuid = data.uuid;
       const url = data.url;
 
+      // Build pin assignments and directions
+      //
+      // direction[idx] is relative to Zync
+
+      const topEntity = analysis.entities[analysis.top-1];
+      const sigDirs = topEntity.signals.reduce((acc, { name, dir }) => acc.set(name, dir), new IMap());
+
+      let directions = {};
       let assignments = "";
       const board = BOARDS[signals.board];
-      signals.signals.mapEntries((entry) => {
-        const [signal, pin] = entry;
+      for(const [sig, pin] of signals.signals.entries()) {
         const pinName = board.pins[pin].pin;
-        assignments += `set_location_assignment ${pinName} -to ${signal}\n`;
-      });
+        assignments += `set_location_assignment ${pinName} -to ${sig}\n`;
+
+        // Asserts to match
+        const [base] = sig.match(/^[^\[\]]+($|\[)/)
+        const dir = sigDirs.get(base);
+        directions[pin] = dir === 'output' ? 'input' : 'output';
+      }
 
       let tar = createTarFile([{ name: 'src/mod_top.vhd', body: code },
       { name: 'src/mod_top.qsf', body: assignments }]);
@@ -191,6 +209,7 @@ export function submitBuild() {
             jobID: result,
             isPolling: false,
             buildInfo: info,
+            directions,
           }));
         }
       }, 3000);
@@ -199,6 +218,7 @@ export function submitBuild() {
         jobID: result,
         isPolling: true,
         intervalID,
+        directions,
       }));
       return true;
     } catch (e) {
@@ -271,7 +291,29 @@ export function programBitstream() {
     try {
       let { board, build } = getState();
       if (board && board.websocket) {
-        let jobID = build.jobID;
+        const { jobID, directions } = build;
+
+        // Build direction config
+        let dir = 0;
+        let dirMask = 0;
+        for(const pin in directions) {
+          const parsed = Number.parseInt(pin, 10);
+          const bit = Math.pow(2, parsed);
+
+          dirMask += bit;
+          if(directions[pin] === 'output') // Reads from FPGA
+            dir += bit;
+        }
+
+        board.websocket.send(JSON.stringify({
+          ToBoard: {
+            SetIODirection: {
+              data: dir,
+              mask: dirMask,
+            },
+          },
+        }));
+
         board.websocket.send(`{"ProgramBitstream":${jobID}}`);
       }
       return true;
@@ -282,6 +324,55 @@ export function programBitstream() {
   }
 }
 
+/**
+ * Global timeout handle for merging multiple synchronous IO updates
+ */
+let notifMerger = null;
+let notifSet = [];
+
+export function setOutput(idx, value) {
+  return async (dispatch, getState) => {
+    console.log("OUTPUT: ", idx, value);
+    if(notifMerger !== null) clearTimeout(notifMerger);
+    else notifSet = [];
+
+    notifSet[idx] = value; // JS arrays are sparse
+
+    notifMerger = setTimeout(() => {
+      let data = 0;
+      let mask = 0;
+
+      notifSet.forEach((sig, idx) => {
+        const bit = Math.pow(2, idx);
+
+        if(sig === SIGNAL.H) {
+          data += bit;
+          mask += bit;
+        } else if(sig === SIGNAL.L) {
+          mask += bit;
+        }
+      });
+
+      notifMerger = null;
+      notifSet = [];
+
+      const { board } = getState();
+
+      if(!board.hasBoard) return;
+      board.websocket.send(JSON.stringify({
+        ToBoard: {
+          SetIOOutput: {
+            mask, data,
+          },
+        },
+      }));
+    });
+  }
+}
+
+/**
+ * Code update debouncer
+ */
 let debouncer = null;
 
 export function updateCode(code) {
@@ -326,3 +417,4 @@ export function updateTop(top) {
     dispatch(setAnalysis(analysis));
   }
 }
+

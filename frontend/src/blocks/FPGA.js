@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useCallback, useContext } from 'react';
-import { useSelector }  from 'react-redux';
+import { useSelector, useDispatch }  from 'react-redux';
 import cn from 'classnames';
 import { List } from 'immutable';
 
 import { Connector, SIGNAL, MODE } from './index.js';
-
 import { FPGAEnvContext } from '../Sandbox';
+
+import { setOutput } from '../store/actions';
 
 const PIN_COUNT = 38;
 const PIN_CLOCKING = 37;
@@ -14,6 +15,7 @@ export default React.memo(rest => {
   const [reset, setReset] = useState(SIGNAL.L);
 
   const input = useSelector(state => state.input);
+  const dispatch = useDispatch();
 
   const padded = useMemo(() => {
     const head = input || [];
@@ -26,7 +28,6 @@ export default React.memo(rest => {
   }, [input]);
 
   const ctx = useContext(FPGAEnvContext);
-  console.log(padded);
 
   // TODO: change fpga layout based on chosen board tempalte
 
@@ -36,6 +37,10 @@ export default React.memo(rest => {
         <Connector
           className="pin"
           mode={idx === PIN_CLOCKING ? MODE.CLOCK_DEST : MODE.NORMAL}
+          onChange={updated => {
+            if(updated !== sig)
+              dispatch(setOutput(idx, updated))
+          }}
           onReg={idx === PIN_CLOCKING ? ctx.regClocking : null}
           onUnreg={idx === PIN_CLOCKING ? ctx.unregClocking : null}
           output={sig}
