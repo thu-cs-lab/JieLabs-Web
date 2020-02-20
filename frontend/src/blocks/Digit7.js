@@ -59,10 +59,11 @@ export default React.memo(rest => {
       {
         [...Array(3).keys()].map((idx) => <div key={idx}>
           <svg width="20px" height="30px" viewBox="0 0 200 300">
+            <path d="M 10,10 10,270 190,270 190,10 Z" fill="black"></path>
             {[...Array(7).keys()].map((part) =>
-              <g transform={`translate(${getX(part)}, ${getY(part)}) rotate(${getRotate(part)}, 50, 20)`}
-                fill={pins.get(idx*7+part) === SIGNAL.H ? 'dark' : 'grey'}>
-                <path d="M 50,10 40,20 50,30 150,30 160,20 150,10 Z"></path>
+              <g transform={`translate(${getX(part)}, ${getY(part)}) rotate(${getRotate(part)}, 50, 40)`}
+                fill={pins.get(idx * 7 + part) === SIGNAL.H ? 'red' : 'grey'}>
+                <path d="M 50,30 40,40 50,50 150,50 160,40 150,30 Z"></path>
               </g>
             )}
           </svg>
