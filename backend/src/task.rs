@@ -156,6 +156,36 @@ async fn list(
     Ok(HttpResponse::Forbidden().finish())
 }
 
+#[get("/")]
+async fn list_self(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    query: web::Query<JobListRequest>,
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let Some(user) = get_user(&id, &conn) {
+        if user.role == "admin" {
+            let offset = query.offset.unwrap_or(0);
+            let limit = query.limit.unwrap_or(5);
+
+            let res = jobs::dsl::jobs
+                .filter(jobs::dsl::submitter.eq(user.user_name))
+                .offset(offset)
+                .limit(limit)
+                .load::<Job>(&conn);
+
+            if let Ok(jobs) = res {
+                return Ok(HttpResponse::Ok().json(JobListResponse {
+                    offset,
+                    limit,
+                    jobs: jobs.into_iter().map(JobInfo::from).collect()
+                }));
+            }
+        }
+    }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
 #[get("/get/{job_id}")]
 async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<i32>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
