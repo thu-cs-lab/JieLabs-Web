@@ -40,12 +40,16 @@ fn main(args: Args) {
                                 println!("Subscribe to io change");
                                 let sender = out.clone();
                                 std::thread::spawn(move || {
+                                    let mut last_shift = 0;
+                                    let mut shift = 0;
                                     loop {
                                         sender.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
-                                            mask: 0b1111,
-                                            data: 0b1111,
+                                            mask: 1 << shift | 1 << last_shift,
+                                            data: 1 << shift,
                                         })).unwrap()).unwrap();
                                         std::thread::sleep(std::time::Duration::from_millis(1000));
+                                        last_shift = shift;
+                                        shift = (shift + 1) % 40;
                                     }
                                 });
                             }
