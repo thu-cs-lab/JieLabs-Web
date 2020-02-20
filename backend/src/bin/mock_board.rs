@@ -23,24 +23,34 @@ fn main(args: Args) {
                     if let Ok(msg) = serde_json::from_str::<ws_board::WSBoardMessageS2B>(&text) {
                         match msg {
                             ws_board::WSBoardMessageS2B::SetIODirection(direction) => {
-                            println!("Set IO Direction {:?}", direction);
-                            out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
-                                mask: 0b1111,
-                                data: 0b1111,
-                            })).unwrap()).unwrap();
+                                println!("Set IO Direction {:?}", direction);
+                                out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
+                                    mask: 0b1111,
+                                    data: 0b1111,
+                                })).unwrap()).unwrap();
                             }
                             ws_board::WSBoardMessageS2B::SetIOOutput(output) => {
-                            println!("Set IO Output {:?}", output);
-                            out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
-                                mask: 0b1111,
-                                data: 0b1111,
-                            })).unwrap()).unwrap();
+                                println!("Set IO Output {:?}", output);
+                                out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
+                                    mask: 0b1111,
+                                    data: 0b1111,
+                                })).unwrap()).unwrap();
                             }
                             ws_board::WSBoardMessageS2B::SubscribeIOChange(_) => {
-                            println!("Subscribe to io change");
+                                println!("Subscribe to io change");
+                                let sender = out.clone();
+                                std::thread::spawn(move || {
+                                    loop {
+                                        sender.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
+                                            mask: 0b1111,
+                                            data: 0b1111,
+                                        })).unwrap()).unwrap();
+                                        std::thread::sleep(std::time::Duration::from_millis(1000));
+                                    }
+                                });
                             }
                             ws_board::WSBoardMessageS2B::UnsubscribeIOChange(_) => {
-                            println!("Unsubscribe to io change");
+                                println!("Unsubscribe to io change");
                             }
                         }
                     }
