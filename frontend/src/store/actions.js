@@ -1,4 +1,4 @@
-import { get, post, putS3, createTarFile, toBitArray } from '../util';
+import { get, post, putS3, createTarFile } from '../util';
 import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS } from '../config';
 
 export const TYPES = {
@@ -11,6 +11,7 @@ export const TYPES = {
   ASSIGN_TOP: Symbol('ASSIGN_TOP'),
   ASSIGN_PIN: Symbol('ASSIGN_PIN'),
   SET_CLOCK: Symbol('SET_CLOCK'),
+  UPDATE_INPUT: Symbol('UPDATE_INPUT'),
 };
 
 export function setUser(user) {
@@ -73,6 +74,13 @@ export function setClock(clock) {
   return {
     type: TYPES.SET_CLOCK,
     clock,
+  };
+}
+
+export function updateInput(data, mask) {
+  return {
+    type: TYPES.UPDATE_INPUT,
+    data, mask,
   };
 }
 
@@ -236,19 +244,7 @@ export function connectToBoard() {
             }));
           } else if (msg["ReportIOChange"]) {
             const { mask, data } = msg["ReportIOChange"];
-            const maskArray = toBitArray(mask);
-            const dataArray = toBitArray(data);
-            let { input, ...rest } = getState();
-            if (!input) {
-              input = [...Array(64).keys()].map((idx) => 0);
-            }
-            const new_input = [...Array(64).keys()].map((idx) => {
-              return maskArray[idx] ? dataArray[idx] : input[idx]
-            });
-            dispatch(setBoard({
-              input: new_input,
-              ...rest
-            }));
+            dispatch(updateInput(data, mask));
           }
         };
         websocket.onclose = () => {
