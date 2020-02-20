@@ -67,17 +67,17 @@ export const Connector = React.memo(({
       if(onUnreg)
         onUnreg();
     }
-  }, [snd]);
+  }, [mode, onReg, onUnreg, snd]);
 
   useEffect(() => {
     if(id !== null)
       snd.update(id, output);
-  }, [id, output]);
+  }, [id, output, snd]);
 
   const onClick = useCallback(() => {
     if(id !== null)
       snd.click(id);
-  }, [id]);
+  }, [id, snd]);
 
   if(!id) return <div className={className} {...rest}></div>;
   return <div
@@ -91,4 +91,5 @@ export const Connector = React.memo(({
 export { default as Switch4 } from './Switch4.js';
 export { default as FPGA } from './FPGA.js';
 export { default as Digit4 } from './Digit4.js';
+export { default as Digit7 } from './Digit7.js';
 export { default as Clock } from './Clock.js';
