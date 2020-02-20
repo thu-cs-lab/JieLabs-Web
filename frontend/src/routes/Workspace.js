@@ -321,7 +321,7 @@ export default React.memo(() => {
     </div>
     <div className="toolbar">
       <button className="primary" onClick={doUpload}>
-        <Icon>play_arrow</Icon>
+        <Icon>build</Icon>
       </button>
 
       <button className="secondary" onClick={doConnect}>

@@ -289,7 +289,7 @@ export default React.memo(() => {
     setField(field.set(idx, { ...field.get(idx), x: ax, y: ay }));
   }, [setField, field]);
 
-  useLayoutEffect(redraw, [field]);
+  useLayoutEffect(redraw, [field, scroll]);
 
   const requestDelete = useCallback(idx => {
     setField(field.delete(idx));
@@ -367,18 +367,24 @@ export default React.memo(() => {
   >
     <FPGAEnvContext.Provider value={fpgaCtx}>
       <SandboxContext.Provider value={ctx}>
-        { field.map((spec, idx) => (
-          <BlockWrapper
-            key={spec.id}
-            idx={idx}
-            spec={spec}
-            requestSettle={requestSettle}
-            requestDelete={requestDelete}
-            requestRedraw={redraw}
-            scroll={scroll}
-          >
-          </BlockWrapper>
-        ))}
+        <div
+          className="sandbox-scroll"
+          style={{
+            transform: `translate(${scroll.x}px,${scroll.y}px)`,
+          }}
+        >
+          { field.map((spec, idx) => (
+            <BlockWrapper
+              key={spec.id}
+              idx={idx}
+              spec={spec}
+              requestSettle={requestSettle}
+              requestDelete={requestDelete}
+              requestRedraw={redraw}
+            >
+            </BlockWrapper>
+          ))}
+        </div>
 
         <canvas ref={canvas} className="lines"></canvas>
       </SandboxContext.Provider>
@@ -406,26 +412,26 @@ export default React.memo(() => {
   </div>;
 });
 
-const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDelete, requestRedraw, ...rest }) => {
+const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requestRedraw, ...rest }) => {
   const [moving, setMoving] = useState(null);
 
   const style = useMemo(() => {
     if(moving) {
       return {
-        transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
+        transform: `translate(${moving.x}px,${moving.y}px)`,
       }
     } else {
       return {
-        transform: `translate(${scroll.x + spec.x}px,${scroll.y + spec.y}px)`,
+        transform: `translate(${spec.x}px,${spec.y}px)`,
       }
     }
-  }, [spec, scroll, moving]);
+  }, [spec, moving]);
 
   const movingStyle = useMemo(() => moving ? {
-    transform: `translate(${scroll.x + alignToBlock(moving.x)}px,${scroll.y + alignToBlock(moving.y)}px)`,
+    transform: `translate(${alignToBlock(moving.x)}px,${alignToBlock(moving.y)}px)`,
     zIndex: 0,
     opacity: 0.5,
-  } : {}, [moving, scroll.x, scroll.y]);
+  } : {}, [moving]);
 
   const onMouseDown = useCallback(ev => {
     const cur = { x: spec.x, y: spec.y };
