@@ -13,6 +13,7 @@ table! {
         #[sql_name = "type"]
         type_ -> Text,
         source -> Text,
+        metadata -> Text,
         status -> Nullable<Text>,
         destination -> Nullable<Text>,
         task_id -> Nullable<Text>,
@@ -31,4 +32,8 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(configs, jobs, users,);
+allow_tables_to_appear_in_same_query!(
+    configs,
+    jobs,
+    users,
+);
