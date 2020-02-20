@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useCallback, useState, useMemo } from 'react';
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 import { useDispatch } from 'react-redux';
@@ -276,8 +276,6 @@ export default React.memo(() => {
     };
   }, [canvas, container, observer, redraw]);
 
-  setTimeout(() => redraw());
-
   const [ctxMenu, setCtxMenu] = useState(null);
 
   const requestSettle = useCallback((idx, { x, y }) => {
@@ -290,6 +288,8 @@ export default React.memo(() => {
 
     setField(field.set(idx, { ...field.get(idx), x: ax, y: ay }));
   }, [setField, field]);
+
+  useLayoutEffect(redraw, [field]);
 
   const requestDelete = useCallback(idx => {
     setField(field.delete(idx));
@@ -438,9 +438,6 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
       cur.y += ev.movementY;
       // Bypass weak equality
       setMoving({ ...cur });
-      setTimeout(() => {
-        requestRedraw();
-      });
     };
 
     const up = ev => {
@@ -456,6 +453,8 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
     ev.stopPropagation();
     ev.preventDefault();
   }, [idx, spec, requestSettle, requestRedraw, setMoving]);
+
+  useLayoutEffect(requestRedraw, [moving]);
 
   const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
 
