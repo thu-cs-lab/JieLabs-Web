@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useContext } from 'react';
+import { useSelector }  from 'react-redux';
 import cn from 'classnames';
 import { List } from 'immutable';
 
@@ -12,6 +13,8 @@ const PIN_CLOCKING = 37;
 export default React.memo(rest => {
   const [io, setIO] = useState(List(Array(PIN_COUNT).fill(SIGNAL.X)));
   const [reset, setReset] = useState(SIGNAL.L);
+  // TODO: handle directions
+  const boardInput = useSelector(state => state.board.input || 0);
 
   const ctx = useContext(FPGAEnvContext);
 
@@ -25,6 +28,7 @@ export default React.memo(rest => {
           mode={idx === PIN_CLOCKING ? MODE.CLOCK_DEST : MODE.NORMAL}
           onReg={idx === PIN_CLOCKING ? ctx.regClocking : null}
           onUnreg={idx === PIN_CLOCKING ? ctx.unregClocking : null}
+          output={(boardInput & (1 << idx)) ? SIGNAL.H : SIGNAL.L}
         />
         <div className="label">{ idx }</div>
       </div>

@@ -62,7 +62,7 @@ export default React.memo(rest => {
             <path d="M 10,10 10,270 190,270 190,10 Z" fill="black"></path>
             {[...Array(7).keys()].map((part) =>
               <g transform={`translate(${getX(part)}, ${getY(part)}) rotate(${getRotate(part)}, 50, 40)`}
-                fill={pins.get(idx * 7 + part) === SIGNAL.H ? 'red' : 'grey'}>
+                fill={pins.get(idx * 7 + part) === SIGNAL.H ? 'red' : 'grey'} key={part}>
                 <path d="M 50,30 40,40 50,50 150,50 160,40 150,30 Z"></path>
               </g>
             )}
