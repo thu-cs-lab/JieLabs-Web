@@ -81,6 +81,15 @@ function createTarOneFile(name, body) {
   return file;
 }
 
+export function toBitArray(number) {
+  let res = [];
+  for (let i = 0; i < 64; i++) {
+    res[i] = number % 2;
+    number = Math.floor(number / 2);
+  }
+  return res;
+}
+
 export function createTarFile(files) {
   let parts = files.map((file) => {
     let { name, body } = file;

@@ -1,4 +1,4 @@
-import { get, post, putS3, createTarFile } from '../util';
+import { get, post, putS3, createTarFile, toBitArray } from '../util';
 import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS } from '../config';
 
 export const TYPES = {
@@ -236,9 +236,17 @@ export function connectToBoard() {
             }));
           } else if (msg["ReportIOChange"]) {
             const { mask, data } = msg["ReportIOChange"];
-            const { input, ...rest } = getState();
+            const maskArray = toBitArray(mask);
+            const dataArray = toBitArray(data);
+            let { input, ...rest } = getState();
+            if (!input) {
+              input = [...Array(64).keys()].map((idx) => 0);
+            }
+            const new_input = [...Array(64).keys()].map((idx) => {
+              return maskArray[idx] ? dataArray[idx] : input[idx]
+            });
             dispatch(setBoard({
-              input: (input & ~mask) | (data & mask),
+              input: new_input,
               ...rest
             }));
           }
