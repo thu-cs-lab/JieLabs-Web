@@ -365,6 +365,12 @@ main {
     transition: transform .2s ease;
   }
 
+  z-index: 1;
+
+  &:hover {
+    z-index: 2;
+  }
+
   &:hover .block-ops {
     transform: translateY(-20px);
   }

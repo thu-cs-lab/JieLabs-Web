@@ -413,12 +413,10 @@ const BlockWrapper = React.memo(({ idx, spec, scroll, requestSettle, requestDele
     if(moving) {
       return {
         transform: `translate(${scroll.x + moving.x}px,${scroll.y + moving.y}px)`,
-        zIndex: 2,
       }
     } else {
       return {
         transform: `translate(${scroll.x + spec.x}px,${scroll.y + spec.y}px)`,
-        zIndex: 1,
       }
     }
   }, [spec, scroll, moving]);
