@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import cn from 'classnames';
 import { List } from 'immutable';
 
@@ -6,6 +6,8 @@ import { Connector, SIGNAL } from './index.js';
 
 export default React.memo(rest => {
   const [pins, setPins] = useState(List(Array(12).fill(SIGNAL.X)));
+
+  const currentPins = useRef(pins);
 
   const calcDigit = useCallback((index) => {
     let digit0 = pins.get(index * 4 + 0) === SIGNAL.H;
@@ -25,7 +27,8 @@ export default React.memo(rest => {
         }}>
           {idx % 2 === 1 ? (1 << idx % 4) : ""}
           <Connector onChange={v => {
-            setPins(pins.set(idx, v))
+            currentPins.current = currentPins.current.set(idx, v);
+            setPins(currentPins.current);
           }}></Connector>
           {idx % 2 === 0 ? (1 << idx % 4) : ""}
         </div>)

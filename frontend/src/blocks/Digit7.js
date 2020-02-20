@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import cn from 'classnames';
 import { List } from 'immutable';
 
@@ -32,6 +32,8 @@ function getRotate(part) {
 export default React.memo(rest => {
   const [pins, setPins] = useState(List(Array(3 * 7).fill(SIGNAL.X)));
 
+  const currentPins = useRef(pins);
+
   const calcDigit = useCallback((index) => {
     let digit0 = pins.get(index * 4 + 0) === SIGNAL.H;
     let digit1 = pins.get(index * 4 + 1) === SIGNAL.H;
@@ -50,7 +52,8 @@ export default React.memo(rest => {
         }}>
           {(6 - (idx % 7) + 10).toString(17).toUpperCase()}
           <Connector onChange={v => {
-            setPins(pins.set(idx, v))
+            currentPins.current = currentPins.current.set(idx, v);
+            setPins(currentPins.current);
           }}></Connector>
         </div>)
       }

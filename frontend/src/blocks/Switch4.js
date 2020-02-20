@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import cn from 'classnames';
 import { List } from 'immutable';
 
@@ -8,13 +8,16 @@ export default React.memo(rest => {
   const [leds, setLeds] = useState(List(Array(4).fill(SIGNAL.X)));
   const [switches, setSwitches] = useState(List(Array(4).fill(SIGNAL.L)));
 
+  const currentLeds = useRef(leds);
+
   return <div className="block switch4" {...rest}>
     <div className="leds">
       {
         leds.map((s, idx) => <div key={idx}>
           <div className={cn("led", { lighten: s === SIGNAL.H })}></div>
           <Connector onChange={v => {
-            setLeds(leds.set(idx, v))
+            currentLeds.current = currentLeds.current.set(idx, v);
+            setLeds(currentLeds.current);
           }}></Connector>
         </div>)
       }
