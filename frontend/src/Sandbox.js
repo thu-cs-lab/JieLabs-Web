@@ -315,7 +315,7 @@ export default React.memo(() => {
         dispatch(setClock(null));
       }
     };
-  }, [ctx, cpid]);
+  }, [ctx, dispatch]);
 
   useEffect(() => {
     return ctx.onChange(() => {
@@ -327,7 +327,7 @@ export default React.memo(() => {
       else
         return dispatch(setClock(null));
     });
-  }, [ctx, cpid]);
+  }, [ctx, cpid, dispatch]);
 
   return <div
     ref={container}
@@ -388,7 +388,7 @@ export default React.memo(() => {
         left: ctxMenu.x,
       }}>
         { INSERTABLES.map(t => (
-          <div className="ctx-entry" onClick={() => {
+          <div className="ctx-entry" key={t} onClick={() => {
             const cont = container.current.getBoundingClientRect();
             let pos = findAlignedPos(field, {
               x: ctxMenu.x - scroll.x - cont.x,
