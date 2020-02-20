@@ -148,7 +148,7 @@ async fn list(
                 return Ok(HttpResponse::Ok().json(JobListResponse {
                     offset,
                     limit,
-                    jobs: jobs.into_iter().map(JobInfo::from).collect()
+                    jobs: jobs.into_iter().map(JobInfo::from).collect(),
                 }));
             }
         }
@@ -164,23 +164,21 @@ async fn list_self(
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
-        if user.role == "admin" {
-            let offset = query.offset.unwrap_or(0);
-            let limit = query.limit.unwrap_or(5);
+        let offset = query.offset.unwrap_or(0);
+        let limit = query.limit.unwrap_or(5);
 
-            let res = jobs::dsl::jobs
-                .filter(jobs::dsl::submitter.eq(user.user_name))
-                .offset(offset)
-                .limit(limit)
-                .load::<Job>(&conn);
+        let res = jobs::dsl::jobs
+            .filter(jobs::dsl::submitter.eq(user.user_name))
+            .offset(offset)
+            .limit(limit)
+            .load::<Job>(&conn);
 
-            if let Ok(jobs) = res {
-                return Ok(HttpResponse::Ok().json(JobListResponse {
-                    offset,
-                    limit,
-                    jobs: jobs.into_iter().map(JobInfo::from).collect()
-                }));
-            }
+        if let Ok(jobs) = res {
+            return Ok(HttpResponse::Ok().json(JobListResponse {
+                offset,
+                limit,
+                jobs: jobs.into_iter().map(JobInfo::from).collect(),
+            }));
         }
     }
     Ok(HttpResponse::Forbidden().finish())

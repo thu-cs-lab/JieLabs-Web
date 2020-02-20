@@ -32,8 +32,4 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
-    configs,
-    jobs,
-    users,
-);
+allow_tables_to_appear_in_same_query!(configs, jobs, users,);
