@@ -6,6 +6,8 @@ use structopt::StructOpt;
 use ws::connect;
 use std::sync::{Arc, Mutex};
 
+const STEP_TIME_MS: u64 = 100;
+
 #[derive(StructOpt, Clone)]
 struct Args {
     #[structopt(short, long, default_value = "127.0.0.1:8080")]
@@ -53,7 +55,7 @@ fn main(args: Args) {
                                                 mask: 1 << shift | 1 << last_shift,
                                                 data: 1 << shift,
                                             })).unwrap()).unwrap();
-                                            std::thread::sleep(std::time::Duration::from_millis(1000));
+                                            std::thread::sleep(std::time::Duration::from_millis(STEP_TIME_MS));
                                             last_shift = shift;
                                             shift = (shift + 1) % 40;
                                         }
