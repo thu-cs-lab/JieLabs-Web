@@ -234,6 +234,13 @@ export function connectToBoard() {
               websocket,
               hasBoard: false,
             }));
+          } else if (msg["ReportIOChange"]) {
+            const { mask, data } = msg["ReportIOChange"];
+            const { input, ...rest } = getState();
+            dispatch(setBoard({
+              input: (input & ~mask) | (data & mask),
+              ...rest
+            }));
           }
         };
         websocket.onclose = () => {

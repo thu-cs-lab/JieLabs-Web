@@ -58,7 +58,7 @@ export default React.memo(rest => {
     <div className="digits">
       {
         [...Array(3).keys()].map((idx) => <div key={idx}>
-          <svg width="20px" height="30px" viewBox="0 0 200 300">
+          <svg width="20px" height="30px" viewBox="0 0 200 300" key={idx}>
             <path d="M 10,10 10,270 190,270 190,10 Z" fill="black"></path>
             {[...Array(7).keys()].map((part) =>
               <g transform={`translate(${getX(part)}, ${getY(part)}) rotate(${getRotate(part)}, 50, 40)`}
