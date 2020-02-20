@@ -170,7 +170,7 @@ function center(rect, ref) {
   }
 }
 
-const BLOCK_ALIGNMENT = 200;
+const BLOCK_ALIGNMENT = 175;
 
 function alignToBlock(pos) {
   return Math.round(pos / BLOCK_ALIGNMENT) * BLOCK_ALIGNMENT;
