@@ -1,4 +1,4 @@
-import { TYPES } from './actions';
+import { TYPES, BOARD_STATUS } from './actions';
 import { Map, List } from 'immutable';
 import { DEFAULT_BOARD, BOARDS } from '../config';
 import { SIGNAL } from '../blocks';
@@ -42,7 +42,7 @@ export function builds(state = List(), action) {
   return state;
 }
 
-export function board(state = {}, action) {
+export function board(state = { status: BOARD_STATUS.DISCONNECTED, websocket: null }, action) {
   if(action.type === TYPES.SET_BOARD)
     return action.board;
   return state;

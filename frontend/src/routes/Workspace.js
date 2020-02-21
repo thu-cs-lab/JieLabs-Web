@@ -7,7 +7,7 @@ import Icon from '../comps/Icon';
 
 import { BOARDS } from '../config';
 
-import { updateCode, submitBuild, connectToBoard, programBitstream, updateTop, assignPin } from '../store/actions';
+import { BOARD_STATUS, updateCode, submitBuild, connectToBoard, programBitstream, updateTop, assignPin } from '../store/actions';
 
 import { registerCodeLens } from '../vhdl';
 
@@ -26,7 +26,7 @@ export default React.memo(() => {
     await dispatch(submitBuild());
   }, [code, dispatch]);
 
-  const hasBoard = useSelector(store => store.board.hasBoard);
+  const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
   const doConnect = useCallback(async () => {
     if (!hasBoard) {
       await dispatch(connectToBoard());

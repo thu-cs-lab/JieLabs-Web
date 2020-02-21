@@ -23,6 +23,12 @@ export const TYPES = {
   UPDATE_INPUT: Symbol('UPDATE_INPUT'),
 };
 
+export const BOARD_STATUS = Object.freeze({
+  DISCONNECTED: Symbol("DISCONNECTED"),
+  CONNECTED: Symbol("CONNECTED"),
+  WAITING: Symbol("WAITING"),
+});
+
 export function setUser(user) {
   return {
     type: TYPES.SET_USER,
@@ -303,36 +309,42 @@ export function connectToBoard() {
 
       if (!websocket) {
         websocket = new WebSocket(`${WS_BACKEND}/api/ws_user`);
+
         websocket.onopen = () => {
           websocket.send('{"RequestForBoard":""}');
         };
+
         websocket.onmessage = (message) => {
           let msg = JSON.parse(message.data);
           console.log(msg);
-          if (msg["BoardAllocateResult"]) {
+          if(msg["BoardAllocateResult"]) {
+            // TODO: handles allocation fails, starts polling
             websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');
             dispatch(setBoard({
               websocket,
-              hasBoard: true,
+              status: BOARD_STATUS.CONNECTED,
             }));
           } else if (msg["BoardDisconnected"] !== undefined) {
             dispatch(setBoard({
               websocket,
-              hasBoard: false,
+              status: BOARD_STATUS.DISCONNECTED,
             }));
           } else if (msg["ReportIOChange"]) {
             const { data } = msg["ReportIOChange"];
             dispatch(updateInput(data));
           }
         };
+
         websocket.onclose = () => {
           dispatch(setBoard({
-            hasBoard: false,
+            websocket: null,
+            status: BOARD_STATUS.DISCONNECTED,
           }));
         };
+
         dispatch(setBoard({
           websocket,
-          hasBoard: false,
+          status: BOARD_STATUS.DISCONNECTED,
         }));
       }
 
@@ -429,7 +441,8 @@ export function setOutput(idx, value) {
 
       const { board } = getState();
 
-      if(!board.hasBoard) return;
+      if(board.status !== BOARD_STATUS.CONNECTED) return;
+
       board.websocket.send(JSON.stringify({
         ToBoard: {
           SetIOOutput: {
