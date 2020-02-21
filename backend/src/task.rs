@@ -142,6 +142,7 @@ async fn list(
             let limit = query.limit.unwrap_or(5);
             let jobs = web::block(move || {
                 jobs::dsl::jobs
+                    .order(jobs::dsl::id.desc())
                     .offset(offset)
                     .limit(limit)
                     .load::<Job>(&conn)
@@ -171,6 +172,7 @@ async fn list_self(
 
         let res = jobs::dsl::jobs
             .filter(jobs::dsl::submitter.eq(user.user_name))
+            .order(jobs::dsl::id.desc())
             .offset(offset)
             .limit(limit)
             .load::<Job>(&conn);
