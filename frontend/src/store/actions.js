@@ -80,10 +80,10 @@ export function setClock(clock) {
   };
 }
 
-export function updateInput(data, mask) {
+export function updateInput(data) {
   return {
     type: TYPES.UPDATE_INPUT,
-    data, mask,
+    data,
   };
 }
 
@@ -270,8 +270,8 @@ export function connectToBoard() {
               hasBoard: false,
             }));
           } else if (msg["ReportIOChange"]) {
-            const { mask, data } = msg["ReportIOChange"];
-            dispatch(updateInput(data, mask));
+            const { data } = msg["ReportIOChange"];
+            dispatch(updateInput(data));
           }
         };
         websocket.onclose = () => {
