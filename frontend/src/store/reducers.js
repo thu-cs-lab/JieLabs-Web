@@ -57,7 +57,7 @@ export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new 
     const { analysis } = action;
     if(analysis.top === null) return state;
 
-    const entity = analysis.entities[analysis.top-1];
+    const entity = analysis.entities[analysis.top];
     const board = BOARDS[state.board];
 
     let mapper = new Map();

@@ -198,7 +198,7 @@ export default React.memo(() => {
     ];
 
     if(analysis.top !== null) {
-      const topEntity = analysis.entities[analysis.top-1]; // TODO: fix backend counting
+      const topEntity = analysis.entities[analysis.top];
 
       decorations.push(
         // Top entity marker
@@ -270,7 +270,7 @@ export default React.memo(() => {
     const nv = e.target.value;
     const parsed = Number.parseInt(nv, 10);
 
-    const target = analysis.entities[analysis.top-1].signals.find(e => e.name === assigning.name);
+    const target = analysis.entities[analysis.top].signals.find(e => e.name === assigning.name);
     if(!target || target.arity === null) return;
 
     let valid;
@@ -295,7 +295,7 @@ export default React.memo(() => {
     // Asserts step \in {1, -1}
     if(assigning.subscript === -1 || assigning.subscript === null) return;
 
-    const target = analysis.entities[analysis.top-1].signals.find(e => e.name === assigning.name);
+    const target = analysis.entities[analysis.top].signals.find(e => e.name === assigning.name);
     if(!target || target.arity === null) return;
 
     let next;

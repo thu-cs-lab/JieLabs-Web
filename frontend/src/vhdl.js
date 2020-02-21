@@ -130,8 +130,7 @@ export function registerCodeLens(cmds) {
 
 
       if(analysis.top !== null) {
-        // TODO: Oops, typo in wasm lib.
-        const topIdx = analysis.top - 1;
+        const topIdx = analysis.top;
         lenses[topIdx].command = {
           title: 'Top entity'
         };

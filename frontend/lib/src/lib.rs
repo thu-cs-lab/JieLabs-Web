@@ -186,7 +186,7 @@ pub fn parse(s: &str, top_name: Option<String>) -> JsValue {
                 let latin_ident = Latin1String::new(top_ident.as_bytes());
 
                 if name == &latin_ident {
-                    top = Some(entities.len() as u64);
+                    top = Some(entities.len() as u64 - 1);
                 }
             }
         }

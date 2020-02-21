@@ -180,7 +180,7 @@ export function submitBuild() {
       //
       // direction[idx] is relative to Zync
 
-      const topEntity = analysis.entities[analysis.top-1];
+      const topEntity = analysis.entities[analysis.top];
       const sigDirs = topEntity.signals.reduce((acc, { name, dir }) => acc.set(name, dir), new IMap());
 
       let directions = {};
