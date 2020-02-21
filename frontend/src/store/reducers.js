@@ -1,5 +1,5 @@
 import { TYPES } from './actions';
-import { Map } from 'immutable';
+import { Map, List } from 'immutable';
 import { DEFAULT_BOARD, BOARDS } from '../config';
 import { SIGNAL } from '../blocks';
 
@@ -27,9 +27,9 @@ export function analysis(state = null, action) {
   return state;
 }
 
-export function build(state = {}, action) {
-  if(action.type === TYPES.SET_BUILD)
-    return action.build;
+export function builds(state = List(), action) {
+  if(action.type === TYPES.LOAD_BUILDS)
+    return action.builds;
   return state;
 }
 

@@ -21,6 +21,10 @@ export default React.memo(() => {
   const boardTmpl = useSelector(state => state.signals.board);
   const boardTmplName = BOARDS[boardTmpl].name;
 
+  const latestBuilds = useSelector(state => state.builds);
+
+  // FIXME: what if latestBuilds.length === 0
+
   useEffect(() => {
     dispatch(init()).then(restored => {;
       if(!restored) history.push('/login');
@@ -39,6 +43,14 @@ export default React.memo(() => {
       history.push('/login');
     }
   }, [dispatch, history]);
+
+  function getStatusInd(status) {
+    if(status === null)
+      return <div className="latest-build-pending"></div>;
+    if(status === 'Compilation Success')
+      return <Icon className="latest-build-success">done</Icon>
+    return <Icon className="latest-build-failed">close</Icon>
+  }
 
   if(loading)
     return <div className="container loading"></div>;
@@ -61,11 +73,10 @@ export default React.memo(() => {
         <div className="latest-build">
           <div className="latest-build-info">
             <div className="latest-build-id">
-              <small>#</small><strong>13</strong>
+              <small>#</small><strong>{ latestBuilds.get(0).id }</strong>
             </div>
             <div className="latest-build-status">
-              <div className="latest-build-pending">
-              </div>
+              { getStatusInd(latestBuilds.get(0).status) }
             </div>
           </div>
           <div className="latest-build-hint">
@@ -74,6 +85,11 @@ export default React.memo(() => {
           </div>
 
           <div className="build-list">
+            { latestBuilds.map(e => (
+              <div key={e.id}>
+                {e.id} {e.status}
+              </div>
+            ))}
           </div>
         </div>
 

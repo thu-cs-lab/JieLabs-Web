@@ -1,4 +1,4 @@
-import { Map as IMap } from 'immutable';
+import { Map as IMap, List as IList } from 'immutable';
 
 import { get, post, putS3, createTarFile } from '../util';
 import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS } from '../config';
@@ -10,6 +10,7 @@ export const TYPES = {
   SET_CODE: Symbol('SET_CODE'),
   SET_ANALYSIS: Symbol('SET_ANALYSIS'),
   SET_BUILD: Symbol('SET_BUILD'),
+  LOAD_BUILDS: Symbol('LOAD_BUILDS'),
   SET_BOARD: Symbol('SET_BOARD'),
   ASSIGN_TOP: Symbol('ASSIGN_TOP'),
   ASSIGN_PIN: Symbol('ASSIGN_PIN'),
@@ -45,10 +46,10 @@ export function setAnalysis(analysis) {
   };
 }
 
-export function setBuild(build) {
+export function loadBuilds(builds) {
   return {
-    type: TYPES.SET_BUILD,
-    build,
+    type: TYPES.LOAD_BUILDS,
+    builds,
   };
 }
 
@@ -151,12 +152,24 @@ export function initLib() {
   }
 }
 
+export function initBuilds() {
+  return async dispatch => {
+    try {
+      const builds = await get('/api/task/'); // Why hurt me so much actix router?
+      dispatch(loadBuilds(IList(builds.jobs)))
+      return true;
+    } catch(e) {
+      console.error(e);
+    }
+  }
+}
 export function init() {
   return async (dispatch) => {
     const restored = dispatch(restore());
     const libLoaded = dispatch(initLib());
+    const buildsLoaded = dispatch(initBuilds());
 
-    const [logined,] = await Promise.all([restored, libLoaded]);
+    const [logined,] = await Promise.all([restored, libLoaded, buildsLoaded]);
     return logined;
   }
 }
@@ -212,21 +225,25 @@ export function submitBuild() {
         const info = await get(`/api/task/get/${result}`);
         if (info.status) {
           clearInterval(intervalID);
+          /*
           dispatch(setBuild({
             jobID: result,
             isPolling: false,
             buildInfo: info,
             directions,
           }));
+          */
         }
       }, 3000);
 
+      /*
       dispatch(setBuild({
         jobID: result,
         isPolling: true,
         intervalID,
         directions,
       }));
+      */
       return true;
     } catch (e) {
       console.error(e);

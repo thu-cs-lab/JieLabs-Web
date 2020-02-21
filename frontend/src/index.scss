@@ -221,13 +221,23 @@ header {
 
       .latest-build-status {
         margin-left: 5px;
+        height: 24px;
+
+        > .material-icons {
+          font-size: 24px;
+          display: inline-block;
+          line-height: 24px;
+          width: 24px;
+          height: 24px;
+        }
       }
 
       .latest-build-pending {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
+        margin: (24px-14px)/2;
         box-sizing: border-box;
-        border: change-color($primary-color, $alpha: 0.7) 4px solid;
+        border: change-color($primary-color, $alpha: 0.7) 2px solid;
 
         @keyframes pending-rotate {
           0% {
@@ -252,6 +262,14 @@ header {
         }
 
         animation: pending-rotate 4s infinite;
+      }
+
+      .latest-build-success {
+        color: #1B813E;
+      }
+
+      .latest-build-failed {
+        color: $error-color;
       }
 
       .latest-build-aux {
@@ -298,6 +316,7 @@ header {
   right: 0;
 
   height: 300px;
+  padding-top: 60px;
   background: $bg;
 
   z-index: -1;

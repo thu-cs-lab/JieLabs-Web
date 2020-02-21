@@ -23,12 +23,13 @@ export default React.memo(() => {
   const setCode = useCallback(code => dispatch(updateCode(code)), [dispatch]);
 
   // TODO: disable button when polling
-  const isPolling = useSelector(store => store.build.isPolling);
-  const doUpload = useCallback(async () => {
-    if (!isPolling) {
-      await dispatch(submitBuild(code));
-    }
-  }, [code, dispatch, isPolling]);
+  // const isPolling = useSelector(store => store.build.isPolling);
+  // const doUpload = useCallback(async () => {
+  //   if (!isPolling) {
+  //     await dispatch(submitBuild(code));
+  //   }
+  // }, [code, dispatch, isPolling]);
+  const doUpload = null;
 
   const hasBoard = useSelector(store => store.board.hasBoard);
   const doConnect = useCallback(async () => {
@@ -37,12 +38,15 @@ export default React.memo(() => {
     }
   }, [dispatch, hasBoard]);
 
+  /*
   const hasBitstream = useSelector(store => store.build.buildInfo && store.build.buildInfo.status === "Compilation Success");
   const doProgram = useCallback(async () => {
     if (hasBoard && hasBitstream) {
       await dispatch(programBitstream());
     }
   }, [dispatch, hasBitstream, hasBoard]);
+  */
+  const doProgram = null;
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
