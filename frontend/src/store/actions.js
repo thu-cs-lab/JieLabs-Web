@@ -119,6 +119,8 @@ export function login(user, pass) {
 
       dispatch(setUser(data));
 
+      dispatch(initBuilds());
+
       return true;
     } catch (e) {
       console.error(e);
