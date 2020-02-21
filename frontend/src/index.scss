@@ -392,6 +392,20 @@ header {
       }
     }
   }
+
+  .build-list-placeholder {
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, .18);
+
+    @extend .monospace;
+    font-size: 18px;
+    text-align: center;
+    padding: 20px;
+  }
 }
 
 .spanner {

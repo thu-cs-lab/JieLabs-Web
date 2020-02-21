@@ -23,8 +23,6 @@ export default React.memo(() => {
 
   const latestBuilds = useSelector(state => state.builds);
 
-  // FIXME: what if latestBuilds.length === 0
-
   useEffect(() => {
     dispatch(init()).then(restored => {;
       if(!restored) history.push('/login');
@@ -71,14 +69,22 @@ export default React.memo(() => {
 
       <div className={cn("shifter", { shifted: !logined })}>
         <div className="latest-build">
-          <div className="latest-build-info">
-            <div className="latest-build-id">
-              <small>#</small><strong>{ latestBuilds.get(0).id }</strong>
+          { latestBuilds.size > 0 ? (
+            <div className="latest-build-info">
+              <div className="latest-build-id">
+                <small>#</small><strong>{ latestBuilds.get(0).id }</strong>
+              </div>
+              <div className="latest-build-status">
+                { getStatusInd(latestBuilds.get(0).status) }
+              </div>
             </div>
-            <div className="latest-build-status">
-              { getStatusInd(latestBuilds.get(0).status) }
+          ) : (
+            <div className="latest-build-info">
+              <div className="latest-build-id latest-build-empty">
+                N/A
+              </div>
             </div>
-          </div>
+          )}
           <div className="latest-build-hint">
             Latest build<span className="latest-build-nonsense">s</span>
             <Icon className="latest-build-aux">more_vert</Icon>
@@ -104,6 +110,12 @@ export default React.memo(() => {
                 <Icon className="build-list-action">edit</Icon>
               </div>
             ))}
+
+            { latestBuilds.size === 0 && (
+              <div className="build-list-placeholder">
+                The World is Big and the panda sit alone
+              </div>
+            )}
           </div>
         </div>
 
