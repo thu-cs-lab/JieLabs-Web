@@ -14,7 +14,7 @@ struct UploadResponse {
 #[get("/upload")]
 async fn upload(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(_user) = get_user(&id, &conn) {
+    if let (Some(_user), _conn) = get_user(&id, conn).await? {
         let file_name = generate_uuid();
         let presigned_url = get_upload_url(&file_name);
         return Ok(HttpResponse::Ok().json(UploadResponse {

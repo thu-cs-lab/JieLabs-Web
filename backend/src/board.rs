@@ -11,7 +11,7 @@ use serde_derive::{Deserialize, Serialize};
 #[get("/list")]
 async fn list(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), _conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             let man = get_board_manager();
             if let Ok(res) = man.send(GetBoardList).await {
@@ -36,7 +36,7 @@ async fn update_version(
     body: web::Json<UpdateVersionRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             let body = serde_json::to_string(&*body)?;
             web::block(move || {

@@ -22,19 +22,31 @@ pub fn hash_password(password: &str) -> String {
     format!("{:x?}", sign.as_ref())
 }
 
-pub fn get_user(
+pub async fn get_user(
     id: &Identity,
-    conn: &PooledConnection<ConnectionManager<DbConnection>>,
-) -> Option<User> {
+    conn: PooledConnection<ConnectionManager<DbConnection>>,
+) -> Result<
+    (
+        Option<User>,
+        PooledConnection<ConnectionManager<DbConnection>>,
+    ),
+    actix_web::Error,
+> {
     if let Some(name) = id.identity() {
-        if let Ok(user) = dsl::users
-            .filter(dsl::user_name.eq(&name))
-            .first::<User>(conn)
-        {
-            return Some(user);
-        }
+        let (user, conn) = web::block(move || {
+            match dsl::users
+                .filter(dsl::user_name.eq(&name))
+                .first::<User>(&conn)
+            {
+                Ok(res) => Ok((res, conn)),
+                Err(err) => Err(err),
+            }
+        })
+        .await
+        .map_err(err)?;
+        return Ok((Some(user), conn));
     }
-    None
+    Ok((None, conn))
 }
 
 #[derive(Deserialize)]
@@ -85,7 +97,7 @@ async fn login(
 #[get("/session")]
 async fn info(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), _conn) = get_user(&id, conn).await? {
         return Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
             user_name: Some(user.user_name),

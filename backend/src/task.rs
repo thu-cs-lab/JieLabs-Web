@@ -22,7 +22,7 @@ async fn build(
     pool: web::Data<DbPool>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         let body = body.into_inner();
 
         let dest = generate_uuid();
@@ -136,21 +136,23 @@ async fn list(
     query: web::Query<JobListRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
             let limit = query.limit.unwrap_or(5);
-            if let Ok(jobs) = jobs::dsl::jobs
-                .offset(offset)
-                .limit(limit)
-                .load::<Job>(&conn)
-            {
-                return Ok(HttpResponse::Ok().json(JobListResponse {
-                    offset,
-                    limit,
-                    jobs: jobs.into_iter().map(JobInfo::from).collect(),
-                }));
-            }
+            let jobs = web::block(move || {
+                jobs::dsl::jobs
+                    .offset(offset)
+                    .limit(limit)
+                    .load::<Job>(&conn)
+            })
+            .await
+            .map_err(err)?;
+            return Ok(HttpResponse::Ok().json(JobListResponse {
+                offset,
+                limit,
+                jobs: jobs.into_iter().map(JobInfo::from).collect(),
+            }));
         }
     }
     Ok(HttpResponse::Forbidden().finish())
@@ -163,7 +165,7 @@ async fn list_self(
     query: web::Query<JobListRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         let offset = query.offset.unwrap_or(0);
         let limit = query.limit.unwrap_or(5);
 
@@ -187,7 +189,7 @@ async fn list_self(
 #[get("/get/{job_id}")]
 async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<i32>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if let Ok(job) = jobs::dsl::jobs.find(*path).first::<Job>(&conn) {
             if user.role == "admin" || user.user_name == job.submitter {
                 return Ok(HttpResponse::Ok().json(JobInfo::from(job)));

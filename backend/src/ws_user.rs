@@ -234,7 +234,7 @@ pub async fn ws_user(
     let conn = req.connection_info();
     let remote = conn.remote();
     let conn = pool.get().unwrap();
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), _conn) = get_user(&id, conn).await? {
         return ws::start(
             WSUser::new(
                 remote.unwrap_or("Unknown Remote"),

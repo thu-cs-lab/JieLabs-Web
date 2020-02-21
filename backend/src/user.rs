@@ -37,7 +37,7 @@ async fn list(
     query: web::Query<UserListRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
             let limit = query.limit.unwrap_or(5);
@@ -80,7 +80,7 @@ async fn update(
     body: web::Json<UserUpdateRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             if let Ok(mut user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
@@ -116,7 +116,7 @@ async fn get(
     path: web::Path<String>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             if let Ok(user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
@@ -144,7 +144,7 @@ async fn remove(
     path: web::Path<String>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Some(user) = get_user(&id, &conn) {
+    if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             if let Ok(user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
