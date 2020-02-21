@@ -353,8 +353,14 @@ header {
       font-size: 12px;
       flex: 1;
 
-      color: white;
-      opacity: .7;
+      color: rgba(255,255,255,.7);
+
+      // TODO: investigate how to highlight status lines in build lists with proper color contrast
+      /*
+      &.build-list-status-error {
+        color: $error-color;
+      }
+      */
     }
 
     &.build-list-pending .build-list-status {
@@ -380,15 +386,6 @@ header {
 
       &:hover {
         opacity: 1;
-      }
-
-      &.build-list-action-disabled {
-        cursor: default;
-        opacity: .38;
-
-        &:hover {
-          opacity: .38;
-        }
       }
     }
   }

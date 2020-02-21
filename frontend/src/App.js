@@ -95,17 +95,21 @@ export default React.memo(() => {
               <div key={e.id} className={cn("build-list-entry", { 'build-list-pending': e.status === null })}>
                 <div className="build-list-id"><small>#</small><strong>{e.id}</strong></div>
                 <div className="build-list-sep">/</div>
-                <div className="build-list-status">
+                <div className={cn("build-list-status", { 'build-list-status-error': e.status === 'Compilation Failed' })}>
                   { e.status || 'Compiling...' }
                 </div>
-                <div className="build-list-sep">/</div>
-                <Icon
-                  className={cn("build-list-action", { 'build-list-action-disabled': e.status !== 'Compilation Success' })}
-                  onClick={() => {
-                    if(e.status === 'Compilation Success')
-                      dispatch(programBitstream(e.id));
-                  }}
-                >cloud_download</Icon>
+                { e.status === 'Compilation Success' && (
+                  <>
+                    <div className="build-list-sep">/</div>
+                    <Icon
+                      className="build-list-action"
+                      onClick={() => {
+                        if(e.status === 'Compilation Success')
+                          dispatch(programBitstream(e.id));
+                      }}
+                    >cloud_download</Icon>
+                  </>
+                )}
                 <div className="build-list-sep">/</div>
                 <Icon className="build-list-action">edit</Icon>
               </div>
