@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { HARD_LOGOUT, BOARDS } from './config';
 
-import { init, logout, programBitstream } from './store/actions';
+import { BOARD_STATUS, init, logout, programBitstream } from './store/actions';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -22,6 +22,8 @@ export default React.memo(() => {
   const boardTmplName = BOARDS[boardTmpl].name;
 
   const latestBuilds = useSelector(state => state.builds);
+
+  const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
@@ -102,7 +104,7 @@ export default React.memo(() => {
                   <>
                     <div className="build-list-sep">/</div>
                     <Icon
-                      className="build-list-action"
+                      className={cn("build-list-action", { 'build-list-action-disabled': !hasBoard })}
                       onClick={() => {
                         if(e.status === 'Compilation Success')
                           dispatch(programBitstream(e.id));

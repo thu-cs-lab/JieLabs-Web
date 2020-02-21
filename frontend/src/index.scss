@@ -387,6 +387,15 @@ header {
       &:hover {
         opacity: 1;
       }
+
+      &.build-list-action-disabled {
+        cursor: default;
+        opacity: 0.38;
+
+        &:hover {
+          opacity: 0.38;
+        }
+      }
     }
   }
 

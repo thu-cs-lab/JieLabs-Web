@@ -343,7 +343,7 @@ export default React.memo(() => {
         <Icon>build</Icon>
       </button>
 
-      <button className="secondary" onClick={doProgram} disabled={readyLatestId === null}>
+      <button className="secondary" onClick={doProgram} disabled={!hasBoard || readyLatestId === null}>
         <Icon>cloud_download</Icon>
       </button>
 
