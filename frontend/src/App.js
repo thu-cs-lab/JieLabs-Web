@@ -58,11 +58,31 @@ export default React.memo(() => {
       <div className="spanner"></div>
 
       <div className={cn("shifter", { shifted: !logined })}>
+        <div className="latest-build">
+          <div className="latest-build-info">
+            <div className="latest-build-id">
+              <small>#</small><strong>13</strong>
+            </div>
+            <div className="latest-build-status">
+              <div className="latest-build-pending">
+              </div>
+            </div>
+          </div>
+          <div className="latest-build-hint">
+            Latest build<span className="latest-build-nonsense">s</span>
+            <Icon className="latest-build-aux">more_vert</Icon>
+          </div>
+
+          <div className="build-list">
+          </div>
+        </div>
+
         <div className="logout" onClick={doLogout}>
           <Icon>logout</Icon>
         </div>
       </div>
     </header>
+
     <Switch>
       <Route path="/login" exact>
         <Login />
