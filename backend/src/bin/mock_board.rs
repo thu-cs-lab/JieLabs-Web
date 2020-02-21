@@ -6,17 +6,19 @@ use std::sync::{Arc, Mutex};
 use structopt::StructOpt;
 use ws::connect;
 
-const STEP_TIME_MS: u64 = 100;
-
 #[derive(StructOpt, Clone)]
 struct Args {
     #[structopt(short, long, default_value = "127.0.0.1:8080")]
     host: String,
+
+    #[structopt(short, long, default_value = "100")]
+    step_time_ms: u64,
 }
 
 #[paw::main]
 fn main(args: Args) {
     env_logger::init();
+    let step_time = args.step_time_ms;
     connect(format!("ws://{}/api/ws_board", args.host), |out| {
         out.send(r#"{"Authenticate":{"password":"password","software_version":"1.0","hardware_version":"0.1"}}"#).unwrap();
         let spawned = Arc::new(Mutex::new(false));
@@ -56,7 +58,7 @@ fn main(args: Args) {
                                                 mask: None,
                                                 data: Some(data),
                                             })).unwrap()).unwrap();
-                                            std::thread::sleep(std::time::Duration::from_millis(STEP_TIME_MS));
+                                            std::thread::sleep(std::time::Duration::from_millis(step_time));
                                             shift = (shift + 1) % 40;
                                         }
                                     });
