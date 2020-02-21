@@ -30,14 +30,10 @@ impl Pos {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all="lowercase")]
 enum SignalDirection {
-    #[serde(rename="input")]
     Input,
-
-    #[serde(rename="output")]
     Output,
-
-    #[serde(rename="unsupported")]
     Unsupported,
 }
 
@@ -73,10 +69,49 @@ struct EntityInfo {
     pub(crate) signals: Vec<SignalInfo>,
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all="lowercase")]
+enum Severity {
+    Hint,
+    Info,
+    Warning,
+    Error,
+}
+
+impl From<vhdl_lang::Severity> for Severity {
+    fn from(s: vhdl_lang::Severity) -> Severity {
+        use vhdl_lang::Severity::*;
+        match s {
+            Hint => Self::Hint,
+            Info => Self::Info,
+            Warning => Self::Warning,
+            Error => Self::Error,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct Diagnostic {
+    pos: Pos,
+    msg: String,
+    severity: Severity,
+}
+
+impl From<vhdl_lang::Diagnostic> for Diagnostic {
+    fn from(d: vhdl_lang::Diagnostic) -> Diagnostic {
+        Diagnostic {
+            pos: Pos::from_srcpos(&d.pos),
+            msg: d.message,
+            severity: d.severity.into(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Default)]
 struct ParseResult {
     entities: Vec<EntityInfo>,
     top: Option<u64>,
+    diagnostics: Vec<Diagnostic>,
 }
 
 // TODO: fallback top srcpos
@@ -160,6 +195,7 @@ pub fn parse(s: &str, top_name: Option<String>) -> JsValue {
     let result = ParseResult {
         entities,
         top,
+        diagnostics: diagnostics.into_iter().map(Into::into).collect(),
     };
 
     JsValue::from_serde(&result).unwrap()

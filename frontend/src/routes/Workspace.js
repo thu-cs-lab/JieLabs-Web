@@ -179,62 +179,83 @@ export default React.memo(() => {
   const analysis = useSelector(state => state.analysis);
 
   useEffect(() => {
-    if(!analysis || analysis.top === null) return;
+    if(!analysis) return;
     if(!editorRef.current) return;
 
-    const editor = editorRef.current.editor;
-
-    const topEntity = analysis.entities[analysis.top-1]; // TODO: fix backend counting
-
     const decorations = [
-      {
+      // Diagnostics
+      ...analysis.diagnostics.map(d => ({
         range: new Range(
-          topEntity.decl.from_line + 1,
-          topEntity.decl.from_char + 1,
-          topEntity.decl.to_line + 1,
-          topEntity.decl.to_char + 1,
+          d.pos.from_line + 1,
+          d.pos.from_char + 1,
+          d.pos.to_line + 1,
+          d.pos.to_char + 1,
         ),
         options: {
-          isWholeLine: true,
-          className: 'top-line',
-          glyphMarginClassName: 'top-glyph',
+          inlineClassName: `diagnostic-${d.severity}`,
         },
-      },
-      ...topEntity.signals.map(signal => {
-        let mapped = false;
-        if(signal.arity === null)
-          mapped = assignments.get(signal.name) !== undefined;
-        else if(signal.arity.from >= signal.arity.to) {
-          mapped = true;
-          for(let i = signal.arity.to; i <= signal.arity.from; ++i)
-            if(assignments.get(signal.name + `[${i}]`) === undefined) {
-              mapped = false;
-              break;
-            }
-        } else {
-          mapped = true;
-          for(let i = signal.arity.from; i <= signal.arity.to; ++i)
-            if(assignments.get(signal.name + `[${i}]`) === undefined) {
-              mapped = false;
-              break;
-            }
-        }
+      })),
+    ];
 
-        return {
+    if(analysis.top !== null) {
+      const topEntity = analysis.entities[analysis.top-1]; // TODO: fix backend counting
+
+      decorations.push(
+        // Top entity marker
+        {
           range: new Range(
-            signal.pos.from_line + 1,
-            signal.pos.from_char + 1,
-            signal.pos.to_line + 1,
-            signal.pos.to_char + 1,
+            topEntity.decl.from_line + 1,
+            topEntity.decl.from_char + 1,
+            topEntity.decl.to_line + 1,
+            topEntity.decl.to_char + 1,
           ),
           options: {
             isWholeLine: true,
-            className: mapped ? 'assigned-signal-line' : 'unassigned-signal-line',
-            glyphMarginClassName: mapped ? 'assigned-signal-glyph' : 'unassigned-signal-glyph',
+            className: 'top-line',
+            glyphMarginClassName: 'top-glyph',
           },
-        };
-      })
-    ];
+        },
+        // Pin assignments
+        ...topEntity.signals.map(signal => {
+          let mapped = false;
+          if(signal.arity === null)
+            mapped = assignments.get(signal.name) !== undefined;
+          else if(signal.arity.from >= signal.arity.to) {
+            mapped = true;
+            for(let i = signal.arity.to; i <= signal.arity.from; ++i)
+              if(assignments.get(signal.name + `[${i}]`) === undefined) {
+                mapped = false;
+                break;
+              }
+          } else {
+            mapped = true;
+            for(let i = signal.arity.from; i <= signal.arity.to; ++i)
+              if(assignments.get(signal.name + `[${i}]`) === undefined) {
+                mapped = false;
+                break;
+              }
+          }
+
+          return {
+            range: new Range(
+              signal.pos.from_line + 1,
+              signal.pos.from_char + 1,
+              signal.pos.to_line + 1,
+              signal.pos.to_char + 1,
+            ),
+            options: {
+              isWholeLine: true,
+              className: mapped ? 'assigned-signal-line' : 'unassigned-signal-line',
+              glyphMarginClassName: mapped ? 'assigned-signal-glyph' : 'unassigned-signal-glyph',
+            },
+          };
+        }),
+      );
+    }
+
+    const editor = editorRef.current.editor;
+
+    console.log(decorations);
 
     const ids = editor.deltaDecorations([], decorations);
 

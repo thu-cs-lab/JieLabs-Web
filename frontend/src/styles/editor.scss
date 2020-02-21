@@ -1,5 +1,6 @@
 $warning: #D4CE24;
 $confirm: #29C2BD;
+$error: #CB4042;
 
 .unassigned-signal-line {
   background: fade-out($warning, 0.9);
@@ -19,4 +20,11 @@ $confirm: #29C2BD;
 
 .top-glyph {
   background: $confirm;
+}
+
+.diagnostic-error {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: $error;
+  text-decoration-skip-ink: none;
 }
