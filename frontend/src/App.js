@@ -94,7 +94,7 @@ export default React.memo(() => {
                 </div>
                 <div className="build-list-sep">/</div>
                 <Icon
-                  className="build-list-action"
+                  className={cn("build-list-action", { 'build-list-action-disabled': e.status !== 'Compilation Success' })}
                   onClick={() => {
                     if(e.status === 'Compilation Success')
                       dispatch(programBitstream(e.id));
