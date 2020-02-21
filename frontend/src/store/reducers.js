@@ -118,7 +118,7 @@ export function clock(state = null, action) {
 export function input(state = null, action) {
   if(action.type === TYPES.UPDATE_INPUT) {
     const { data } = action;
-    return data.split().map(e => e === '1' ? SIGNAL.H : SIGNAL.L);
+    return data.split('').map(e => e === '1' ? SIGNAL.H : SIGNAL.L);
   }
 
   return state;

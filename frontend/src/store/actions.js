@@ -318,8 +318,8 @@ export function programBitstream() {
             
         }
 
-        const dir = dirArr.map(e => e.toString()).join();
-        const mask = maskArr.map(e => e.toString()).join();
+        const dir = dirArr.map(e => e.toString()).join('');
+        const mask = maskArr.map(e => e.toString()).join('');
 
         board.websocket.send(JSON.stringify({
           ToBoard: {
@@ -330,7 +330,7 @@ export function programBitstream() {
           },
         }));
 
-        // board.websocket.send(`{"ProgramBitstream":${jobID}}`);
+        board.websocket.send(`{"ProgramBitstream":${jobID}}`);
       }
       return true;
     } catch (e) {
@@ -368,8 +368,8 @@ export function setOutput(idx, value) {
         }
       });
 
-      const data = dataArr.map(e => e.toString()).join();
-      const mask = maskArr.map(e => e.toString()).join();
+      const data = dataArr.map(e => e.toString()).join('');
+      const mask = maskArr.map(e => e.toString()).join('');
 
       notifMerger = null;
       notifSet = [];
