@@ -1,7 +1,6 @@
 import { TYPES } from './actions';
 import { Map } from 'immutable';
 import { DEFAULT_BOARD, BOARDS } from '../config';
-import { toBitArray } from '../util';
 import { SIGNAL } from '../blocks';
 
 export function user(state = null, action) {
@@ -119,9 +118,8 @@ export function clock(state = null, action) {
 export function input(state = null, action) {
   if(action.type === TYPES.UPDATE_INPUT) {
     const { data, mask } = action;
-    const dataArr = toBitArray(data);
     // Ignoring mask for now
-    return dataArr.map(e => e ? SIGNAL.H : SIGNAL.L);
+    return data.split().map(e => e === '1' ? SIGNAL.H : SIGNAL.L);
   }
 
   return state;

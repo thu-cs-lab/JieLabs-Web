@@ -301,27 +301,36 @@ export function programBitstream() {
         const { jobID, directions } = build;
 
         // Build direction config
-        let dir = 0;
-        let dirMask = 0;
+        let dirArr = [];
+        let maskArr = [];
+
         for(const pin in directions) {
           const parsed = Number.parseInt(pin, 10);
-          const bit = Math.pow(2, parsed);
 
-          dirMask += bit;
-          if(directions[pin] === 'output') // Reads from FPGA
-            dir += bit;
+          if(parsed >= dirArr.length) {
+            dirArr.push(...Array(parsed - dirArr.length + 1).fill(0));
+            maskArr.push(...Array(parsed - dirArr.length + 1).fill(0));
+          }
+
+          maskArr[parsed] = 1;
+          if(directions[pin] === 'input') // Reads from FPGA
+            dirArr[parsed] = 1;
+            
         }
+
+        const dir = dirArr.map(e => e.toString()).join();
+        const mask = maskArr.map(e => e.toString()).join();
 
         board.websocket.send(JSON.stringify({
           ToBoard: {
             SetIODirection: {
               data: dir,
-              mask: dirMask,
+              mask,
             },
           },
         }));
 
-        board.websocket.send(`{"ProgramBitstream":${jobID}}`);
+        // board.websocket.send(`{"ProgramBitstream":${jobID}}`);
       }
       return true;
     } catch (e) {
@@ -346,19 +355,21 @@ export function setOutput(idx, value) {
     notifSet[idx] = value; // JS arrays are sparse
 
     notifMerger = setTimeout(() => {
-      let data = 0;
-      let mask = 0;
+      const totLen = notifSet.length;
+      const dataArr = Array(totLen).fill(0);
+      const maskArr = Array(totLen).fill(0);
 
       notifSet.forEach((sig, idx) => {
-        const bit = Math.pow(2, idx);
-
         if(sig === SIGNAL.H) {
-          data += bit;
-          mask += bit;
+          dataArr[idx] = 1;
+          maskArr[idx] = 1;
         } else if(sig === SIGNAL.L) {
-          mask += bit;
+          maskArr[idx] = 1;
         }
       });
+
+      const data = dataArr.map(e => e.toString()).join();
+      const mask = maskArr.map(e => e.toString()).join();
 
       notifMerger = null;
       notifSet = [];
