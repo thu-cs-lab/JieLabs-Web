@@ -344,45 +344,47 @@ export function connectToBoard() {
   }
 }
 
-export function programBitstream() {
+export function programBitstream(id) {
   return async (dispatch, getState) => {
     try {
-      let { board, build } = getState();
-      if (board && board.websocket) {
-        const { jobID, directions } = build;
+      let { board, builds } = getState();
+      const build = builds.find(e => e.id === id);
+      if(!build || !board || !board.websocket) return false;
 
-        // Build direction config
-        let dirArr = [];
-        let maskArr = [];
+      const { directions } = build;
 
-        for(const pin in directions) {
-          const parsed = Number.parseInt(pin, 10);
+      // Build direction config
+      let dirArr = [];
+      let maskArr = [];
 
-          if(parsed >= dirArr.length) {
-            dirArr.push(...Array(parsed - dirArr.length + 1).fill(0));
-            maskArr.push(...Array(parsed - dirArr.length + 1).fill(0));
-          }
+      for(const pin in directions) {
+        const parsed = Number.parseInt(pin, 10);
 
-          maskArr[parsed] = 1;
-          if(directions[pin] === 'input') // Reads from FPGA
-            dirArr[parsed] = 1;
-            
+        if(parsed >= dirArr.length) {
+          dirArr.push(...Array(parsed - dirArr.length + 1).fill(0));
+          maskArr.push(...Array(parsed - dirArr.length + 1).fill(0));
         }
 
-        const dir = dirArr.map(e => e.toString()).join('');
-        const mask = maskArr.map(e => e.toString()).join('');
-
-        board.websocket.send(JSON.stringify({
-          ToBoard: {
-            SetIODirection: {
-              data: dir,
-              mask,
-            },
-          },
-        }));
-
-        board.websocket.send(`{"ProgramBitstream":${jobID}}`);
+        maskArr[parsed] = 1;
+        if(directions[pin] === 'input') // Reads from FPGA
+          dirArr[parsed] = 1;
+          
       }
+
+      const dir = dirArr.map(e => e.toString()).join('');
+      const mask = maskArr.map(e => e.toString()).join('');
+
+      board.websocket.send(JSON.stringify({
+        ToBoard: {
+          SetIODirection: {
+            data: dir,
+            mask,
+          },
+        },
+      }));
+
+      board.websocket.send(`{"ProgramBitstream":${id}}`);
+
       return true;
     } catch (e) {
       console.error(e);

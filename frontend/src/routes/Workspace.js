@@ -33,15 +33,19 @@ export default React.memo(() => {
     }
   }, [dispatch, hasBoard]);
 
-  /*
-  const hasBitstream = useSelector(store => store.build.buildInfo && store.build.buildInfo.status === "Compilation Success");
-  const doProgram = useCallback(async () => {
-    if (hasBoard && hasBitstream) {
-      await dispatch(programBitstream());
-    }
-  }, [dispatch, hasBitstream, hasBoard]);
-  */
-  const doProgram = null;
+  // The ID of the latest build, or null if the latest build is not ready yet
+  const readyLatestId = useSelector(store => {
+    const { builds } = store;
+    const latest = builds.get(0);
+    if(!latest) return null;
+    if(latest.status !== 'Compilation Success') return null;
+    return latest.id;
+  });
+
+  const doProgram = useCallback(() => {
+    if(readyLatestId !== null && hasBoard)
+      dispatch(programBitstream(readyLatestId));
+  }, [readyLatestId, hasBoard]);
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);

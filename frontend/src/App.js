@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { HARD_LOGOUT, BOARDS } from './config';
 
-import { init, logout } from './store/actions';
+import { init, logout, programBitstream } from './store/actions';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -93,7 +93,13 @@ export default React.memo(() => {
                   { e.status || 'Compiling...' }
                 </div>
                 <div className="build-list-sep">/</div>
-                <Icon className="build-list-action">cloud_download</Icon>
+                <Icon
+                  className="build-list-action"
+                  onClick={() => {
+                    if(e.status === 'Compilation Success')
+                      dispatch(programBitstream(e.id));
+                  }}
+                >cloud_download</Icon>
                 <div className="build-list-sep">/</div>
                 <Icon className="build-list-action">edit</Icon>
               </div>
