@@ -18,8 +18,8 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IOSetting {
-    pub mask: u64,
-    pub data: u64,
+    pub mask: Option<String>,
+    pub data: Option<String>,
 }
 
 pub fn get_timestamp() -> u64 {

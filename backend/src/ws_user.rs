@@ -200,7 +200,9 @@ impl WSUser {
                                             data,
                                         });
                                     } else {
-                                        info!("bitstream program failed because of download failure");
+                                        info!(
+                                            "bitstream program failed because of download failure"
+                                        );
                                     }
                                 });
                                 ctx.spawn(then);
@@ -274,8 +276,8 @@ mod test {
             "{}",
             serde_json::to_string(&WSUserMessageU2S::ToBoard(WSBoardMessageS2B::SetIOOutput(
                 IOSetting {
-                    mask: 0b1110,
-                    data: 0b0100,
+                    mask: Some(String::from("1111")),
+                    data: Some(String::from("1111")),
                 }
             )))
             .unwrap()
@@ -284,8 +286,8 @@ mod test {
             "{}",
             serde_json::to_string(&WSUserMessageU2S::ToBoard(
                 WSBoardMessageS2B::SetIODirection(IOSetting {
-                    mask: 0b1110,
-                    data: 0b0100,
+                    mask: Some(String::from("1111")),
+                    data: Some(String::from("1111")),
                 })
             ))
             .unwrap()
@@ -298,8 +300,8 @@ mod test {
         println!(
             "{}",
             serde_json::to_string(&WSUserMessageS2U::ReportIOChange(IOSetting {
-                mask: 0b1011,
-                data: 0b1000,
+                mask: Some(String::from("1111")),
+                data: Some(String::from("1111")),
             }))
             .unwrap()
         );

@@ -204,8 +204,8 @@ mod test {
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageB2S::ReportIOChange(IOSetting {
-                mask: 0b1110,
-                data: 0b0100,
+                mask: Some(String::from("1111")),
+                data: Some(String::from("1111")),
             }))
             .unwrap()
         );
@@ -213,16 +213,16 @@ mod test {
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageS2B::SetIOOutput(IOSetting {
-                mask: 0b1011,
-                data: 0b1000,
+                mask: Some(String::from("1111")),
+                data: Some(String::from("1111")),
             }))
             .unwrap()
         );
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageS2B::SetIODirection(IOSetting {
-                mask: 0b1000,
-                data: 0b0000,
+                mask: Some(String::from("1111")),
+                data: Some(String::from("1111")),
             }))
             .unwrap()
         );
