@@ -30,6 +30,15 @@ export function analysis(state = null, action) {
 export function builds(state = List(), action) {
   if(action.type === TYPES.LOAD_BUILDS)
     return action.builds;
+  if(action.type === TYPES.PUT_BUILD) {
+    const { build } = action;
+    const { id } = build;
+    if(!id) throw new Error('Build missing field id');
+
+    const idx = state.findIndex(e => e.id === id);
+    if(idx === -1) return state.unshift(build);
+    else return state.set(idx, build);
+  }
   return state;
 }
 

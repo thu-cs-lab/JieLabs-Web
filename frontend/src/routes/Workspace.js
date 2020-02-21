@@ -22,14 +22,9 @@ export default React.memo(() => {
   const code = useSelector(store => store.code);
   const setCode = useCallback(code => dispatch(updateCode(code)), [dispatch]);
 
-  // TODO: disable button when polling
-  // const isPolling = useSelector(store => store.build.isPolling);
-  // const doUpload = useCallback(async () => {
-  //   if (!isPolling) {
-  //     await dispatch(submitBuild(code));
-  //   }
-  // }, [code, dispatch, isPolling]);
-  const doUpload = null;
+  const doUpload = useCallback(async () => {
+    await dispatch(submitBuild());
+  }, [code, dispatch]);
 
   const hasBoard = useSelector(store => store.board.hasBoard);
   const doConnect = useCallback(async () => {

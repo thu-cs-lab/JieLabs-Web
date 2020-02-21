@@ -1,16 +1,21 @@
 import { Map as IMap, List as IList } from 'immutable';
 
 import { get, post, putS3, createTarFile } from '../util';
-import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS } from '../config';
+import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL } from '../config';
 import { SIGNAL } from '../blocks';
 
 export const TYPES = {
   SET_USER: Symbol('SET_USER'),
+
   LOAD_LIB: Symbol('LOAD_LIB'),
+
   SET_CODE: Symbol('SET_CODE'),
+
   SET_ANALYSIS: Symbol('SET_ANALYSIS'),
-  SET_BUILD: Symbol('SET_BUILD'),
+
+  PUT_BUILD: Symbol('PUT_BUILD'),
   LOAD_BUILDS: Symbol('LOAD_BUILDS'),
+
   SET_BOARD: Symbol('SET_BOARD'),
   ASSIGN_TOP: Symbol('ASSIGN_TOP'),
   ASSIGN_PIN: Symbol('ASSIGN_PIN'),
@@ -50,6 +55,13 @@ export function loadBuilds(builds) {
   return {
     type: TYPES.LOAD_BUILDS,
     builds,
+  };
+}
+
+export function putBuild(build) {
+  return {
+    type: TYPES.PUT_BUILD,
+    build,
   };
 }
 
@@ -153,10 +165,16 @@ export function initLib() {
 }
 
 export function initBuilds() {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     try {
       const builds = await get('/api/task/'); // Why hurt me so much actix router?
+      const mapped = builds.jobs.map(({ id, metadata, status }) => ({
+        id,
+        status,
+        ...JSON.parse(metadata), // directions
+      }));
       dispatch(loadBuilds(IList(builds.jobs)))
+      kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
     } catch(e) {
       console.error(e);
@@ -172,6 +190,34 @@ export function init() {
     const [logined,] = await Promise.all([restored, libLoaded, buildsLoaded]);
     return logined;
   }
+}
+
+// TODO: poll multiple simutaniously
+let polling = false;
+export async function kickoffPolling(dispatch, getState) {
+  if(polling) return;
+  polling = true;
+
+  const { builds } = getState();
+  const unfinished = builds.reverse().find(e => e.status === null);
+  if(!unfinished) return;
+
+  const { id } = unfinished;
+  const info = await get(`/api/task/get/${id}`);
+  if(info.status) {
+    dispatch(putBuild({
+      ...unfinished,
+      status: info.status,
+    }));
+
+    // Immediately check for next pending build
+    polling = false;
+    return await kickoffPolling(dispatch, getState);
+  }
+
+  await new Promise(resolve => setTimeout(resolve, BUILD_POLL_INTERVAL));
+  polling = false;
+  return await kickoffPolling(dispatch, getState);
 }
 
 export function submitBuild() {
@@ -213,37 +259,21 @@ export function submitBuild() {
       { name: 'src/mod_top.qsf', body: assignments }]);
       await putS3(url, tar);
 
-      const result = await post('/api/task/build', {
+      const id = await post('/api/task/build', {
         source: uuid,
         metadata: JSON.stringify({
           directions,
         }),
       });
 
-      let intervalID = null;
-      intervalID = setInterval(async () => {
-        const info = await get(`/api/task/get/${result}`);
-        if (info.status) {
-          clearInterval(intervalID);
-          /*
-          dispatch(setBuild({
-            jobID: result,
-            isPolling: false,
-            buildInfo: info,
-            directions,
-          }));
-          */
-        }
-      }, 3000);
+      // TODO: use another action instead
+      kickoffPolling(dispatch, getState); // Fire-and-forget
 
-      /*
-      dispatch(setBuild({
-        jobID: result,
-        isPolling: true,
-        intervalID,
+      dispatch(putBuild({
+        id,
+        status: null,
         directions,
       }));
-      */
       return true;
     } catch (e) {
       console.error(e);
