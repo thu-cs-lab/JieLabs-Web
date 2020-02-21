@@ -45,7 +45,7 @@
 格式：
 
 ```json
-{"ReportIOChange":{"mask":14,"data":4}}
+{"ReportIOChange":{"data":"0011010"}}
 ```
 
 ### Bitstream 编程
@@ -67,12 +67,12 @@ bitstream.rbf
 
 服务端 -> 客户端
 
-行为：设置 FPGA 上引脚的输入输出方向，每个位位 0 代表输入到实验 FPGA， 1 代表从实验 FPGA 输出。
+行为：设置 FPGA 上引脚的输入输出方向，每个位为 0 代表输入到实验 FPGA， 1 代表从实验 FPGA 输出。
 
 格式：
 
 ```json
-{"SetIODirection":{"mask":11,"data":8}}
+{"SetIODirection":{"mask":"00111","data":"00000"}}
 ```
 
 ### 设置 IO 输出
@@ -84,7 +84,7 @@ bitstream.rbf
 格式：
 
 ```json
-{"SetIOOutput":{"mask":8,"data":0}}
+{"SetIOOutput":{"mask":"11100","data":"01000"}}
 ```
 
 ### 订阅 IO 状态更新
@@ -170,7 +170,7 @@ bitstream.rbf
 格式：
 
 ```json
-{"ToBoard":{"SetIODirection":{"mask":14,"data":4}}}
+{"ToBoard":{"SetIODirection":{"mask":"11111","data":"10101"}}}
 ```
 
 ### 设置 IO 输出
@@ -182,7 +182,7 @@ bitstream.rbf
 格式：
 
 ```json
-{"ToBoard":{"SetIOOutput":{"mask":14,"data":4}}}
+{"ToBoard":{"SetIOOutput":{"mask":"1000","data":"0000"}}}
 ```
 
 ### 汇报 IO 状态更新
@@ -194,7 +194,7 @@ bitstream.rbf
 格式：
 
 ```json
-{"ReportIOChange":{"mask":14,"data":4}}
+{"ReportIOChange":{"data":"0101010101"}}
 ```
 
 ###订阅 IO 状态更新
