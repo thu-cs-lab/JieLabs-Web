@@ -339,11 +339,11 @@ export default React.memo(() => {
       <Sandbox />
     </div>
     <div className="toolbar">
-      <button className="primary" onClick={doUpload}>
+      <button className="primary" onClick={doUpload} disabled={analysis.top === null}>
         <Icon>build</Icon>
       </button>
 
-      <button className="secondary" onClick={doProgram}>
+      <button className="secondary" onClick={doProgram} disabled={readyLatestId === null}>
         <Icon>cloud_download</Icon>
       </button>
 

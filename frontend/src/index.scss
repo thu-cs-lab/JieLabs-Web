@@ -503,6 +503,13 @@ main {
 
       cursor: pointer;
 
+      &:disabled {
+        cursor: default;
+        .material-icons {
+          opacity: .38;
+        }
+      }
+
       &.primary {
         background: $primary-color;
       }
@@ -512,7 +519,7 @@ main {
         transition: opacity .2s ease;
       }
 
-      &:hover .material-icons {
+      &:hover:not(:disabled) .material-icons {
         opacity: 1;
       }
     }
