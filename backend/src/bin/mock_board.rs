@@ -2,9 +2,9 @@ use backend::common::IOSetting;
 use backend::ws_board;
 use env_logger;
 use serde_json;
+use std::sync::{Arc, Mutex};
 use structopt::StructOpt;
 use ws::connect;
-use std::sync::{Arc, Mutex};
 
 const STEP_TIME_MS: u64 = 100;
 

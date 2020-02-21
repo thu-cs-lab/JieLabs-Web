@@ -12,6 +12,7 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 struct BuildRequest {
     source: String,
+    metadata: String,
 }
 
 #[post("/build")]
@@ -22,12 +23,19 @@ async fn build(
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
+        let body = body.into_inner();
+
         let dest = generate_uuid();
         let task_id = generate_uuid();
+
+        let src_url = get_download_url(&body.source);
+        let dst_url = get_upload_url(&dest);
+
         let new_job = NewJob {
             submitter: user.user_name,
             type_: String::from("build"),
-            source: body.source.clone(),
+            source: body.source,
+            metadata: body.metadata,
             status: None,
             destination: Some(dest.clone()),
             task_id: Some(task_id.clone()),
@@ -44,8 +52,7 @@ async fn build(
                 Ok(job_id)
             })
             .map_err(err)?;
-        let src_url = get_download_url(&body.source);
-        let dst_url = get_upload_url(&dest);
+
         get_task_manager().do_send(SubmitBuildTask {
             id: task_id.clone(),
             src: src_url,
@@ -100,9 +107,26 @@ struct JobInfo {
     id: i32,
     submitter: String,
     type_: String,
+    metadata: String,
     status: Option<String>,
     src_url: String,
     dst_url: Option<String>,
+}
+
+impl From<Job> for JobInfo {
+    fn from(job: Job) -> JobInfo {
+        let src_url = get_download_url(&job.source);
+        let dst_url = job.destination.map(|dest| get_download_url(&dest));
+        JobInfo {
+            id: job.id,
+            submitter: job.submitter,
+            type_: job.type_,
+            metadata: job.metadata,
+            status: job.status,
+            src_url,
+            dst_url,
+        }
+    }
 }
 
 #[get("/list")]
@@ -121,25 +145,40 @@ async fn list(
                 .limit(limit)
                 .load::<Job>(&conn)
             {
-                let mut res = vec![];
-                for job in jobs {
-                    let src_url = get_download_url(&job.source);
-                    let dst_url = job.destination.map(|dst| get_download_url(&dst));
-                    res.push(JobInfo {
-                        id: job.id,
-                        submitter: job.submitter,
-                        type_: job.type_,
-                        status: job.status,
-                        src_url,
-                        dst_url,
-                    });
-                }
                 return Ok(HttpResponse::Ok().json(JobListResponse {
                     offset,
                     limit,
-                    jobs: res,
+                    jobs: jobs.into_iter().map(JobInfo::from).collect(),
                 }));
             }
+        }
+    }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
+#[get("/")]
+async fn list_self(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    query: web::Query<JobListRequest>,
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let Some(user) = get_user(&id, &conn) {
+        let offset = query.offset.unwrap_or(0);
+        let limit = query.limit.unwrap_or(5);
+
+        let res = jobs::dsl::jobs
+            .filter(jobs::dsl::submitter.eq(user.user_name))
+            .offset(offset)
+            .limit(limit)
+            .load::<Job>(&conn);
+
+        if let Ok(jobs) = res {
+            return Ok(HttpResponse::Ok().json(JobListResponse {
+                offset,
+                limit,
+                jobs: jobs.into_iter().map(JobInfo::from).collect(),
+            }));
         }
     }
     Ok(HttpResponse::Forbidden().finish())
@@ -151,16 +190,7 @@ async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<i32>) -> Res
     if let Some(user) = get_user(&id, &conn) {
         if let Ok(job) = jobs::dsl::jobs.find(*path).first::<Job>(&conn) {
             if user.role == "admin" || user.user_name == job.submitter {
-                let src_url = get_download_url(&job.source);
-                let dst_url = job.destination.map(|dest| get_download_url(&dest));
-                return Ok(HttpResponse::Ok().json(JobInfo {
-                    id: job.id,
-                    submitter: job.submitter,
-                    type_: job.type_,
-                    status: job.status,
-                    src_url,
-                    dst_url,
-                }));
+                return Ok(HttpResponse::Ok().json(JobInfo::from(job)));
             }
         }
     }

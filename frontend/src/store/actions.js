@@ -199,7 +199,14 @@ export function submitBuild() {
       let tar = createTarFile([{ name: 'src/mod_top.vhd', body: code },
       { name: 'src/mod_top.qsf', body: assignments }]);
       await putS3(url, tar);
-      const result = await post('/api/task/build', { source: uuid });
+
+      const result = await post('/api/task/build', {
+        source: uuid,
+        metadata: JSON.stringify({
+          directions,
+        }),
+      });
+
       let intervalID = null;
       intervalID = setInterval(async () => {
         const info = await get(`/api/task/get/${result}`);

@@ -57,7 +57,8 @@ async fn main() -> std::io::Result<()> {
                             .service(task::build)
                             .service(task::finish)
                             .service(task::get)
-                            .service(task::list),
+                            .service(task::list)
+                            .service(task::list_self),
                     )
                     .service(
                         web::scope("/")

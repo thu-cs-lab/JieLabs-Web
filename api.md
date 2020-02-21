@@ -99,3 +99,9 @@ POST /api/task/finish
 GET /api/task/list?offset=0&limit=5
 
 仅 admin 可用
+
+### 获取任务信息
+
+GET /api/task?offset=0&limit=5
+
+获取用户自己提交的 task

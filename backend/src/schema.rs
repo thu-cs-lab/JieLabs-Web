@@ -13,6 +13,7 @@ table! {
         #[sql_name = "type"]
         type_ -> Text,
         source -> Text,
+        metadata -> Text,
         status -> Nullable<Text>,
         destination -> Nullable<Text>,
         task_id -> Nullable<Text>,
