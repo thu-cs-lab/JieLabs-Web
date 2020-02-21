@@ -86,8 +86,16 @@ export default React.memo(() => {
 
           <div className="build-list">
             { latestBuilds.map(e => (
-              <div key={e.id}>
-                {e.id} {e.status}
+              <div key={e.id} className={cn("build-list-entry", { 'build-list-pending': e.status === null })}>
+                <div className="build-list-id"><small>#</small><strong>{e.id}</strong></div>
+                <div className="build-list-sep">/</div>
+                <div className="build-list-status">
+                  { e.status || 'Compiling...' }
+                </div>
+                <div className="build-list-sep">/</div>
+                <Icon className="build-list-action">cloud_download</Icon>
+                <div className="build-list-sep">/</div>
+                <Icon className="build-list-action">edit</Icon>
               </div>
             ))}
           </div>

@@ -200,7 +200,10 @@ export async function kickoffPolling(dispatch, getState) {
 
   const { builds } = getState();
   const unfinished = builds.reverse().find(e => e.status === null);
-  if(!unfinished) return;
+  if(!unfinished) {
+    polling = false;
+    return;
+  }
 
   const { id } = unfinished;
   const info = await get(`/api/task/get/${id}`);
@@ -266,14 +269,15 @@ export function submitBuild() {
         }),
       });
 
-      // TODO: use another action instead
-      kickoffPolling(dispatch, getState); // Fire-and-forget
-
       dispatch(putBuild({
         id,
         status: null,
         directions,
       }));
+
+      // TODO: use another action instead
+      kickoffPolling(dispatch, getState); // Fire-and-forget
+
       return true;
     } catch (e) {
       console.error(e);
