@@ -204,7 +204,7 @@ mod test {
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageB2S::ReportIOChange(IOSetting {
-                mask: Some(String::from("1111")),
+                mask: None,
                 data: Some(String::from("1111")),
             }))
             .unwrap()

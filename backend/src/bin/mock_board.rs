@@ -29,14 +29,14 @@ fn main(args: Args) {
                             ws_board::WSBoardMessageS2B::SetIODirection(direction) => {
                                 println!("Set IO Direction {:?}", direction);
                                 out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
-                                    mask: Some(String::from("1111")),
+                                    mask: None,
                                     data: Some(String::from("1111")),
                                 })).unwrap()).unwrap();
                             }
                             ws_board::WSBoardMessageS2B::SetIOOutput(output) => {
                                 println!("Set IO Output {:?}", output);
                                 out.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
-                                    mask: Some(String::from("1111")),
+                                    mask: None,
                                     data: Some(String::from("1111")),
                                 })).unwrap()).unwrap();
                             }
@@ -48,20 +48,15 @@ fn main(args: Args) {
                                     *check = true;
                                     let sender = out.clone();
                                     std::thread::spawn(move || {
-                                        let mut last_shift = 0;
                                         let mut shift = 0;
                                         loop {
-                                            let mask = (0..64).map(|_| "0").collect::<String>();
-                                            *mask.chars().nth(shift).as_mut().unwrap() = '1';
-                                            *mask.chars().nth(last_shift).as_mut().unwrap() = '1';
                                             let data = (0..64).map(|_| "0").collect::<String>();
                                             *data.chars().nth(shift).as_mut().unwrap() = '1';
                                             sender.send(serde_json::to_string(&ws_board::WSBoardMessageB2S::ReportIOChange(IOSetting {
-                                                mask: Some(mask),
+                                                mask: None,
                                                 data: Some(data),
                                             })).unwrap()).unwrap();
                                             std::thread::sleep(std::time::Duration::from_millis(STEP_TIME_MS));
-                                            last_shift = shift;
                                             shift = (shift + 1) % 40;
                                         }
                                     });
