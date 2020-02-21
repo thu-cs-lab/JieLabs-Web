@@ -38,13 +38,17 @@ async fn update_version(
     let conn = pool.get().map_err(err)?;
     if let Some(user) = get_user(&id, &conn) {
         if user.role == "admin" {
-            diesel::replace_into(configs::table)
-                .values((
-                    configs::dsl::key.eq("version"),
-                    configs::dsl::value.eq(&serde_json::to_string(&*body)?),
-                ))
-                .execute(&conn)
-                .map_err(err)?;
+            let body = serde_json::to_string(&*body)?;
+            web::block(move || {
+                diesel::replace_into(configs::table)
+                    .values((
+                        configs::dsl::key.eq("version"),
+                        configs::dsl::value.eq(&body),
+                    ))
+                    .execute(&conn)
+            })
+            .await
+            .map_err(err)?;
             return Ok(HttpResponse::Ok().json(true));
         }
     }
@@ -54,16 +58,18 @@ async fn update_version(
 #[get("/version")]
 async fn get_version(pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let Ok(value) = configs::dsl::configs
-        .select(configs::dsl::value)
-        .filter(configs::dsl::key.eq("version"))
-        .first::<Option<String>>(&conn)
-    {
-        if let Some(body) = value {
-            let info: UpdateVersionRequest = serde_json::from_str(&body)?;
-            let body = format!("{}\n{}\n{}\n", info.version, info.url, info.hash);
-            return Ok(HttpResponse::Ok().body(&body));
-        }
+    let config = web::block(move || {
+        configs::dsl::configs
+            .select(configs::dsl::value)
+            .filter(configs::dsl::key.eq("version"))
+            .first::<Option<String>>(&conn)
+    })
+    .await
+    .map_err(err)?;
+    if let Some(body) = config {
+        let info: UpdateVersionRequest = serde_json::from_str(&body)?;
+        let body = format!("{}\n{}\n{}\n", info.version, info.url, info.hash);
+        return Ok(HttpResponse::Ok().body(&body));
     }
     Ok(HttpResponse::Forbidden().finish())
 }
