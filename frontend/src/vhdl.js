@@ -12,6 +12,11 @@ const NUMBER_RE = '\\b(' + BASED_LITERAL_RE + '|' + DECIMAL_LITERAL_RE + ')';
 
 const LOGIC_RE = /'[UX01ZWLH-]'/;
 
+function posCmp(la, ca, lb, cb) {
+  if(la !== lb) return la < lb;
+  return ca < cb;
+}
+
 let store = null;
 
 export default _store => {
@@ -72,6 +77,52 @@ export default _store => {
         ["\\*/",    'comment', '@pop'],
         [/[\/*]/,   'comment' ],
       ],
+    }
+  });
+
+  monaco.languages.registerHoverProvider('vhdl', {
+    provideHover: (model, pos) => {
+      const line = pos.lineNumber - 1;
+      const char = pos.column - 1;
+
+      const { analysis } = store.getState();
+      if(!analysis) return;
+      const { diagnostics } = analysis;
+
+      const msgs = [];
+
+      let fromLine = null, fromChar = null, toLine = null, toChar = null;
+
+      for(const d of diagnostics) {
+        const pos = d.pos;
+        if(!posCmp(line, char, pos.from_line, pos.from_char) && !posCmp(pos.to_line, pos.to_char, line, char)) {
+          const severity = d.severity[0].toUpperCase() + d.severity.slice(1);
+          msgs.push(`**${severity}**: ${d.msg}`);
+
+          if(fromLine === null || posCmp(pos.from_line, pos.from_char, fromLine, fromChar)) {
+            fromLine = pos.from_line;
+            fromChar = pos.from_char;
+          }
+
+          if(toLine === null || posCmp(toLine, toChar, pos.to_line, pos.to_char)) {
+            toLine = pos.to_line;
+            toChar = pos.to_char;
+          }
+        }
+      }
+
+      if(msgs.length === 0) return null;
+      const result = {
+        range: new monaco.Range(
+          fromLine + 1,
+          fromChar + 1,
+          toLine + 1,
+          toChar + 1,
+        ),
+        contents: msgs.map(e => ({ value: e, isTrusted: true })),
+      };
+      console.log(result);
+      return result;
     }
   });
 };

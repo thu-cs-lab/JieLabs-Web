@@ -28,3 +28,17 @@ $error: #CB4042;
   text-decoration-color: $error;
   text-decoration-skip-ink: none;
 }
+
+.diagnostic-warning {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: $warning;
+  text-decoration-skip-ink: none;
+}
+
+.diagnostic-info {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: $confirm;
+  text-decoration-skip-ink: none;
+}
