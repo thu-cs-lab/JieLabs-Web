@@ -294,6 +294,7 @@ export function submitBuild() {
 
 export function connectToBoard() {
   return async (dispatch, getState) => {
+    // TODO: enter waiting state
     try {
       let { board } = getState();
       let websocket = null;

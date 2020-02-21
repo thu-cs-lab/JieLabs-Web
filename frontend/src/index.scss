@@ -639,6 +639,8 @@ main {
 }
 
 .fpga {
+  position: relative;
+
   display: grid;
   padding: 10px;
   // 6*7 grid
@@ -669,6 +671,44 @@ main {
       font-weight: 900;
       transform: scale(0.8);
       color: rgba(0,0,0,.38);
+    }
+  }
+
+  .fpga-connect-mask {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    padding: 20px;
+
+    background: rgba(0,0,0,.3);
+    z-index: 3;
+
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    .fpga-connect-hint {
+      font-size: 14px;
+      opacity: .7;
+    }
+
+    .material-icons {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+
+      font-size: 72px;
+      opacity: .38;
+      transition: opacity .2s ease;
+    }
+
+    &:hover .material-icons {
+      opacity: .87;
     }
   }
 }

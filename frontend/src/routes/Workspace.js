@@ -27,11 +27,6 @@ export default React.memo(() => {
   }, [code, dispatch]);
 
   const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
-  const doConnect = useCallback(async () => {
-    if (!hasBoard) {
-      await dispatch(connectToBoard());
-    }
-  }, [dispatch, hasBoard]);
 
   // The ID of the latest build, or null if the latest build is not ready yet
   const readyLatestId = useSelector(store => {
@@ -346,10 +341,6 @@ export default React.memo(() => {
     <div className="toolbar">
       <button className="primary" onClick={doUpload}>
         <Icon>build</Icon>
-      </button>
-
-      <button className="secondary" onClick={doConnect}>
-        <Icon>developer_board</Icon>
       </button>
 
       <button className="secondary" onClick={doProgram}>

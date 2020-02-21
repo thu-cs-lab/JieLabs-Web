@@ -5,8 +5,9 @@ import { List } from 'immutable';
 
 import { Connector, SIGNAL, MODE } from './index.js';
 import { FPGAEnvContext } from '../Sandbox';
+import Icon from '../comps/Icon';
 
-import { setOutput } from '../store/actions';
+import { BOARD_STATUS, setOutput, connectToBoard } from '../store/actions';
 
 const PIN_COUNT = 38;
 const PIN_CLOCKING = 37;
@@ -18,6 +19,8 @@ export default React.memo(rest => {
   // TODO: use a seperated state for active FPGA configurations
   const directions = useSelector(state => state.build?.directions);
   const dispatch = useDispatch();
+
+  const status = useSelector(state => state.board.status);
 
   const padded = useMemo(() => {
     const head = (input || []).map((e, idx) => {
@@ -33,7 +36,10 @@ export default React.memo(rest => {
 
     return head.concat(tail);
   }, [input, directions]);
-  console.log(padded);
+
+  const doConnect = useCallback(() => {
+    dispatch(connectToBoard());
+  });
 
   const ctx = useContext(FPGAEnvContext);
 
@@ -57,5 +63,19 @@ export default React.memo(rest => {
         <div className="label">{ idx }</div>
       </div>
     ))}
+
+    { status === BOARD_STATUS.DISCONNECTED && (
+      <div className="fpga-connect-mask" onClick={doConnect}>
+        <div className="fpga-connect-hint">
+          FPGA disconnected
+        </div>
+
+        <Icon>settings_ethernet</Icon>
+
+        <div className="fpga-connect-hint">
+          click to connect
+        </div>
+      </div>
+    )}
   </div>
 });
