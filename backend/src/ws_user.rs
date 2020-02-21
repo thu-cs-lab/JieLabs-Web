@@ -199,6 +199,8 @@ impl WSUser {
                                             user_name: actor.user_name.clone(),
                                             data,
                                         });
+                                    } else {
+                                        info!("bitstream program failed because of download failure");
                                     }
                                 });
                                 ctx.spawn(then);
