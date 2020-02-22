@@ -9,7 +9,6 @@ import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
-import Admin from './routes/Admin';
 import Icon from './comps/Icon';
 
 export default React.memo(() => {
@@ -141,9 +140,6 @@ export default React.memo(() => {
     <Switch>
       <Route path="/login" exact>
         <Login />
-      </Route>
-      <Route path="/admin" exact>
-        <Admin />
       </Route>
       <Route path="/" exact>
         <Workspace />
