@@ -50,6 +50,7 @@ export default React.memo(() => {
   const searchRef = useRef();
 
   const editorRef = useRef();
+  const unregCodeLens = useRef(null);
   const editorDidMount = useCallback((editor, monaco) => {
     const asTop = editor.addCommand(0, (ctx, { name }) => {
       dispatch(updateTop(name));
@@ -64,8 +65,13 @@ export default React.memo(() => {
       setTimeout(() => searchRef.current.focus());
     });
 
-    registerCodeLens({ asTop, assignPin });
+    const unreg = registerCodeLens({ asTop, assignPin });
+    unregCodeLens.current = unreg;
   }, [dispatch]);
+
+  useEffect(() => () => {
+    if(unregCodeLens.current) unregCodeLens.current();
+  }, []);
 
   const top = useSelector(state => state.signals.top);
   const blocker = useCallback(e => {

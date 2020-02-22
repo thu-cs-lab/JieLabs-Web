@@ -225,5 +225,7 @@ export function registerCodeLens(cmds) {
     }
   };
 
-  monaco.languages.registerCodeLensProvider('vhdl', codeLensProvider);
+  const disposable = monaco.languages.registerCodeLensProvider('vhdl', codeLensProvider);
+
+  return () => disposable.dispose();
 }
