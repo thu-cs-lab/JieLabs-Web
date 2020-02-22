@@ -181,7 +181,7 @@ export function initBuilds() {
         status,
         ...JSON.parse(metadata), // directions
       }));
-      dispatch(loadBuilds(IList(builds.jobs)))
+      dispatch(loadBuilds(IList(mapped)));
       kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
     } catch(e) {
@@ -189,6 +189,29 @@ export function initBuilds() {
     }
   }
 }
+
+export function loadMoreBuilds() {
+  return async (dispatch, getState) => {
+    const { builds: current } = getState();
+    try {
+      const additional = await get(`/api/task/?offset=${current.size}`);
+      const mapped = additional.jobs.map(({ id, metadata, status }) => ({
+        id,
+        status,
+        ...JSON.parse(metadata), // directions
+      }));
+
+      const { builds } = getState();
+
+      dispatch(loadBuilds(builds.concat(IList(mapped))));
+      kickoffPolling(dispatch, getState); // Fire-and-fly
+      return true;
+    } catch(e) {
+      console.error(e);
+    }
+  }
+}
+
 export function init() {
   return async (dispatch) => {
     const restored = dispatch(restore());

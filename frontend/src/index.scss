@@ -416,6 +416,29 @@ header {
     text-align: center;
     padding: 20px;
   }
+
+  .build-list-end {
+    margin-top: 10px;
+    color: white;
+    text-align: center;
+
+    cursor: pointer;
+
+    opacity: .38;
+    transition: opacity .2s ease;
+
+    &:hover {
+      opacity: .7;
+    }
+
+    &.build-list-frozen {
+      cursor: normal;
+
+      &:hover {
+        opacity: .7;
+      }
+    }
+  }
 }
 
 .spanner {

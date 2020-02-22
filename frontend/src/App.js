@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { HARD_LOGOUT, BOARDS } from './config';
 
-import { BOARD_STATUS, init, logout, programBitstream } from './store/actions';
+import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -117,9 +117,13 @@ export default React.memo(() => {
               </div>
             ))}
 
-            { latestBuilds.size === 0 && (
+            { latestBuilds.size === 0 ? (
               <div className="build-list-placeholder">
                 The World is Big and the panda sit alone
+              </div>
+            ) : (
+              <div className="build-list-end" onClick={() => dispatch(loadMoreBuilds())}>
+                Load more...
               </div>
             )}
           </div>
