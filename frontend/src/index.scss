@@ -217,6 +217,9 @@ header {
         font-size: 24px;
         line-height: 24px;
 
+        small {
+          opacity: .54;
+        }
       }
 
       .latest-build-status {
@@ -340,6 +343,7 @@ header {
     }
 
     .build-list-id {
+      @extend .monospace;
       line-height: 40px;
       font-size: 28px;
 
