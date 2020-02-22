@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
-import { setClock } from './store/actions';
+import { updateClock } from './store/actions';
 
 import Icon from './comps/Icon';
 
@@ -308,13 +308,13 @@ export default React.memo(() => {
 
         const other = ctx.getConnected(id);
         if(other !== null)
-          return dispatch(setClock(ctx.getData(other)));
+          return dispatch(updateClock(ctx.getData(other)));
         else
-          return dispatch(setClock(null));
+          return dispatch(updateClock(null));
       },
       unregClocking: () => {
         cpid.current = null;
-        dispatch(setClock(null));
+        dispatch(updateClock(null));
       }
     };
   }, [ctx, dispatch]);
@@ -325,9 +325,9 @@ export default React.memo(() => {
 
       const other = ctx.getConnected(cpid.current);
       if(other !== null)
-        return dispatch(setClock(ctx.getData(other)));
+        return dispatch(updateClock(ctx.getData(other)));
       else
-        return dispatch(setClock(null));
+        return dispatch(updateClock(null));
     });
   }, [ctx, cpid, dispatch]);
 

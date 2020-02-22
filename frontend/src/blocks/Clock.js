@@ -17,7 +17,7 @@ export default React.memo(rest => {
             <div className="clock-box" key={idx}>
               <Connector
                 mode={MODE.CLOCK_SRC}
-                data={f}
+                data={f * 1000000}
               />
               <div className="clock-label">{f}<small>M</small></div>
             </div>)

@@ -16,7 +16,6 @@ export default React.memo(rest => {
   const [reset, setReset] = useState(SIGNAL.L);
 
   const input = useSelector(state => state.input);
-  // TODO: use a seperated state for active FPGA configurations
   const directions = useSelector(state => state.activeBuild?.directions);
   const dispatch = useDispatch();
 

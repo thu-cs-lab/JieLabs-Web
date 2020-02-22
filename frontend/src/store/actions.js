@@ -393,7 +393,7 @@ export function connectToBoard() {
 export function programBitstream(id) {
   return async (dispatch, getState) => {
     try {
-      let { board, builds } = getState();
+      let { board, builds, clock } = getState();
       const build = builds.list.find(e => e.id === id);
       if(!build || !board || !board.websocket) return false;
 
@@ -428,6 +428,19 @@ export function programBitstream(id) {
           },
         },
       }));
+
+      if(clock === null)
+        board.websocket.send(JSON.stringify({
+          ToBoard: {
+            DisableUserClock: "",
+          }
+        }));
+      else
+        board.websocket.send(JSON.stringify({
+          ToBoard: {
+            EnableUserClock: { frequency: clock },
+          }
+        }));
 
       board.websocket.send(`{"ProgramBitstream":${id}}`);
 
@@ -538,3 +551,30 @@ export function updateTop(top) {
   }
 }
 
+
+export function updateClock(clock) {
+  return async (dispatch, getState) => {
+    const { board, clock: cur } = getState();
+    if(cur === clock) return;
+
+    dispatch(setClock(clock));
+
+    if(board.status !== BOARD_STATUS.CONNECTED)
+      return;
+
+    const ws = board.websocket;
+
+    if(clock === null)
+      ws.send(JSON.stringify({
+        ToBoard: {
+          DisableUserClock: "",
+        },
+      }));
+    else
+      ws.send(JSON.stringify({
+        ToBoard: {
+          EnableUserClock: { frequency: clock },
+        },
+      }));
+  }
+}
