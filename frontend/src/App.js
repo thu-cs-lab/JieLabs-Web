@@ -21,7 +21,8 @@ export default React.memo(() => {
   const boardTmpl = useSelector(state => state.signals.board);
   const boardTmplName = BOARDS[boardTmpl].name;
 
-  const latestBuilds = useSelector(state => state.builds);
+  const latestBuilds = useSelector(state => state.builds.list);
+  const buildsEnded = useSelector(state => state.builds.ended);
 
   const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
 
@@ -122,9 +123,11 @@ export default React.memo(() => {
                 The World is Big and the panda sit alone
               </div>
             ) : (
-              <div className="build-list-end" onClick={() => dispatch(loadMoreBuilds())}>
-                Load more...
-              </div>
+              !buildsEnded && (
+                <div className="build-list-end" onClick={() => dispatch(loadMoreBuilds())}>
+                  Load more...
+                </div>
+              )
             )}
           </div>
         </div>

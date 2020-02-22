@@ -57,10 +57,10 @@ export function setAnalysis(analysis) {
   };
 }
 
-export function loadBuilds(builds) {
+export function loadBuilds(list, ended) {
   return {
     type: TYPES.LOAD_BUILDS,
-    builds,
+    list, ended,
   };
 }
 
@@ -181,7 +181,7 @@ export function initBuilds() {
         status,
         ...JSON.parse(metadata), // directions
       }));
-      dispatch(loadBuilds(IList(mapped)));
+      dispatch(loadBuilds(IList(mapped), mapped.length === 0));
       kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
     } catch(e) {
@@ -194,7 +194,7 @@ export function loadMoreBuilds() {
   return async (dispatch, getState) => {
     const { builds: current } = getState();
     try {
-      const additional = await get(`/api/task/?offset=${current.size}`);
+      const additional = await get(`/api/task/?offset=${current.list.size}`);
       const mapped = additional.jobs.map(({ id, metadata, status }) => ({
         id,
         status,
@@ -203,7 +203,7 @@ export function loadMoreBuilds() {
 
       const { builds } = getState();
 
-      dispatch(loadBuilds(builds.concat(IList(mapped))));
+      dispatch(loadBuilds(builds.list.concat(IList(mapped)), mapped.length === 0));
       kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
     } catch(e) {
@@ -229,7 +229,7 @@ export async function kickoffPolling(dispatch, getState) {
   if(polling) return;
   polling = true;
 
-  const { builds } = getState();
+  const builds = getState().builds.list;
   const unfinished = builds.reverse().find(e => e.status === null);
   if(!unfinished) {
     polling = false;
@@ -386,7 +386,7 @@ export function programBitstream(id) {
   return async (dispatch, getState) => {
     try {
       let { board, builds } = getState();
-      const build = builds.find(e => e.id === id);
+      const build = builds.list.find(e => e.id === id);
       if(!build || !board || !board.websocket) return false;
 
       const { directions } = build;

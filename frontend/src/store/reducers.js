@@ -27,17 +27,19 @@ export function analysis(state = null, action) {
   return state;
 }
 
-export function builds(state = List(), action) {
+export function builds(state = { list: List(), ended: false }, action) {
   if(action.type === TYPES.LOAD_BUILDS)
-    return action.builds;
+    return { list: action.list, ended: action.ended };
   if(action.type === TYPES.PUT_BUILD) {
     const { build } = action;
     const { id } = build;
     if(!id) throw new Error('Build missing field id');
 
-    const idx = state.findIndex(e => e.id === id);
-    if(idx === -1) return state.unshift(build);
-    else return state.set(idx, build);
+    const { list, ended } = state;
+
+    const idx = list.findIndex(e => e.id === id);
+    if(idx === -1) return { list: list.unshift(build), ended };
+    else return { list: list.set(idx, build), ended };
   }
   return state;
 }

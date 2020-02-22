@@ -31,7 +31,7 @@ export default React.memo(() => {
   // The ID of the latest build, or null if the latest build is not ready yet
   const readyLatestId = useSelector(store => {
     const { builds } = store;
-    const latest = builds.get(0);
+    const latest = builds.list.get(0);
     if(!latest) return null;
     if(latest.status !== 'Compilation Success') return null;
     return latest.id;
