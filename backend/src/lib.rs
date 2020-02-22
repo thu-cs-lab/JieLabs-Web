@@ -4,7 +4,7 @@ extern crate diesel;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 
-pub type DbConnection = SqliteConnection;
+pub type DbConnection = PgConnection;
 type DbPool = Pool<ConnectionManager<DbConnection>>;
 
 pub mod board;

@@ -28,9 +28,9 @@ pub struct Job {
     pub submitter: String,
     pub type_: String,
     pub source: String,
-    pub metadata: String,
     pub status: Option<String>,
     pub destination: Option<String>,
+    pub metadata: String,
     pub task_id: Option<String>,
 }
 
@@ -40,8 +40,8 @@ pub struct NewJob {
     pub submitter: String,
     pub type_: String,
     pub source: String,
-    pub metadata: String,
     pub status: Option<String>,
     pub destination: Option<String>,
+    pub metadata: String,
     pub task_id: Option<String>,
 }

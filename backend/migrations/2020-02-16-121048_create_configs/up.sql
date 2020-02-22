@@ -1,5 +1,7 @@
 CREATE TABLE configs (
-    id INTEGER PRIMARY KEY NOT NULL,
-    key TEXT NOT NULL UNIQUE,
-    value TEXT
+    id SERIAL NOT NULL,
+    key TEXT NOT NULL,
+    value TEXT,
+    PRIMARY KEY (id),
+    UNIQUE (key)
 )
