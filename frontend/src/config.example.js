@@ -3,6 +3,7 @@ export const WS_BACKEND = "ws://localhost:8080";
 export const HARD_LOGOUT = false;
 export const CODE_ANALYSE_DEBOUNCE = 100;
 export const BUILD_POLL_INTERVAL = 3000;
+export const BUILD_LIST_FETCH_LENGTH = 5;
 
 export const DEFAULT_BOARD = 'default';
 

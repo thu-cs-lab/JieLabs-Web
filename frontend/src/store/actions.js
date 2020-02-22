@@ -1,7 +1,7 @@
 import { Map as IMap, List as IList } from 'immutable';
 
 import { get, post, putS3, createTarFile } from '../util';
-import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL } from '../config';
+import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL, BUILD_LIST_FETCH_LENGTH } from '../config';
 import { SIGNAL } from '../blocks';
 
 export const TYPES = {
@@ -183,13 +183,13 @@ export function initLib() {
 export function initBuilds() {
   return async (dispatch, getState) => {
     try {
-      const builds = await get('/api/task/'); // Why hurt me so much actix router?
+      const builds = await get(`/api/task/?limit=${BUILD_LIST_FETCH_LENGTH}`); // Why hurt me so much actix router?
       const mapped = builds.jobs.map(({ id, metadata, status }) => ({
         id,
         status,
         ...JSON.parse(metadata), // directions
       }));
-      dispatch(loadBuilds(IList(mapped), mapped.length === 0));
+      dispatch(loadBuilds(IList(mapped), mapped.length < BUILD_LIST_FETCH_LENGTH));
       kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
     } catch(e) {
@@ -202,7 +202,7 @@ export function loadMoreBuilds() {
   return async (dispatch, getState) => {
     const { builds: current } = getState();
     try {
-      const additional = await get(`/api/task/?offset=${current.list.size}`);
+      const additional = await get(`/api/task/?offset=${current.list.size}&limit=${BUILD_LIST_FETCH_LENGTH}`);
       const mapped = additional.jobs.map(({ id, metadata, status }) => ({
         id,
         status,
@@ -211,7 +211,7 @@ export function loadMoreBuilds() {
 
       const { builds } = getState();
 
-      dispatch(loadBuilds(builds.list.concat(IList(mapped)), mapped.length === 0));
+      dispatch(loadBuilds(builds.list.concat(IList(mapped)), mapped.length < BUILD_LIST_FETCH_LENGTH));
       kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
     } catch(e) {
