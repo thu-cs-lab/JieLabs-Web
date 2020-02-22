@@ -1,8 +1,8 @@
-use vhdl_lang::{Source, VHDLParser, SrcPos, Latin1String};
 use super::*;
+use vhdl_lang::{Latin1String, Source, SrcPos, VHDLParser};
 
-impl Pos {
-    fn from_srcpos(srcpos: &SrcPos) -> Pos {
+impl From<SrcPos> for Pos {
+    fn from(srcpos: SrcPos) -> Pos {
         Pos {
             from_line: srcpos.start().line,
             from_char: srcpos.start().character,
@@ -39,7 +39,7 @@ impl From<vhdl_lang::Severity> for Severity {
 impl From<vhdl_lang::Diagnostic> for Diagnostic {
     fn from(d: vhdl_lang::Diagnostic) -> Diagnostic {
         Diagnostic {
-            pos: Pos::from_srcpos(&d.pos),
+            pos: d.pos.into(),
             msg: d.message,
             severity: d.severity.into(),
         }
@@ -67,7 +67,7 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
 
             let mut entity = EntityInfo {
                 name: name.to_string(),
-                decl: Pos::from_srcpos(srcpos),
+                decl: srcpos.to_owned().into(),
 
                 signals: Vec::new(),
             };
@@ -82,13 +82,21 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
                             let inner: &SubtypeConstraint = &constraint.item;
                             log(&format!("{:#?}", constraint));
 
-                            if let &SubtypeConstraint::Array(
-                                ref vec,
-                                None,
-                            ) = inner {
-                                if let [DiscreteRange::Range(Range::Range(RangeConstraint { ref left_expr, ref right_expr, .. }))] = &vec[..] {
-                                    if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(left))) = left_expr.item {
-                                        if let Expression::Literal(Literal::AbstractLiteral(AbstractLiteral::Integer(right))) = right_expr.item {
+                            if let &SubtypeConstraint::Array(ref vec, None) = inner {
+                                if let [DiscreteRange::Range(Range::Range(RangeConstraint {
+                                    ref left_expr,
+                                    ref right_expr,
+                                    ..
+                                }))] = &vec[..]
+                                {
+                                    if let Expression::Literal(Literal::AbstractLiteral(
+                                        AbstractLiteral::Integer(left),
+                                    )) = left_expr.item
+                                    {
+                                        if let Expression::Literal(Literal::AbstractLiteral(
+                                            AbstractLiteral::Integer(right),
+                                        )) = right_expr.item
+                                        {
                                             arity = Some(ArityInfo {
                                                 from: left,
                                                 to: right,
@@ -101,7 +109,7 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
 
                         entity.signals.push(SignalInfo {
                             name: decl.ident.to_string(),
-                            pos: Pos::from_srcpos(decl.ident.as_ref()),
+                            pos: decl.ident.as_ref().to_owned().into(),
                             dir: decl.mode.into(),
                             arity,
                         });
