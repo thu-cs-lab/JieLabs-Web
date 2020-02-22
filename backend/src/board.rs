@@ -40,11 +40,15 @@ async fn update_version(
         if user.role == "admin" {
             let body = serde_json::to_string(&*body)?;
             web::block(move || {
-                diesel::replace_into(configs::table)
-                    .values((
-                        configs::dsl::key.eq("version"),
-                        configs::dsl::value.eq(&body),
-                    ))
+                let kv = (
+                    configs::dsl::key.eq("version"),
+                    configs::dsl::value.eq(&body),
+                );
+                diesel::insert_into(configs::table)
+                    .values(kv)
+                    .on_conflict(configs::dsl::key)
+                    .do_update()
+                    .set(kv)
                     .execute(&conn)
             })
             .await

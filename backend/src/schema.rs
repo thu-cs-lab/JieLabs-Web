@@ -1,6 +1,6 @@
 table! {
     configs (id) {
-        id -> Integer,
+        id -> Int4,
         key -> Text,
         value -> Nullable<Text>,
     }
@@ -8,21 +8,21 @@ table! {
 
 table! {
     jobs (id) {
-        id -> Integer,
+        id -> Int4,
         submitter -> Text,
         #[sql_name = "type"]
         type_ -> Text,
         source -> Text,
-        metadata -> Text,
         status -> Nullable<Text>,
         destination -> Nullable<Text>,
+        metadata -> Text,
         task_id -> Nullable<Text>,
     }
 }
 
 table! {
     users (id) {
-        id -> Integer,
+        id -> Int4,
         user_name -> Text,
         password -> Text,
         real_name -> Nullable<Text>,
