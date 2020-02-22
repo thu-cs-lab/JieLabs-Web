@@ -1,5 +1,5 @@
 use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard, RouteToUser};
-use crate::common::IOSetting;
+use crate::common::{IOSetting, ClockSetting};
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -56,7 +56,7 @@ pub enum WSBoardMessageS2B {
     SetIODirection(IOSetting),
     SubscribeIOChange(String),
     UnsubscribeIOChange(String),
-    EnableUserClock(u64),
+    EnableUserClock(ClockSetting),
     DisableUserClock(String),
 }
 

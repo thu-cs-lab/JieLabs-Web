@@ -70,6 +70,7 @@ fn main(args: Args) {
                             ws_board::WSBoardMessageS2B::UnsubscribeIOChange(_) => {
                                 println!("Unsubscribe to io change");
                             }
+                            _ => {} // Clocking related
                         }
                     }
                 }
