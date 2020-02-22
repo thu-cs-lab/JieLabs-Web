@@ -34,11 +34,15 @@ export default React.memo(() => {
       setErrored(true);
   }, [dispatch, user, pass, history]);
 
+  const checkEnter = useCallback(ev => {
+    if(ev.key === 'Enter') doLogin();
+  }, [doLogin]);
+
   return <main className="centering">
     <div className="login-box">
       <Input label="Username" className="login-input" onChange={changeUser} />
       <div className="login-spanner"></div>
-      <Input label="Password" type="password" className="login-input" onChange={changePass} />
+      <Input label="Password" type="password" className="login-input" onChange={changePass} onKeyDown={checkEnter} />
 
       <button className={cn("login-button", { errored })} disabled={ user === '' || pass === '' } onClick={doLogin}>
         <Icon className="login-icon">
