@@ -1,7 +1,8 @@
-use wasm_bindgen::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::path::Path;
-use serde::{Serialize, Deserialize};
+use wasm_bindgen::prelude::*;
 
+mod verilog;
 mod vhdl;
 
 #[cfg(not(test))]
@@ -25,7 +26,7 @@ struct Pos {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all="lowercase")]
+#[serde(rename_all = "lowercase")]
 enum SignalDirection {
     Input,
     Output,
@@ -54,7 +55,7 @@ struct EntityInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all="lowercase")]
+#[serde(rename_all = "lowercase")]
 enum Severity {
     Hint,
     Info,
@@ -76,10 +77,20 @@ struct ParseResult {
     diagnostics: Vec<Diagnostic>,
 }
 
+#[derive(Serialize, Deserialize)]
+enum Language {
+    VHDL,
+    Verilog,
+}
+
 // TODO: fallback top srcpos
 #[wasm_bindgen]
 pub fn parse(s: &str, top_name: Option<String>) -> JsValue {
-    let result = vhdl::parse(s, top_name);
+    let lang = Language::VHDL;
+    let result = match lang {
+        Language::VHDL => vhdl::parse(s, top_name),
+        Language::Verilog => verilog::parse(s, top_name),
+    };
 
     JsValue::from_serde(&result).unwrap()
 }
