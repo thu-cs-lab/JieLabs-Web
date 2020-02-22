@@ -17,7 +17,7 @@ export default React.memo(rest => {
 
   const input = useSelector(state => state.input);
   // TODO: use a seperated state for active FPGA configurations
-  const directions = useSelector(state => state.build?.directions);
+  const directions = useSelector(state => state.activeBuild?.directions);
   const dispatch = useDispatch();
 
   const status = useSelector(state => state.board.status);

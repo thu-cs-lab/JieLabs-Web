@@ -44,6 +44,12 @@ export function builds(state = { list: List(), ended: false }, action) {
   return state;
 }
 
+export function activeBuild(state = null, action) {
+  if(action.type === TYPES.SET_ACTIVE_BUILD)
+    return action.build;
+  return state;
+}
+
 export function board(state = { status: BOARD_STATUS.DISCONNECTED, websocket: null }, action) {
   if(action.type === TYPES.SET_BOARD)
     return action.board;

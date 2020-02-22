@@ -15,6 +15,7 @@ export const TYPES = {
 
   PUT_BUILD: Symbol('PUT_BUILD'),
   LOAD_BUILDS: Symbol('LOAD_BUILDS'),
+  SET_ACTIVE_BUILD: Symbol('SET_ACTIVE_BUILD'),
 
   SET_BOARD: Symbol('SET_BOARD'),
   ASSIGN_TOP: Symbol('ASSIGN_TOP'),
@@ -67,6 +68,13 @@ export function loadBuilds(list, ended) {
 export function putBuild(build) {
   return {
     type: TYPES.PUT_BUILD,
+    build,
+  };
+}
+
+export function setActiveBuild(build) {
+  return {
+    type: TYPES.SET_ACTIVE_BUILD,
     build,
   };
 }
@@ -422,6 +430,8 @@ export function programBitstream(id) {
       }));
 
       board.websocket.send(`{"ProgramBitstream":${id}}`);
+
+      dispatch(setActiveBuild(build));
 
       return true;
     } catch (e) {
