@@ -4,13 +4,19 @@ use serde::{Serialize, Deserialize};
 
 mod vhdl;
 
+#[cfg(not(test))]
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace=console)]
     fn log(s: &str);
 }
 
-#[derive(Serialize, Deserialize)]
+#[cfg(test)]
+fn log(s: &str) {
+    println!("{}", s);
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 struct Pos {
     from_line: u32,
     from_char: u32,
@@ -18,7 +24,7 @@ struct Pos {
     to_char: u32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all="lowercase")]
 enum SignalDirection {
     Input,
@@ -26,13 +32,13 @@ enum SignalDirection {
     Unsupported,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct ArityInfo {
     from: u64,
     to: u64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct SignalInfo {
     name: String,
     pos: Pos,
@@ -40,14 +46,14 @@ struct SignalInfo {
     arity: Option<ArityInfo>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct EntityInfo {
     name: String,
     decl: Pos,
     pub(crate) signals: Vec<SignalInfo>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all="lowercase")]
 enum Severity {
     Hint,
@@ -56,14 +62,14 @@ enum Severity {
     Error,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Diagnostic {
     pos: Pos,
     msg: String,
     severity: Severity,
 }
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 struct ParseResult {
     entities: Vec<EntityInfo>,
     top: Option<u64>,

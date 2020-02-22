@@ -137,3 +137,24 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
 
     result
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_entity() {
+        let result = parse(
+            "entity mod_top is
+    port (
+        in_1 :in std_logic;
+        out_vec :out std_logic_vector (37 downto 0)
+    );
+end entity;",
+            None,
+        );
+        assert_eq!(result.entities.len(), 1);
+        assert_eq!(result.entities[0].name, "mod_top");
+        assert_eq!(result.entities[0].signals.len(), 2);
+        assert_eq!(result.entities[0].signals[0].name, "in_1");
+    }
+}
