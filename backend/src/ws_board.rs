@@ -56,6 +56,8 @@ pub enum WSBoardMessageS2B {
     SetIODirection(IOSetting),
     SubscribeIOChange(String),
     UnsubscribeIOChange(String),
+    EnableUserClock(u64),
+    DisableUserClock(String),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
