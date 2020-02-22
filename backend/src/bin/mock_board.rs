@@ -13,6 +13,9 @@ struct Args {
 
     #[structopt(short, long, default_value = "100")]
     step_time_ms: u64,
+
+    #[structopt(short, long, default_value = "password")]
+    password: String,
 }
 
 #[paw::main]
@@ -20,7 +23,7 @@ fn main(args: Args) {
     env_logger::init();
     let step_time = args.step_time_ms;
     connect(format!("ws://{}/api/ws_board", args.host), |out| {
-        out.send(r#"{"Authenticate":{"password":"password","software_version":"1.0","hardware_version":"0.1"}}"#).unwrap();
+        out.send(format!("{}{}{}", r#"{"Authenticate":{"password":""#, args.password, r#"","software_version":"1.0","hardware_version":"0.1"}}"#)).unwrap();
         let spawned = Arc::new(Mutex::new(false));
         move |msg| {
             println!("Client got message '{}'. ", msg);
