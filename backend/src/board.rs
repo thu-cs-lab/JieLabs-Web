@@ -67,13 +67,20 @@ async fn get_version(pool: web::Data<DbPool>) -> Result<HttpResponse> {
             .select(configs::dsl::value)
             .filter(configs::dsl::key.eq("version"))
             .first::<Option<String>>(&conn)
+            .optional()
     })
     .await
     .map_err(err)?;
-    if let Some(body) = config {
-        let info: UpdateVersionRequest = serde_json::from_str(&body)?;
-        let body = format!("{}\n{}\n{}\n", info.version, info.url, info.hash);
-        return Ok(HttpResponse::Ok().body(&body));
+    if let Some(res) = config {
+        if let Some(body) = res {
+            let info: UpdateVersionRequest = serde_json::from_str(&body)?;
+            let body = format!("{}\n{}\n{}\n", info.version, info.url, info.hash);
+            return Ok(HttpResponse::Ok().body(&body));
+        }
+    } else {
+        // unset
+        return Ok(HttpResponse::Ok().body("\n\n\n"));
     }
+
     Ok(HttpResponse::Forbidden().finish())
 }
