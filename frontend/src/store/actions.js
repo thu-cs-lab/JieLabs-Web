@@ -266,7 +266,6 @@ export function submitBuild() {
   return async (dispatch, getState) => {
     try {
       // TODO: force an analysis update immediately
-      // TODO: check for analysis errors, if there actually is a top modules, etc...
 
       let { build, code, constraints, analysis } = getState();
       if (build && build.intervalID) {

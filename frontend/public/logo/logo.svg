@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="64" width="64">
+  <defs>
+    <path id="path-2" opacity="1" fill-rule="evenodd" d="M15.500000000000004 28L8 38L34.00000000000001 38C34.00000000000001 38 41.50000000000002 28 41.500000000000014 28C41.50000000000001 28 15.500000000000004 28 15.500000000000004 28Z"/>
+    <filter id="filter-3" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
+      <feOffset in="SourceAlpha" result="shadow-1-feOffset-shadow" dx="0" dy="2"/>
+      <feGaussianBlur in="shadow-1-feOffset-shadow" result="shadow-1-feGaussianBlur-shadow" stdDeviation="3"/>
+      <feColorMatrix in="shadow-1-feGaussianBlur-shadow" result="shadow-1-feColorMatrix-shadow" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0"/>
+    </filter>
+    <path id="path-4" opacity="1" fill-rule="evenodd" d="M33.5 20L26 30L52.00000000000001 30C52.00000000000001 30 59.50000000000002 20 59.500000000000014 20C59.50000000000001 20 33.5 20 33.5 20Z"/>
+    <filter id="filter-5" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
+      <feOffset in="SourceAlpha" result="shadow-1-feOffset-shadow" dx="0" dy="2"/>
+      <feGaussianBlur in="shadow-1-feOffset-shadow" result="shadow-1-feGaussianBlur-shadow" stdDeviation="3"/>
+      <feColorMatrix in="shadow-1-feGaussianBlur-shadow" result="shadow-1-feColorMatrix-shadow" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0"/>
+    </filter>
+  </defs>
+  <g>
+    <g opacity="1">
+      <path fill="rgb(51,51,51)" fill-opacity="1" opacity="1" fill-rule="evenodd" d="M16.261194029850753 23L3.5 40L47.73880597014927 40C47.73880597014927 40 60.50000000000004 23 60.50000000000003 23C60.500000000000014 23 16.261194029850753 23 16.261194029850753 23Z"/>
+    </g>
+    <g opacity="1">
+      <use xlink:href="#path-2" fill="black" filter="url(#filter-3)" stroke="black" stroke-opacity="0" stroke-width="0"/>
+      <use xlink:href="#path-2" fill="rgb(102,102,102)" fill-opacity="1"/>
+    </g>
+    <g opacity="1">
+      <use xlink:href="#path-4" fill="black" filter="url(#filter-5)" stroke="black" stroke-opacity="0" stroke-width="0"/>
+      <use xlink:href="#path-4" fill="rgb(64,104,224)" fill-opacity="1"/>
+    </g>
+    <g>
+      <path fill="rgb(0,0,0)" fill-opacity="0.4" opacity="1" fill-rule="evenodd" d="M28.5 33.5L42 33.5L48.5 25.5C49.03538513183594 24.645837783813477 51.06409454345703 24.717687606811523 50.5 25.5L42.5 35.5L28.5 35.5C27.94808578491211 35.5 27.5 35.05191421508789 27.5 34.5C27.5 33.94808578491211 27.94808578491211 33.5 28.5 33.5Z"/>
+    </g>
+  </g>
+</svg>
