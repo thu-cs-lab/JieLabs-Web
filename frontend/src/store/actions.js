@@ -292,7 +292,7 @@ export function submitBuild() {
         assignments += `set_location_assignment ${pinName} -to ${sig}\n`;
 
         // Asserts to match
-        const [base] = sig.match(/^[^\[\]]+($|\[)/)
+        const [base] = sig.match(/^[^\[\]]+/)
         const dir = sigDirs.get(base);
         directions[pin] = dir === 'output' ? 'input' : 'output';
       }
