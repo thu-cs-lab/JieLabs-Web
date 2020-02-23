@@ -26,7 +26,7 @@ architecture rtl of mod_top is
 begin
     decoder_inst : decoder port map (count, digital);
     process (clk, rst) begin
-        if (rst = '0') then
+        if (rst = '1') then
             count <= (others => '0');
             odd_reg <= (0 => '1', others => '0');
             even_reg <= (others => '0');
