@@ -63,6 +63,19 @@ async fn list(
     Ok(HttpResponse::Forbidden().finish())
 }
 
+#[get("/count")]
+async fn count(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let (Some(user), conn) = get_user(&id, conn).await? {
+        if user.role == "admin" {
+            if let Ok(count) = dsl::users.count().get_result::<i64>(&conn) {
+                return Ok(HttpResponse::Ok().json(count));
+            }
+        }
+    }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
 #[derive(Serialize, Deserialize)]
 struct UserUpdateRequest {
     real_name: Option<String>,

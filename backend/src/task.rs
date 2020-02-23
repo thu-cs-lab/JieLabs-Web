@@ -159,6 +159,20 @@ async fn list(
     Ok(HttpResponse::Forbidden().finish())
 }
 
+#[get("/count")]
+async fn count(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let (Some(user), conn) = get_user(&id, conn).await? {
+        if user.role == "admin" {
+            let count = web::block(move || jobs::dsl::jobs.count().get_result::<i64>(&conn))
+                .await
+                .map_err(err)?;
+            return Ok(HttpResponse::Ok().json(count));
+        }
+    }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
 #[get("/")]
 async fn list_self(
     id: Identity,

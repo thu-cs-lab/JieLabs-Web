@@ -42,6 +42,7 @@ async fn main() -> std::io::Result<()> {
                     .service(
                         web::scope("/user")
                             .service(user::list)
+                            .service(user::count)
                             .service(user::update)
                             .service(user::remove),
                     )
@@ -58,6 +59,7 @@ async fn main() -> std::io::Result<()> {
                             .service(task::finish)
                             .service(task::get)
                             .service(task::list)
+                            .service(task::count)
                             .service(task::list_self),
                     )
                     .service(

@@ -1,5 +1,5 @@
 use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard, RouteToUser};
-use crate::common::{IOSetting, ClockSetting};
+use crate::common::{ClockSetting, IOSetting};
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;

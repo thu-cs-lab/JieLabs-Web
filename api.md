@@ -22,6 +22,12 @@ GET /api/user/list?offset=0&limit=5
 
 仅 admin 可用
 
+### 获取用户数量
+
+GET /api/user/count
+
+仅 admin 可用
+
 ### 更新用户信息
 
 POST /api/user/manage/{user_name}
