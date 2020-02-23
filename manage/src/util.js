@@ -1,10 +1,12 @@
 import { BACKEND } from './config';
 
 async function parseResp(resp) {
-    if (resp.code >= 400)
+    if (resp.status === 403)
+        window.location.href = "/";
+    if (resp.status >= 400)
         throw {
             code: resp.code,
-            msg: resp.text(),
+            msg: await resp.text(),
         };
     return await resp.json();
 }
