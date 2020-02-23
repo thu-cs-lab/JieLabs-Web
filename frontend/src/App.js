@@ -17,7 +17,7 @@ export default React.memo(() => {
 
   const [loading, setLoading] = useState(true);
 
-  const boardTmpl = useSelector(state => state.signals.board);
+  const boardTmpl = useSelector(state => state.constraints.board);
   const boardTmplName = BOARDS[boardTmpl].name;
 
   const latestBuilds = useSelector(state => state.builds.list);

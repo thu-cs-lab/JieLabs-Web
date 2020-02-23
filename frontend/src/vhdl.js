@@ -132,10 +132,10 @@ export function registerCodeLens(cmds) {
 
   const codeLensProvider = {
     onDidChange: cb => {
-      let { analysis: lastAnalysis, signals: lastSignals } = store.getState();
+      let { analysis: lastAnalysis, constraints: lastConstraints } = store.getState();
 
       const unsubscribe = store.subscribe(() => {
-        const { analysis, signals } = store.getState();
+        const { analysis, constraints } = store.getState();
         let changed = false;
         // Analysis is returned from WASM call, so weak comparasion should work here
         if(analysis !== lastAnalysis) {
@@ -144,9 +144,9 @@ export function registerCodeLens(cmds) {
           changed = true;
         }
 
-        if(signals !== lastSignals) {
-          console.log('Signals changed');
-          lastSignals = signals;
+        if(constraints !== lastConstraints) {
+          console.log('Constraints changed');
+          lastConstraints = constraints;
           changed = true;
         }
 
@@ -158,7 +158,7 @@ export function registerCodeLens(cmds) {
     },
 
     provideCodeLenses: (_model, _token) => {
-      const { analysis, signals } = store.getState();
+      const { analysis, constraints } = store.getState();
 
       if(!analysis) return { lenses: [], dispose: () => {} };
 
@@ -190,7 +190,7 @@ export function registerCodeLens(cmds) {
           function push(name, params, isStandalone) {
             let title;
             if(isStandalone) {
-              const assigned = signals.signals.get(name);
+              const assigned = constraints.signals.get(name);
               title = assigned !== undefined ? `Assigned to pin ${assigned}` : `Assign pin for ${name}`;
             } else {
               title = `Assign pins for ${name}`;

@@ -56,7 +56,7 @@ export function board(state = { status: BOARD_STATUS.DISCONNECTED, websocket: nu
   return state;
 }
 
-export function signals(state = { board: DEFAULT_BOARD, top: null, signals: new Map() }, action) {
+export function constraints(state = { board: DEFAULT_BOARD, top: null, signals: new Map() }, action) {
   if(action.type === TYPES.SELECT_BOARD) {
     return { board: action.board, top: null, signals: new Map() }
   } else if(action.type === TYPES.ASSIGN_TOP) {

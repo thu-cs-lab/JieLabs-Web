@@ -16,7 +16,7 @@ const store = createStore(
   combineReducers(reducers),
   {
     code: lastCode,
-    signals: {
+    constraints: {
       board: lastBoard,
       top: lastTop,
       signals: lastSignals,
@@ -26,7 +26,7 @@ const store = createStore(
 );
 
 store.subscribe(() => {
-  const { code, signals: { board, top, signals } } = store.getState();
+  const { code, constraints: { board, top, signals } } = store.getState();
 
   if(code !== lastCode) {
     lastCode = code;

@@ -73,7 +73,7 @@ export default React.memo(() => {
     if(unregCodeLens.current) unregCodeLens.current();
   }, []);
 
-  const top = useSelector(state => state.signals.top);
+  const top = useSelector(state => state.constraints.top);
   const blocker = useCallback(e => {
     e.preventDefault();
     e.stopPropagation();
@@ -83,10 +83,10 @@ export default React.memo(() => {
     e.stopPropagation();
   });
 
-  const boardName = useSelector(state => state.signals.board);
+  const boardName = useSelector(state => state.constraints.board);
   const board = BOARDS[boardName];
 
-  const assignments = useSelector(state => state.signals.signals);
+  const assignments = useSelector(state => state.constraints.signals);
 
   const availablePins = useMemo(() => {
     if(!assigning) return [];

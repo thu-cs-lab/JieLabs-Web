@@ -173,7 +173,7 @@ export function initLib() {
     const lib = await import('jielabs_lib');
     dispatch(loadLib(lib));
 
-    const { code, signals: { top }} = getState();
+    const { code, constraints: { top }} = getState();
 
     const analysis = lib.parse(code, top);
     dispatch(setAnalysis(analysis));
@@ -268,7 +268,7 @@ export function submitBuild() {
       // TODO: force an analysis update immediately
       // TODO: check for analysis errors, if there actually is a top modules, etc...
 
-      let { build, code, signals, analysis } = getState();
+      let { build, code, constraints, analysis } = getState();
       if (build && build.intervalID) {
         clearInterval(build.intervalID);
       }
@@ -286,8 +286,8 @@ export function submitBuild() {
 
       let directions = {};
       let assignments = "";
-      const board = BOARDS[signals.board];
-      for(const [sig, pin] of signals.signals.entries()) {
+      const board = BOARDS[constraints.board];
+      for(const [sig, pin] of constraints.signals.entries()) {
         const pinName = board.pins[pin].pin;
         assignments += `set_location_assignment ${pinName} -to ${sig}\n`;
 
@@ -521,7 +521,7 @@ export function updateCode(code) {
     debouncer = setTimeout(() => {
       debouncer = null;
 
-      let { lib, code: curCode, signals } = getState();
+      let { lib, code: curCode, constraints } = getState();
       if (!lib) return;
 
       if (curCode !== code) {
@@ -529,7 +529,7 @@ export function updateCode(code) {
         return;
       }
 
-      const analysis = lib.parse(code, signals.top);
+      const analysis = lib.parse(code, constraints.top);
       dispatch(setAnalysis(analysis));
     }, CODE_ANALYSE_DEBOUNCE);
   }
