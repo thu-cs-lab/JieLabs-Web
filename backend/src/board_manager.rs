@@ -95,8 +95,14 @@ impl Handler<RegisterBoard> for BoardManagerActor {
     }
 }
 
+#[derive(Debug, Clone, Serialize, PartialEq, Eq, Hash)]
+pub struct BoardInfo2 {
+    pub board: BoardInfo,
+    pub connected_user: Option<String>,
+}
+
 #[derive(MessageResponse)]
-pub struct BoardInfoList(pub Vec<BoardInfo>);
+pub struct BoardInfoList(pub Vec<BoardInfo2>);
 
 #[derive(Message)]
 #[rtype(result = "BoardInfoList")]
@@ -108,10 +114,16 @@ impl Handler<GetBoardList> for BoardManagerActor {
     fn handle(&mut self, _req: GetBoardList, _ctx: &mut Context<Self>) -> BoardInfoList {
         let mut res = vec![];
         for board in &self.idle_boards {
-            res.push(board.info.clone());
+            res.push(BoardInfo2 {
+                board: board.info.clone(),
+                connected_user: None,
+            });
         }
-        for (_, board) in &self.connections {
-            res.push(board.info.clone());
+        for (user, board) in &self.connections {
+            res.push(BoardInfo2 {
+                board: board.info.clone(),
+                connected_user: Some(user.user_name.clone()),
+            });
         }
         BoardInfoList(res)
     }

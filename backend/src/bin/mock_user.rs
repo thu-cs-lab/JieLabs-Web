@@ -31,13 +31,11 @@ fn main(args: Args) {
                         ws_user::WSUserMessageS2U::BoardAllocateResult(res) => {
                             println!("Board allocation result: {}", res);
                             if res {
-                                out.send(r#"{"ToBoard":{"SetIOOutput":{"mask":14,"data":4}}}"#)
+                                out.send(r#"{"ToBoard":{"SetIOOutput":{"mask":"","data":""}}}"#)
                                     .unwrap();
                                 info!("SetIOOutput sent");
-                                out.send(
-                                    r#"{"ToBoard":{"SetIODirection":{"mask":114,"data":514}}}"#,
-                                )
-                                .unwrap();
+                                out.send(r#"{"ToBoard":{"SetIODirection":{"mask":"","data":""}}}"#)
+                                    .unwrap();
                                 info!("SetIODirection sent");
                                 out.send(r#"{"ToBoard":{"SubscribeIOChange":""}}"#).unwrap();
                                 info!("SubscribeIOChange sent");

@@ -148,19 +148,25 @@ export default {
         text: "Remote",
         align: "left",
         sortable: false,
-        value: "remote"
+        value: "board.remote"
       },
       {
         text: "Software Version",
         align: "left",
         sortable: false,
-        value: "software_version"
+        value: "board.software_version"
       },
       {
         text: "Hardware Version",
         align: "left",
         sortable: false,
-        value: "hardware_version"
+        value: "board.hardware_version"
+      },
+      {
+        text: "Connected User",
+        align: "left",
+        sortable: false,
+        value: "connected_user"
       }
     ],
     board_options: {},
