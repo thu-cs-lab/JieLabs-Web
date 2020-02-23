@@ -340,12 +340,19 @@ export default React.memo(() => {
     }
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
 
+  const canUpload = useMemo(() => {
+    if(analysis.top === null) return false;
+    const entity = analysis.entities[analysis.top];
+
+    return entity.signals.every(({ name }) => assignments.get(name) !== undefined);
+  }, [assignments, analysis]);
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
     </div>
     <div className="toolbar">
-      <button className="primary" onClick={doUpload} disabled={analysis.top === null}>
+      <button className="primary" onClick={doUpload} disabled={!canUpload}>
         <Icon>build</Icon>
       </button>
 
