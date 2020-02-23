@@ -285,7 +285,7 @@ export function submitBuild() {
       const sigDirs = topEntity.signals.reduce((acc, { name, dir }) => acc.set(name, dir), new IMap());
 
       let directions = {};
-      let assignments = `set_global_assignment -name TOP_LEVEL_ENTITY ${constraints.top}`;
+      let assignments = `set_global_assignment -name TOP_LEVEL_ENTITY ${constraints.top}\n`;
       const board = BOARDS[constraints.board];
       for(const [sig, pin] of constraints.signals.entries()) {
         const pinName = board.pins[pin].pin;
