@@ -468,6 +468,7 @@ dependencies = [
  "actix-web-actors",
  "bimap",
  "bytes 0.5.4",
+ "chrono",
  "diesel",
  "diesel_migrations",
  "dotenv",
@@ -782,6 +783,7 @@ checksum = "9d7cc03b910de9935007861dce440881f69102aaaedfd4bc5a6f40340ca5840c"
 dependencies = [
  "bitflags",
  "byteorder",
+ "chrono",
  "diesel_derives",
  "pq-sys",
  "r2d2",

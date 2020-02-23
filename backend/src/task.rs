@@ -6,6 +6,7 @@ use crate::task_manager::{get_task_manager, SubmitBuildTask};
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse, Result};
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
@@ -111,6 +112,8 @@ struct JobInfo {
     status: Option<String>,
     src_url: String,
     dst_url: Option<String>,
+    created_at: DateTime<Utc>,
+    finished_at: Option<DateTime<Utc>>,
 }
 
 impl From<Job> for JobInfo {
@@ -125,6 +128,8 @@ impl From<Job> for JobInfo {
             status: job.status,
             src_url,
             dst_url,
+            created_at: job.created_at,
+            finished_at: job.finished_at,
         }
     }
 }

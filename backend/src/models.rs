@@ -1,4 +1,5 @@
 use crate::schema::{jobs, users};
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Queryable, AsChangeset, Identifiable)]
 pub struct User {
@@ -32,6 +33,8 @@ pub struct Job {
     pub destination: Option<String>,
     pub metadata: String,
     pub task_id: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub finished_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Insertable)]

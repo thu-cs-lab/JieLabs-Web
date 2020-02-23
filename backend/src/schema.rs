@@ -17,6 +17,8 @@ table! {
         destination -> Nullable<Text>,
         metadata -> Text,
         task_id -> Nullable<Text>,
+        created_at -> Timestamptz,
+        finished_at -> Nullable<Timestamptz>,
     }
 }
 
