@@ -18,6 +18,20 @@ export async function get(endpoint, method = "GET") {
     return await parseResp(resp);
 }
 
+export async function getLines(endpoint, method = "GET") {
+    const resp = await fetch(BACKEND + endpoint, {
+        method,
+        credentials: 'include',
+    });
+
+    if (resp.code >= 400)
+        throw {
+            code: resp.code,
+            msg: resp.text(),
+        };
+    return (await resp.text()).split("\n");
+}
+
 export async function post(endpoint, data, method = "POST") {
     const resp = await fetch(BACKEND + endpoint, {
         method,

@@ -52,6 +52,18 @@
             </v-card-title>
             <v-card-text>
               <v-data-table :headers="board_headers" :items="boards" :options="board_options"></v-data-table>
+              <v-text-field
+                label="Version"
+                v-model="board_version[0]"
+              ></v-text-field>
+              <v-text-field
+                label="Url"
+                v-model="board_version[1]"
+              ></v-text-field>
+              <v-text-field
+                label="Hash"
+                v-model="board_version[2]"
+              ></v-text-field>
             </v-card-text>
           </v-card>
         </v-window-item>
@@ -76,7 +88,7 @@
 </template>
 
 <script>
-import { get } from "../util";
+import { get, getLines } from "../util";
 export default {
   name: "Main",
 
@@ -148,6 +160,7 @@ export default {
       }
     ],
     board_options: {},
+    board_version: [],
 
     jobs: [],
     job_headers: [
@@ -229,6 +242,7 @@ export default {
     async update_boards() {
       let boards = await get("/api/board/list");
       this.boards = boards;
+      this.board_version = await getLines("/api/board/version");
     }
   },
   watch: {
