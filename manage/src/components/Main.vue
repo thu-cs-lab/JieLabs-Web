@@ -209,7 +209,19 @@ export default {
         align: "left",
         sortable: false,
         value: "dst_url"
-      }
+      },
+      {
+        text: "Created At",
+        align: "left",
+        sortable: false,
+        value: "created_at"
+      },
+      {
+        text: "Finished At",
+        align: "left",
+        sortable: false,
+        value: "finished_at"
+      },
     ],
     job_options: {},
     job_count: 0,

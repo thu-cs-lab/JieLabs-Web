@@ -81,6 +81,7 @@ async fn finish(body: web::Json<FinishRequest>, pool: web::Data<DbPool>) -> Resu
         if job.status.is_none() {
             // not finished
             job.status = Some(body.status.clone());
+            job.finished_at = Some(Utc::now());
             return Ok(
                 HttpResponse::Ok().json(diesel::update(&job).set(&job).execute(&conn).is_ok())
             );
