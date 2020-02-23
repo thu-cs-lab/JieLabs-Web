@@ -1,9 +1,9 @@
 import { BACKEND } from './config';
 
 async function parseResp(resp) {
-  if (resp.code >= 400)
+  if (resp.status >= 400)
     throw {
-      code: resp.code,
+      code: resp.status,
       msg: resp.text(),
     };
   return await resp.json();

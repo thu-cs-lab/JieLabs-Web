@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
-import cn from 'classnames';
+import React, { useState, useRef } from 'react';
 import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
@@ -33,15 +32,6 @@ export default React.memo(rest => {
   const [pins, setPins] = useState(List(Array(3 * 7).fill(SIGNAL.X)));
 
   const currentPins = useRef(pins);
-
-  const calcDigit = useCallback((index) => {
-    let digit0 = pins.get(index * 4 + 0) === SIGNAL.H;
-    let digit1 = pins.get(index * 4 + 1) === SIGNAL.H;
-    let digit2 = pins.get(index * 4 + 2) === SIGNAL.H;
-    let digit3 = pins.get(index * 4 + 3) === SIGNAL.H;
-    let digit = digit3 * 8 + digit2 * 4 + digit1 * 2 + digit0;
-    return digit.toString(16).toUpperCase();
-  }, [pins]);
 
   return <div className="block digit7" {...rest}>
     <div className="pins">
