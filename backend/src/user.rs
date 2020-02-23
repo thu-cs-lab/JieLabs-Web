@@ -23,6 +23,7 @@ struct UserListResponse {
 
 #[derive(Serialize, Deserialize)]
 struct UserInfo {
+    id: i32,
     user_name: String,
     real_name: Option<String>,
     class: Option<String>,
@@ -53,6 +54,7 @@ async fn list(
             let mut res = vec![];
             for user in users {
                 res.push(UserInfo {
+                    id: user.id,
                     user_name: user.user_name,
                     real_name: user.real_name,
                     class: user.class,
@@ -143,6 +145,7 @@ async fn get(
                 .first::<User>(&conn)
             {
                 return Ok(HttpResponse::Ok().json(UserInfo {
+                    id: user.id,
                     user_name: user.user_name,
                     real_name: user.real_name,
                     class: user.class,
