@@ -141,11 +141,12 @@ async fn list(
             let offset = query.offset.unwrap_or(0);
             let limit = query.limit.unwrap_or(5);
             let jobs = web::block(move || {
-                jobs::dsl::jobs
-                    .order(jobs::dsl::id.desc())
-                    .offset(offset)
-                    .limit(limit)
-                    .load::<Job>(&conn)
+                let query = jobs::dsl::jobs.order(jobs::dsl::id.desc()).offset(offset);
+                if limit >= 0 {
+                    query.limit(limit).load::<Job>(&conn)
+                } else {
+                    query.load::<Job>(&conn)
+                }
             })
             .await
             .map_err(err)?;

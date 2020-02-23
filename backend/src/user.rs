@@ -41,23 +41,30 @@ async fn list(
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
             let limit = query.limit.unwrap_or(5);
-            if let Ok(users) = dsl::users.offset(offset).limit(limit).load::<User>(&conn) {
-                let mut res = vec![];
-                for user in users {
-                    res.push(UserInfo {
-                        user_name: user.user_name,
-                        real_name: user.real_name,
-                        class: user.class,
-                        student_id: user.student_id,
-                        role: user.role,
-                    });
+            let users = web::block(move || {
+                if limit >= 0 {
+                    dsl::users.offset(offset).limit(limit).load::<User>(&conn)
+                } else {
+                    dsl::users.offset(offset).load::<User>(&conn)
                 }
-                return Ok(HttpResponse::Ok().json(UserListResponse {
-                    offset,
-                    limit,
-                    users: res,
-                }));
+            })
+            .await
+            .map_err(err)?;
+            let mut res = vec![];
+            for user in users {
+                res.push(UserInfo {
+                    user_name: user.user_name,
+                    real_name: user.real_name,
+                    class: user.class,
+                    student_id: user.student_id,
+                    role: user.role,
+                });
             }
+            return Ok(HttpResponse::Ok().json(UserListResponse {
+                offset,
+                limit,
+                users: res,
+            }));
         }
     }
     Ok(HttpResponse::Forbidden().finish())
