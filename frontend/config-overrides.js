@@ -12,7 +12,7 @@ module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
     languages: [],
   })),
-  addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false })),
+  addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
   adjustWorkbox(wb => Object.assign(wb, {
     importWorkboxFrom: 'local',
