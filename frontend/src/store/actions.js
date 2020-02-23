@@ -173,9 +173,9 @@ export function initLib() {
     const lib = await import('jielabs_lib');
     dispatch(loadLib(lib));
 
-    const { code } = getState();
+    const { code, signals: { top }} = getState();
 
-    const analysis = lib.parse(code);
+    const analysis = lib.parse(code, top);
     dispatch(setAnalysis(analysis));
   }
 }
