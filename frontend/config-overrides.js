@@ -11,6 +11,6 @@ module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
     languages: [],
   })),
-  addWebpackPlugin(new AnalyzerPlugin()),
+  addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: 'static' })),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
 );
