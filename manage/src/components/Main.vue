@@ -14,10 +14,14 @@
                 :loading="loading"
               >
                 <template v-slot:item.src_url="{ item }">
-                  <a :href="item.src_url">Download</a>
+                  <v-btn icon :href="item.src_url" target="_blank">
+                    <v-icon>mdi-download</v-icon>
+                  </v-btn>
                 </template>
                 <template v-slot:item.dst_url="{ item }">
-                  <a :href="item.dst_url">Download</a>
+                  <v-btn icon :href="item.dst_url" target="_blank">
+                    <v-icon>mdi-download</v-icon>
+                  </v-btn>
                 </template>
               </v-data-table>
             </v-card-text>
