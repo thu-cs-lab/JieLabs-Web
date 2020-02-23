@@ -4,7 +4,13 @@
       <v-window v-model="window" class="elevation-1">
         <v-window-item :key="0">
           <v-card>
-            <v-card-title>Job</v-card-title>
+            <v-card-title>
+              Job
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" v-on:click="update_jobs">
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+            </v-card-title>
             <v-card-text>
               <v-data-table
                 :headers="job_headers"
@@ -31,6 +37,10 @@
           <v-card>
             <v-card-title>
               User
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" v-on:click="update_users">
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
             </v-card-title>
             <v-card-text>
               <v-data-table
@@ -221,7 +231,7 @@ export default {
         align: "left",
         sortable: false,
         value: "finished_at"
-      },
+      }
     ],
     job_options: {},
     job_count: 0,
