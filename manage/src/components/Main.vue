@@ -29,7 +29,9 @@
         </v-window-item>
         <v-window-item :key="1">
           <v-card>
-            <v-card-title>User</v-card-title>
+            <v-card-title>
+              User
+            </v-card-title>
             <v-card-text>
               <v-data-table
                 :headers="user_headers"
@@ -37,7 +39,12 @@
                 :options.sync="user_options"
                 :server-items-length="user_count"
                 :loading="loading"
-              ></v-data-table>
+              >
+                <template v-slot:item.action="{ item }">
+                  <v-icon small class="mr-2" @click="edit_user(item)">mdi-pencil-outline</v-icon>
+                  <v-icon small @click="delete_user(item)">mdi-delete</v-icon>
+                </template>
+              </v-data-table>
             </v-card-text>
           </v-card>
         </v-window-item>
@@ -52,18 +59,9 @@
             </v-card-title>
             <v-card-text>
               <v-data-table :headers="board_headers" :items="boards" :options="board_options"></v-data-table>
-              <v-text-field
-                label="Version"
-                v-model="board_version[0]"
-              ></v-text-field>
-              <v-text-field
-                label="Url"
-                v-model="board_version[1]"
-              ></v-text-field>
-              <v-text-field
-                label="Hash"
-                v-model="board_version[2]"
-              ></v-text-field>
+              <v-text-field label="Version" v-model="board_version[0]"></v-text-field>
+              <v-text-field label="Url" v-model="board_version[1]"></v-text-field>
+              <v-text-field label="Hash" v-model="board_version[2]"></v-text-field>
             </v-card-text>
           </v-card>
         </v-window-item>
@@ -88,7 +86,7 @@
 </template>
 
 <script>
-import { get, getLines } from "../util";
+import { get, getLines, delete_ } from "../util";
 export default {
   name: "Main",
 
@@ -133,6 +131,12 @@ export default {
         align: "left",
         sortable: false,
         value: "role"
+      },
+      {
+        text: "Action",
+        align: "left",
+        sortable: false,
+        value: "action"
       }
     ],
     user_options: {},
@@ -243,6 +247,15 @@ export default {
       let boards = await get("/api/board/list");
       this.boards = boards;
       this.board_version = await getLines("/api/board/version");
+    },
+
+    async edit_user() {},
+
+    async add_user() {},
+
+    async delete_user(user) {
+      await delete_(`/api/user/manage/${user.user_name}`);
+      await this.update_users();
     }
   },
   watch: {
