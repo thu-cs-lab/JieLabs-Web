@@ -228,12 +228,36 @@ export default React.memo(() => {
   const redraw = useCallback(() => {
     // Compute line indexes
     if(canvas.current && container.current) {
-      const ctx = canvas.current.getContext('2d');
-      ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
-
-      const FACTOR = 5;
+      const FACTOR = 3;
       let maze = new lib.Maze(Math.floor(canvas.current.width / FACTOR), Math.floor(canvas.current.height / FACTOR));
       console.log(maze);
+
+      let connectRefs = new Set();
+      console.log(lines);
+      for (const { from, to } of lines) {
+        if (!from.current) continue;
+        if (!to.current) continue;
+        connectRefs = connectRefs.add(from.current);
+        connectRefs = connectRefs.add(to.current);
+      }
+
+      for (let id in ctx.connectors) {
+        let ref = ctx.connectors[id].ref;
+        if (!ref.current) continue;
+        if (connectRefs.has(ref.current)) continue;
+        let rect = ref.current.getBoundingClientRect();
+        const pos = center(rect, container.current.getBoundingClientRect());
+        let maze_f_x = Math.floor(pos.x / FACTOR);
+        let maze_f_y = Math.floor(pos.y / FACTOR);
+        console.log(`masking ${maze_f_x} ${maze_f_y}`);
+        if (maze_f_x + 2 < Math.floor(canvas.current.width / FACTOR) && maze_f_y + 2 <
+          Math.floor(canvas.current.height / FACTOR)) {
+          maze.fill_mut(maze_f_x - 2, maze_f_y - 2, maze_f_x + 2, maze_f_y + 2);
+        }
+      }
+      const canvasCtx = canvas.current.getContext('2d');
+      canvasCtx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+
       for(const { from, to } of lines) {
         if(!from.current) continue;
         if(!to.current) continue;
@@ -244,8 +268,13 @@ export default React.memo(() => {
         const fc = center(fr, container.current.getBoundingClientRect());
         const tc = center(tr, container.current.getBoundingClientRect());
 
-        console.log(Math.floor(fc.x / FACTOR), Math.floor(fc.y / FACTOR), Math.floor(tc.x / FACTOR), Math.floor(tc.y / FACTOR));
-        let changes = maze.lee_minimum_edge_effect(Math.floor(fc.x / FACTOR), Math.floor(fc.y / FACTOR), Math.floor(tc.x / FACTOR), Math.floor(tc.y / FACTOR));
+        let maze_f_x = Math.floor(fc.x / FACTOR);
+        let maze_f_y = Math.floor(fc.y / FACTOR);
+        let maze_t_x = Math.floor(tc.x / FACTOR);
+        let maze_t_y = Math.floor(tc.y / FACTOR);
+
+        console.log(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
+        let changes = maze.lee_minimum_edge_effect(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
         let arr = [];
         if (changes !== undefined) {
           arr = changes.to_js();
@@ -255,23 +284,25 @@ export default React.memo(() => {
           console.log('no solution');
         }
 
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = 'rgba(0,0,0,.2)';
+        canvasCtx.lineWidth = FACTOR / 2;
+        canvasCtx.strokeStyle = 'rgba(0,0,0,.2)';
 
-        ctx.beginPath();
-        //ctx.moveTo(fc.x, fc.y);
-        //ctx.lineTo(tc.x, tc.y);
-        //ctx.stroke();
+        canvasCtx.beginPath();
+        //canvasCtx.moveTo(fc.x, fc.y);
+        //canvasCtx.lineTo(tc.x, tc.y);
+        //canvasCtx.stroke();
         for (let [x, y, type] of arr) {
-          ctx.moveTo(x * FACTOR-3, y * FACTOR-3);
-          ctx.lineTo(x * FACTOR+3, y * FACTOR+3);
+          canvasCtx.moveTo(x * FACTOR-FACTOR, y * FACTOR-FACTOR);
+          canvasCtx.lineTo(x * FACTOR+FACTOR, y * FACTOR+FACTOR);
+          canvasCtx.moveTo(x * FACTOR-FACTOR, y * FACTOR+FACTOR);
+          canvasCtx.lineTo(x * FACTOR+FACTOR, y * FACTOR-FACTOR);
         }
-        ctx.stroke();
-        ctx.closePath();
+        canvasCtx.stroke();
+        canvasCtx.closePath();
       };
       maze.free();
     }
-  }, [lib.Maze, lines]);
+  }, [ctx.connectors, lib.Maze, lines]);
 
   const observer = React.useMemo(() => new ResizeObserver(entries => {
     const { width, height } = entries[0].contentRect;
