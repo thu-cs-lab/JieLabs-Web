@@ -224,6 +224,7 @@ checksum = "b8b7a7c0c47db5545ed3fef7468ee7bb5b74691498139e4b3f6a20685dc6dd8e"
 name = "jielabs_lib"
 version = "0.1.0"
 dependencies = [
+ "maze-routing",
  "serde",
  "vhdl_lang",
  "wasm-bindgen",
@@ -257,6 +258,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "maze-routing"
+version = "0.1.0"
+source = "git+https://github.com/jiegec/maze-routing#db63d5bdd2924fa9e560f769fc3a486964b740d6"
+dependencies = [
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "wasm-bindgen",
 ]
 
 [[package]]

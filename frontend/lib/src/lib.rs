@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use wasm_bindgen::prelude::*;
+use maze_routing;
 
 mod verilog;
 mod vhdl;

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useCallback, useState, useMemo } from 'react';
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
@@ -223,12 +223,17 @@ export default React.memo(() => {
   const container = useRef();
   const canvas = useRef();
 
+  const lib = useSelector((state) => state.lib);
+
   const redraw = useCallback(() => {
     // Compute line indexes
     if(canvas.current && container.current) {
       const ctx = canvas.current.getContext('2d');
       ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
 
+      const FACTOR = 5;
+      let maze = new lib.Maze(Math.floor(canvas.current.width / FACTOR), Math.floor(canvas.current.height / FACTOR));
+      console.log(maze);
       for(const { from, to } of lines) {
         if(!from.current) continue;
         if(!to.current) continue;
@@ -239,17 +244,34 @@ export default React.memo(() => {
         const fc = center(fr, container.current.getBoundingClientRect());
         const tc = center(tr, container.current.getBoundingClientRect());
 
+        console.log(Math.floor(fc.x / FACTOR), Math.floor(fc.y / FACTOR), Math.floor(tc.x / FACTOR), Math.floor(tc.y / FACTOR));
+        let changes = maze.lee_minimum_edge_effect(Math.floor(fc.x / FACTOR), Math.floor(fc.y / FACTOR), Math.floor(tc.x / FACTOR), Math.floor(tc.y / FACTOR));
+        let arr = [];
+        if (changes !== undefined) {
+          arr = changes.to_js();
+          maze.apply(changes);
+          changes.free();
+        } else {
+          console.log('no solution');
+        }
+
         ctx.lineWidth = 5;
         ctx.strokeStyle = 'rgba(0,0,0,.2)';
 
         ctx.beginPath();
-        ctx.moveTo(fc.x, fc.y);
-        ctx.lineTo(tc.x, tc.y);
+        //ctx.moveTo(fc.x, fc.y);
+        //ctx.lineTo(tc.x, tc.y);
+        //ctx.stroke();
+        for (let [x, y, type] of arr) {
+          ctx.moveTo(x * FACTOR-3, y * FACTOR-3);
+          ctx.lineTo(x * FACTOR+3, y * FACTOR+3);
+        }
         ctx.stroke();
         ctx.closePath();
       };
+      maze.free();
     }
-  }, [canvas, container, lines]);
+  }, [lib.Maze, lines]);
 
   const observer = React.useMemo(() => new ResizeObserver(entries => {
     const { width, height } = entries[0].contentRect;
@@ -457,7 +479,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
 
     ev.stopPropagation();
     ev.preventDefault();
-  }, [idx, spec, requestSettle, requestRedraw, setMoving]);
+  }, [idx, spec, requestSettle, setMoving]);
 
   useLayoutEffect(requestRedraw, [moving]);
 
