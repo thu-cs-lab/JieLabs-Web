@@ -244,7 +244,7 @@ export default React.memo(() => {
       for (let id in ctx.connectors) {
         let ref = ctx.connectors[id].ref;
         if (!ref.current) continue;
-        if (connectRefs.has(ref.current)) continue;
+        //if (connectRefs.has(ref.current)) continue;
         let rect = ref.current.getBoundingClientRect();
         const pos = center(rect, container.current.getBoundingClientRect());
         let maze_f_x = Math.floor(pos.x / FACTOR);
@@ -274,6 +274,8 @@ export default React.memo(() => {
         let maze_t_y = Math.floor(tc.y / FACTOR);
 
         console.log(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
+        maze.clean_mut(maze_f_x - 2, maze_f_y - 2, maze_f_x + 2, maze_f_y + 2);
+        maze.clean_mut(maze_t_x - 2, maze_t_y - 2, maze_t_x + 2, maze_t_y + 2);
         let changes = maze.lee_minimum_edge_effect(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
         let arr = [];
         if (changes !== undefined) {
@@ -283,6 +285,8 @@ export default React.memo(() => {
         } else {
           console.log('no solution');
         }
+        maze.fill_mut(maze_f_x - 2, maze_f_y - 2, maze_f_x + 2, maze_f_y + 2);
+        maze.fill_mut(maze_t_x - 2, maze_t_y - 2, maze_t_x + 2, maze_t_y + 2);
 
         canvasCtx.lineWidth = FACTOR / 2;
         canvasCtx.strokeStyle = 'rgba(0,0,0,.2)';
