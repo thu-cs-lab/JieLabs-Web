@@ -24,7 +24,7 @@ export default React.memo(() => {
 
   const doUpload = useCallback(async () => {
     await dispatch(submitBuild());
-  }, [code, dispatch]);
+  }, [dispatch]);
 
   const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
 
@@ -40,7 +40,7 @@ export default React.memo(() => {
   const doProgram = useCallback(() => {
     if(readyLatestId !== null && hasBoard)
       dispatch(programBitstream(readyLatestId));
-  }, [readyLatestId, hasBoard]);
+  }, [readyLatestId, hasBoard, dispatch]);
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
@@ -295,7 +295,7 @@ export default React.memo(() => {
     });
   }, [assigning, analysis]);
 
-  const subscriptStep = step => {
+  const subscriptStep = useCallback(step => {
     // Asserts step \in {1, -1}
     if(assigning.subscript === -1 || assigning.subscript === null) return;
 
@@ -318,10 +318,10 @@ export default React.memo(() => {
       ...assigning,
       subscript: next,
     });
-  };
+  });
 
-  const subscriptInc = useCallback(() => subscriptStep(1), [analysis, assigning]);
-  const subscriptDec = useCallback(() => subscriptStep(-1), [analysis, assigning]);
+  const subscriptInc = useCallback(() => subscriptStep(1), [subscriptStep]);
+  const subscriptDec = useCallback(() => subscriptStep(-1), [subscriptStep]);
 
   const checkKey= useCallback(ev => {
     if(ev.key === 'Escape')
@@ -344,7 +344,24 @@ export default React.memo(() => {
     if(analysis.top === null) return false;
     const entity = analysis.entities[analysis.top];
 
-    return entity.signals.every(({ name }) => assignments.get(name) !== undefined);
+    return entity.signals.every(({ name, arity }) => {
+      if (arity === null) {
+        // std_logic
+        return assignments.get(name) !== undefined;
+      } else {
+        // std_logic_vector
+        let { from, to } = arity;
+        if (from > to) {
+          [from, to] = [to, from];
+        }
+        for (let i = from; i <= to; i += 1) {
+          if (assignments.get(`${name}[${i}]`) === undefined) {
+            return false;
+          }
+        }
+        return true;
+      }
+    });
   }, [assignments, analysis]);
 
   return <main className="workspace">
