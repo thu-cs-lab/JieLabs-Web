@@ -38,3 +38,10 @@ serde_derive = "1.0"
 structopt = { version = "0.3.9", features = ["paw"] }
 uuid = { version = "0.8", features = ["v4"] }
 ws = "0.9"
+
+[package.metadata.deb]
+name = "jielabs-backend"
+assets = [
+	["target/release/jielabs_backend", "usr/bin/", "755"],
+	["jielabs-backend.service", "lib/systemd/system/", "644"]
+]

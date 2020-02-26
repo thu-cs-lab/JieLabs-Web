@@ -1,0 +1,13 @@
+[Unit]
+Description=JieLabs Backend
+After=network.target
+
+[Service]
+Type=simple
+Environment="RUST_LOG=info"
+WorkingDirectory=/srv/jielabsweb-backend
+ExecStart=/usr/bin/jielabs_backend
+
+[Install]
+WantedBy=multi-user.target
+
