@@ -152,6 +152,36 @@ impl Handler<SetDb> for TaskManagerActor {
     }
 }
 
+#[derive(Message)]
+#[rtype(result = "GetMetricResponse")]
+pub struct GetMetric;
+
+#[derive(MessageResponse)]
+pub struct GetMetricResponse {
+    pub len_waiting: u64,
+    pub len_working: u64,
+}
+
+impl Handler<GetMetric> for TaskManagerActor {
+    type Result = GetMetricResponse;
+
+    fn handle(&mut self, _req: GetMetric, _ctx: &mut Context<Self>) -> GetMetricResponse {
+        let conn = self.conn.as_mut().unwrap();
+        let len_waiting: u64 = redis::cmd("LLEN")
+            .arg(&self.waiting_queue)
+            .query(conn)
+            .unwrap();
+        let len_working: u64 = redis::cmd("LLEN")
+            .arg(&self.working_queue)
+            .query(conn)
+            .unwrap();
+        GetMetricResponse {
+            len_waiting,
+            len_working,
+        }
+    }
+}
+
 pub fn get_task_manager() -> Addr<TaskManagerActor> {
     TaskManagerActor::from_registry()
 }
