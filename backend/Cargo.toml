@@ -3,7 +3,7 @@ name = "backend"
 version = "0.1.0"
 authors = ["Jiajie Chen <noc@jiegec.ac.cn>"]
 edition = "2018"
-default-run = "backend"
+default-run = "jielabs_backend"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
