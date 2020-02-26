@@ -2,7 +2,9 @@
 extern crate diesel_migrations;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
-use backend::{board, file, session, task, task_manager, user, ws_board, ws_user, DbConnection};
+use backend::{
+    board, file, metric, session, task, task_manager, user, ws_board, ws_user, DbConnection,
+};
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use ring::digest;
@@ -62,6 +64,7 @@ async fn main() -> std::io::Result<()> {
                             .service(task::count)
                             .service(task::list_self),
                     )
+                    .service(web::scope("/metric").service(metric::get))
                     .service(
                         web::scope("/")
                             .service(session::login)
