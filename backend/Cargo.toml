@@ -3,7 +3,7 @@ name = "backend"
 version = "0.1.0"
 authors = ["Jiajie Chen <noc@jiegec.ac.cn>"]
 edition = "2018"
-default-run = "jielabs_backend"
+default-run = "backend"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -42,6 +42,8 @@ ws = "0.9"
 [package.metadata.deb]
 name = "jielabs-backend"
 assets = [
-	["target/release/jielabs_backend", "usr/bin/", "755"],
+	["target/release/backend", "usr/bin/jielabs_backend", "755"],
+	["target/release/mock_user", "usr/bin/jielabs_mock_user", "755"],
+	["target/release/mock_board", "usr/bin/jielabs_mock_board", "755"],
 	["jielabs-backend.service", "lib/systemd/system/", "644"]
 ]
