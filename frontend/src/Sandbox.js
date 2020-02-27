@@ -161,6 +161,15 @@ class Handler {
     for(const listener of this.listeners)
       listener();
   }
+
+  getAllConnectors() {
+    return Object.keys(this.connectors).map(k => {
+      return {
+        id: k,
+        ref: this.connectors[k].ref,
+      };
+    }).filter(e => !!e.ref);
+  }
 }
 
 function center(rect, ref) {
@@ -328,6 +337,29 @@ export default React.memo(() => {
     }));
   }, [lines]); // Intentionally leaves scroll out
 
+  // Keep track of all connectors
+  const [connectors, setConnectors] = useState([]);
+  useEffect(() => {
+    ctx.onChange(() => {
+      if(!container.current) return;
+
+      const all = ctx.getAllConnectors();
+
+      console.log(all);
+
+      setConnectors(all.map(({ id, ref }) => {
+        const bounding = ref.current.getBoundingClientRect();
+        const { x, y } = center(bounding, container.current.getBoundingClientRect());
+
+        return {
+          id,
+          x: x - scroll.x,
+          y: y - scroll.y,
+        };
+      }));
+    });
+  }, []); // Intentionally leaves scroll out
+
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
 
@@ -465,6 +497,7 @@ export default React.memo(() => {
 
         <WireLayer
           groups={groups}
+          connectors={connectors}
           scroll={scroll}
           width={canvasWidth}
           height={canvasHeight}
@@ -594,7 +627,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
  *   ... (other groups)
  * ]
  */
-const WireLayer = React.memo(({ groups, scroll, width, height }) => {
+const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => {
   const FACTOR = 3;
   const MASK_RADIUS = 2;
 
@@ -660,7 +693,12 @@ const WireLayer = React.memo(({ groups, scroll, width, height }) => {
 
     const result = [];
 
-    // TODO: Mask all connectors
+    for(const { x, y, /* id */ } of connectors) {
+      const mx = Math.floor((x - minX) / FACTOR);
+      const my = Math.floor((y - minY) / FACTOR);
+
+      maze.fill_mut(...boundedRadius(mx, my, MASK_RADIUS));
+    }
 
     // Draw
     for(const group of groups) {
@@ -751,7 +789,7 @@ const WireLayer = React.memo(({ groups, scroll, width, height }) => {
     maze.free();
 
     return result;
-  }, [groups, width, height, minX, minY, maxX, maxY]);
+  }, [groups, width, height, minX, minY, maxX, maxY, connectors]);
 
   // Overlay all canvases
   const renderer = useCallback(canvas => {
