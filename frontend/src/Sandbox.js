@@ -317,9 +317,6 @@ export default React.memo(() => {
 
     setField(field.set(idx, { ...field.get(idx), x: ax, y: ay }));
   }, [setField, field]);
-
-  // TODO: impl this in WireLayer
-  // useLayoutEffect(redraw, [field, scroll]);
   
   const requestDelete = useCallback(idx => {
     setField(field.delete(idx));
@@ -690,14 +687,15 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
         const dy = (y - minMCY) * FACTOR;
 
         ctx.fillRect(
-          dx + FACTOR * 0.1,
-          dy + FACTOR * 0.1,
-          FACTOR * 0.8,
-          FACTOR * 0.8,
+          dx,
+          dy,
+          FACTOR,
+          FACTOR,
         );
       }
 
       result.push({
+        group,
         offset: {
           x: minCX,
           y: minCY,
@@ -725,7 +723,43 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
       ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
   }, [canvases, scroll, width, height]);
 
+  const collide = useCallback((x, y) => {
+    const dx = x - scroll.x;
+    const dy = y - scroll.y;
+
+    for(const { group, offset, dim, canvas } of canvases) {
+      const cdx = dx - offset.x;
+      const cdy = dy - offset.y;
+
+      if(cdx < 0 || cdy < 0) continue;
+      if(cdx >= dim.w || cdy >= dim.h) continue;
+      console.log(cdx, cdy);
+
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.getImageData(cdx, cdy, 1, 1);
+
+      // Extract alpha
+      const alpha = imgData.data[3];
+      if(alpha > 0)
+        return group;
+    }
+
+    return null;
+  }, [canvases, scroll]);
+
+  const handleClick = useCallback(e => {
+    const { x, y } = e.target.getBoundingClientRect();
+    const collision = collide(e.clientX - x, e.clientY - y);
+    console.log('COLLISION: ', collision);
+  }, [collide]);
+
   return (
-    <canvas ref={renderer} width={width} height={height} className="lines"></canvas>
+    <canvas
+      ref={renderer}
+      width={width}
+      height={height}
+      className="wires"
+      onClick={handleClick}
+    />
   );
 });
