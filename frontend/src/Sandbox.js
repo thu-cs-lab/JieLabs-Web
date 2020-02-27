@@ -138,7 +138,7 @@ class Handler {
       ignored.add(id);
     }
 
-    this.onLineChange(List(result));
+    this.onLineChange(result);
   }
 
   getConnected(id) {
@@ -232,9 +232,6 @@ export default React.memo(() => {
   const container = useRef();
   const canvas = useRef();
 
-  // Update lines when updating field
-  useLayoutEffect(() => { setTimeout(() => ctx.updateLines()) }, [field]);
-
   // Map lines to groups
   const groups = useMemo(() => {
     if(!container.current) return [];
@@ -257,26 +254,34 @@ export default React.memo(() => {
 
   // Keep track of all connectors
   const [connectors, setConnectors] = useState([]);
+  const refreshConnectors = useCallback(() => {
+    if(!container.current) return;
+
+    const all = ctx.getAllConnectors();
+
+    setConnectors(all.map(({ id, ref }) => {
+      const bounding = ref.current.getBoundingClientRect();
+      const { x, y } = center(bounding, container.current.getBoundingClientRect());
+
+      return {
+        id,
+        x: x - scroll.x,
+        y: y - scroll.y,
+      };
+    }));
+  }, [scroll]);
+
+  // Update lines & connectors when updating field
+  useLayoutEffect(() => { setTimeout(() => {
+    ctx.updateLines();
+    refreshConnectors();
+  }) }, [field]);
+
   useEffect(() => {
-    ctx.onChange(() => {
-      if(!container.current) return;
-
-      const all = ctx.getAllConnectors();
-
-      console.log(all);
-
-      setConnectors(all.map(({ id, ref }) => {
-        const bounding = ref.current.getBoundingClientRect();
-        const { x, y } = center(bounding, container.current.getBoundingClientRect());
-
-        return {
-          id,
-          x: x - scroll.x,
-          y: y - scroll.y,
-        };
-      }));
+    return ctx.onChange(() => {
+      refreshConnectors();
     });
-  }, []); // Intentionally leaves scroll out
+  }, [refreshConnectors]);
 
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
@@ -552,6 +557,7 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
   const lib = useSelector((state) => state.lib);
 
   console.log('GROUPS: ', groups);
+  console.log('CONNS: ', connectors);
 
   const { minX, minY, maxX, maxY } = useMemo(() => {
     let result = {
@@ -587,6 +593,11 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
   const canvases = useMemo(() => {
     if(!groups) return [];
 
+    // We have to do this check, because if group.length === 0,
+    // then the maze size will be -Infinity * -Infinity
+    // and everything screams
+    if(groups.length === 0) return [];
+
     const width = maxX - minX;
     const height = maxY - minY;
     const mWidth = Math.floor(width / FACTOR) + 1;
@@ -601,12 +612,14 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
     }
 
     function boundedRadius(x, y, delta) {
-      return [
+      const r = [
         bounded(x - delta, mWidth),
         bounded(y - delta, mHeight),
         bounded(x + delta, mWidth),
         bounded(y + delta, mHeight),
       ];
+      console.log(r);
+      return r;
     }
 
     const result = [];
