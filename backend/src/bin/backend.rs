@@ -1,13 +1,14 @@
 #[macro_use]
 extern crate diesel_migrations;
-use log::*;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
 use backend::{
-    board, file, metric, session, task, task_manager, user, ws_board, ws_user, DbConnection,
+    board, env::ENV, file, metric, session, task, task_manager, user, ws_board, ws_user,
+    DbConnection,
 };
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
+use log::*;
 use ring::digest;
 use sentry;
 
@@ -18,13 +19,13 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    if let Ok(url) = std::env::var("SENTRY_URL") {
+    if let Some(url) = ENV.sentry_url.clone() {
         std::mem::forget(sentry::init(url));
         sentry::integrations::panic::register_panic_handler();
         info!("sentry report is up");
     };
 
-    let conn = std::env::var("DATABASE_URL").expect("DATABASE_URL");
+    let conn = ENV.database_url.clone();
     let manager = ConnectionManager::<DbConnection>::new(conn);
     let pool = Pool::builder().build(manager).expect("create db pool");
     let conn = pool.get().expect("get conn");
@@ -33,7 +34,7 @@ async fn main() -> std::io::Result<()> {
 
     task_manager::get_task_manager().do_send(task_manager::SetDb { db: pool.clone() });
 
-    let secret = std::env::var("COOKIE_SECRET").unwrap_or(String::new());
+    let secret = ENV.cookie_secret.clone();
     let secret = digest::digest(&digest::SHA512, secret.as_bytes());
     HttpServer::new(move || {
         App::new()

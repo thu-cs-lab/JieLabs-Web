@@ -2,6 +2,7 @@ use crate::board_manager::{
     get_board_manager, ProgramBitstreamToBoard, RequestForBoard, RouteToBoard,
 };
 use crate::common::{download_s3, IOSetting};
+use crate::env::ENV;
 use crate::models::*;
 use crate::schema::jobs;
 use crate::session::get_user;
@@ -250,7 +251,7 @@ pub async fn ws_user(
         );
     }
     // For debugging
-    if std::env::var("ALLOW_ANONYMOUS_WS_USER").is_ok() {
+    if ENV.allow_anonymous_ws_user {
         return ws::start(
             WSUser::new(
                 remote.unwrap_or("Unknown Remote"),

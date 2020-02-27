@@ -27,7 +27,7 @@ struct Args {
 #[paw::main]
 fn main(args: Args) {
     dotenv().ok();
-    let url = std::env::var("DATABASE_URL").expect("DATABASE_URL");
+    let url = backend::env::ENV.database_url.clone();
     let conn = backend::DbConnection::establish(&url).expect("connect");
 
     let new_user = backend::models::NewUser {

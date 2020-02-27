@@ -1,5 +1,6 @@
 use crate::board_manager::{get_board_manager, BoardInfoList, GetBoardList};
 use crate::common::err;
+use crate::env::ENV;
 use crate::schema::{jobs, users};
 use crate::task_manager::{get_task_manager, GetMetric, GetMetricResponse};
 use crate::DbPool;
@@ -10,7 +11,7 @@ use std::time::SystemTime;
 
 #[get("/")]
 async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
-    if auth.token() == std::env::var("METRIC_AUTH").map_err(err)? {
+    if auth.token() == ENV.metric_auth {
         let timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()

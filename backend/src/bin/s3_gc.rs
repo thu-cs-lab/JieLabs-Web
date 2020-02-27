@@ -1,4 +1,5 @@
 use backend::common::*;
+use backend::env::ENV;
 use backend::models::*;
 use backend::schema::jobs;
 use backend::DbConnection;
@@ -12,8 +13,8 @@ use std::collections::BTreeSet;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    let conn = std::env::var("DATABASE_URL").expect("DATABASE_URL");
-    let manager = ConnectionManager::<DbConnection>::new(conn);
+    let url = backend::env::ENV.database_url.clone();
+    let manager = ConnectionManager::<DbConnection>::new(url);
     let pool = Pool::builder().build(manager).expect("create db pool");
     let conn = pool.get().expect("get conn");
     let jobs = jobs::dsl::jobs.load::<Job>(&conn).unwrap();
@@ -27,7 +28,7 @@ async fn main() -> std::io::Result<()> {
     println!("Live: {} files", id.len());
 
     let client = s3_client();
-    let bucket = S3_BUCKET.clone();
+    let bucket = ENV.s3_bucket.clone();
     let req = ListObjectsRequest {
         bucket,
         ..Default::default()

@@ -1,5 +1,6 @@
 use crate::board_manager::{get_board_manager, BoardInfo, RegisterBoard, RouteToUser};
 use crate::common::{ClockSetting, IOSetting};
+use crate::env::ENV;
 use actix::prelude::*;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -76,7 +77,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
                 Ok(msg) => match msg {
                     WSBoardMessageB2S::Authenticate(auth) => {
                         if !self.authenticated {
-                            let expected = std::env::var("BOARD_PASS").unwrap_or(String::new());
+                            let expected = ENV.board_pass.clone();
                             if auth.password == expected {
                                 self.authenticated = true;
                                 self.software_version = auth.software_version;

@@ -1,4 +1,5 @@
 use crate::common::err;
+use crate::env::ENV;
 use crate::models::*;
 use crate::schema::users::dsl;
 use crate::DbConnection;
@@ -13,7 +14,7 @@ use serde_derive::{Deserialize, Serialize};
 
 pub fn hash_password(password: &str) -> String {
     // TODO: reuse hmac key for performance
-    let secret = std::env::var("PASSWORD_SECRET").unwrap_or(String::new());
+    let secret = ENV.password_secret.clone();
     let secret = digest::digest(&digest::SHA512, secret.as_bytes());
     let key = hmac::Key::new(hmac::HMAC_SHA512, secret.as_ref());
     let mut ctx = hmac::Context::with_key(&key);
