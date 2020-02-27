@@ -10,7 +10,7 @@ use std::time::SystemTime;
 
 #[get("/")]
 async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
-    if auth.token() == std::env::var("METRIC_AUTH").expect("METRIC_AUTH") {
+    if auth.token() == std::env::var("METRIC_AUTH").map_err(err)? {
         let timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()

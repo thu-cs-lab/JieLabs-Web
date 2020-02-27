@@ -46,9 +46,49 @@
                 <v-toolbar-title>Users</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
-                <v-btn text color="primary">
-                  <v-icon>mdi-account-plus</v-icon>
-                </v-btn>
+                <v-dialog v-model="add_user_dialog" max-width="500px">
+                  <template v-slot:activator="{ on }">
+                    <v-btn text color="primary" v-on="on">
+                      <v-icon>mdi-account-plus</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="headline">Add User</span>
+                    </v-card-title>
+
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="new_user.user_name" label="User Name"></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="new_user.real_name" label="Real Name"></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="new_user.password" label="Password"></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="new_user.class" label="Class"></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="new_user.student_id" label="Student Id"></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="new_user.role" label="Role"></v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+                      <v-btn color="blue darken-1" text @click="add">Add</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
                 <v-btn text color="primary" v-on:click="update_users">
                   <v-icon>mdi-refresh</v-icon>
                 </v-btn>
@@ -104,7 +144,7 @@
           <v-container>
             <v-row>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field v-model="editing_user.user_name" label="User Name"></v-text-field>
+                <v-text-field v-model="editing_user.user_name" label="User Name" readonly></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
                 <v-text-field v-model="editing_user.real_name" label="Real Name"></v-text-field>
@@ -136,7 +176,7 @@
 </template>
 
 <script>
-import { get, getLines, post, delete_ } from "../util";
+import { get, getLines, post, put, delete_ } from "../util";
 export default {
   name: "Main",
 
@@ -194,6 +234,8 @@ export default {
 
     editing_user: {},
     edit_user_dialog: false,
+    new_user: { role: "user" },
+    add_user_dialog: false,
 
     boards: [],
     board_headers: [
@@ -326,8 +368,17 @@ export default {
     },
 
     async save() {
-      this.edit_user_dialog = false;
-      await post(`/api/user/manage/${this.editing_user.user_name}`, this.editing_user);
+      this.close();
+      await post(
+        `/api/user/manage/${this.editing_user.user_name}`,
+        this.editing_user
+      );
+      await this.update_users();
+    },
+
+    async add() {
+      this.close();
+      await put(`/api/user/manage/${this.new_user.user_name}`, this.new_user);
       await this.update_users();
     },
 
@@ -338,6 +389,7 @@ export default {
 
     close() {
       this.edit_user_dialog = false;
+      this.add_user_dialog = false;
     }
   },
   watch: {

@@ -36,6 +36,14 @@ POST /api/user/manage/{user_name}
 
 仅 admin 可用
 
+### 创建用户
+
+PUT /api/user/manage/{user_name}
+
+可用字段：real_name class student_id role password
+
+仅 admin 可用
+
 ### 获取用户信息
 
 GET /api/user/manage/{user_name}

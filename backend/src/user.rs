@@ -4,8 +4,10 @@ use crate::schema::users::dsl;
 use crate::session::{get_user, hash_password};
 use crate::DbPool;
 use actix_identity::Identity;
-use actix_web::{delete, get, post, web, HttpResponse, Result};
+use actix_web::{delete, get, post, put, web, HttpResponse, Result};
 use diesel::prelude::*;
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -85,7 +87,7 @@ async fn count(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     Ok(HttpResponse::Forbidden().finish())
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct UserUpdateRequest {
     real_name: Option<String>,
     class: Option<String>,
@@ -126,6 +128,38 @@ async fn update(
                 return Ok(HttpResponse::Ok()
                     .json(diesel::update(&user).set(&user).execute(&conn).is_ok()));
             }
+        }
+    }
+    Ok(HttpResponse::Forbidden().finish())
+}
+
+#[put("/manage/{name}")]
+async fn create(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    path: web::Path<String>,
+    body: web::Json<UserUpdateRequest>,
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let (Some(user), conn) = get_user(&id, conn).await? {
+        if user.role == "admin" {
+            let body = body.clone();
+            let password = body
+                .password
+                .unwrap_or_else(|| thread_rng().sample_iter(&Alphanumeric).take(10).collect());
+            let new_user = NewUser {
+                user_name: path.clone(),
+                password: hash_password(&password),
+                real_name: body.real_name,
+                student_id: body.student_id,
+                class: body.class,
+                role: body.role,
+            };
+            diesel::insert_into(crate::schema::users::table)
+                .values(&new_user)
+                .execute(&conn)
+                .map_err(err)?;
+            return Ok(HttpResponse::Ok().json(true));
         }
     }
     Ok(HttpResponse::Forbidden().finish())

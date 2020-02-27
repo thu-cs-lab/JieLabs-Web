@@ -115,7 +115,7 @@ impl SystemService for TaskManagerActor {
 }
 
 #[derive(Message, Serialize, Deserialize)]
-#[rtype(result = "()")]
+#[rtype(result = "bool")]
 pub struct SubmitBuildTask {
     pub id: String,
     pub src: String,
@@ -124,17 +124,22 @@ pub struct SubmitBuildTask {
 }
 
 impl Handler<SubmitBuildTask> for TaskManagerActor {
-    type Result = ();
+    type Result = bool;
 
-    fn handle(&mut self, req: SubmitBuildTask, _ctx: &mut Context<Self>) {
+    fn handle(&mut self, req: SubmitBuildTask, _ctx: &mut Context<Self>) -> bool {
         if let Some(conn) = self.conn.as_mut() {
-            redis::cmd("LPUSH")
+            if redis::cmd("LPUSH")
                 .arg(&self.waiting_queue)
                 .arg(serde_json::to_string(&req).expect("to json"))
-                .execute(conn);
+                .query::<()>(conn)
+                .is_ok()
+            {
+                return true;
+            }
         } else {
             warn!("no redis conn, fail to submit build task");
         }
+        false
     }
 }
 
