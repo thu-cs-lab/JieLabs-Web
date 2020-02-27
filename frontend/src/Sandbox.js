@@ -230,10 +230,10 @@ export default React.memo(() => {
     if(canvas.current && container.current) {
       const FACTOR = 3;
       let maze = new lib.Maze(Math.floor(canvas.current.width / FACTOR), Math.floor(canvas.current.height / FACTOR));
-      console.log(maze);
+      // console.log(maze);
 
       let connectRefs = new Set();
-      console.log(lines);
+      // console.log(lines);
       for (const { from, to } of lines) {
         if (!from.current) continue;
         if (!to.current) continue;
@@ -241,6 +241,7 @@ export default React.memo(() => {
         connectRefs = connectRefs.add(to.current);
       }
 
+      const MASK_RADIUS = 2;
       for (let id in ctx.connectors) {
         let ref = ctx.connectors[id].ref;
         if (!ref.current) continue;
@@ -249,10 +250,10 @@ export default React.memo(() => {
         const pos = center(rect, container.current.getBoundingClientRect());
         let maze_f_x = Math.floor(pos.x / FACTOR);
         let maze_f_y = Math.floor(pos.y / FACTOR);
-        console.log(`masking ${maze_f_x} ${maze_f_y}`);
-        if (maze_f_x + 2 < Math.floor(canvas.current.width / FACTOR) && maze_f_y + 2 <
+        //console.log(`masking ${maze_f_x} ${maze_f_y}`);
+        if (maze_f_x + MASK_RADIUS < Math.floor(canvas.current.width / FACTOR) && maze_f_y + MASK_RADIUS <
           Math.floor(canvas.current.height / FACTOR)) {
-          maze.fill_mut(maze_f_x - 2, maze_f_y - 2, maze_f_x + 2, maze_f_y + 2);
+          maze.fill_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
         }
       }
       const canvasCtx = canvas.current.getContext('2d');
@@ -273,9 +274,9 @@ export default React.memo(() => {
         let maze_t_x = Math.floor(tc.x / FACTOR);
         let maze_t_y = Math.floor(tc.y / FACTOR);
 
-        console.log(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
-        maze.clean_mut(maze_f_x - 2, maze_f_y - 2, maze_f_x + 2, maze_f_y + 2);
-        maze.clean_mut(maze_t_x - 2, maze_t_y - 2, maze_t_x + 2, maze_t_y + 2);
+        // console.log(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
+        maze.clean_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
+        maze.clean_mut(maze_t_x - MASK_RADIUS, maze_t_y - MASK_RADIUS, maze_t_x + MASK_RADIUS, maze_t_y + MASK_RADIUS);
         let changes = maze.lee_minimum_edge_effect(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
         let arr = [];
         if (changes !== undefined) {
@@ -285,8 +286,8 @@ export default React.memo(() => {
         } else {
           console.log('no solution');
         }
-        maze.fill_mut(maze_f_x - 2, maze_f_y - 2, maze_f_x + 2, maze_f_y + 2);
-        maze.fill_mut(maze_t_x - 2, maze_t_y - 2, maze_t_x + 2, maze_t_y + 2);
+        maze.fill_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
+        maze.fill_mut(maze_t_x - MASK_RADIUS, maze_t_y - MASK_RADIUS, maze_t_x + MASK_RADIUS, maze_t_y + MASK_RADIUS);
 
         canvasCtx.lineWidth = FACTOR / 2;
         canvasCtx.strokeStyle = 'rgba(0,0,0,.2)';
