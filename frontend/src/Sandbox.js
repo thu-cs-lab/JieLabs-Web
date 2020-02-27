@@ -556,9 +556,6 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
 
   const lib = useSelector((state) => state.lib);
 
-  console.log('GROUPS: ', groups);
-  console.log('CONNS: ', connectors);
-
   const { minX, minY, maxX, maxY } = useMemo(() => {
     let result = {
       minX: Infinity,
@@ -612,14 +609,12 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
     }
 
     function boundedRadius(x, y, delta) {
-      const r = [
+      return [
         bounded(x - delta, mWidth),
         bounded(y - delta, mHeight),
         bounded(x + delta, mWidth),
         bounded(y + delta, mHeight),
       ];
-      console.log(r);
-      return r;
     }
 
     const result = [];
@@ -693,8 +688,6 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
       for (const [x, y, type] of changeset) {
         const dx = (x - minMCX) * FACTOR;
         const dy = (y - minMCY) * FACTOR;
-        console.log("DX: ", dx);
-        console.log("DY: ", dy);
 
         ctx.fillRect(
           dx + FACTOR * 0.1,
@@ -728,10 +721,8 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
 
-    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases) {
-      console.log('OFFSET: ', x, y);
+    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
       ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
-    }
   }, [canvases, scroll, width, height]);
 
   return (
