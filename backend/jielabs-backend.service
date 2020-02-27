@@ -6,6 +6,8 @@ After=network.target
 Type=simple
 Environment="RUST_LOG=info"
 WorkingDirectory=/srv/jielabsweb-backend
+User=jielabs
+Group=jielabs
 ExecStart=/usr/bin/jielabs_backend
 
 [Install]

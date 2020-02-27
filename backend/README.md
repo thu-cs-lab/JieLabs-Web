@@ -2,10 +2,11 @@
 
 ## Installation
 
-Install rustup, cargo, postgresql and redis. Then, install `cargo-deb`:
+Install rustup, cargo, postgresql and redis. Then, install `cargo-deb` add user for jielabs:
 
 ```shell
 cargo install cargo-deb
+useradd -m jielabs
 ```
 
 Then, use `cargo-deb` to install backend:
@@ -14,7 +15,7 @@ Then, use `cargo-deb` to install backend:
 cargo deb --install
 ```
 
-Then, put a `.env` file under `/srv/jielabsweb-backend/`, and start the systemd service `jielabs-backend.service`.
+Then, put a `.env` file under `/srv/jielabsweb-backend/`, chown to `jielabs`, and start the systemd service `jielabs-backend.service`.
 
 ## Setup telegraf
 
