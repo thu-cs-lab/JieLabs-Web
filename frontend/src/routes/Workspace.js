@@ -7,7 +7,7 @@ import Icon from '../comps/Icon';
 
 import { BOARDS } from '../config';
 
-import { BOARD_STATUS, updateCode, submitBuild, connectToBoard, programBitstream, updateTop, assignPin } from '../store/actions';
+import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin } from '../store/actions';
 
 import { registerCodeLens } from '../vhdl';
 
@@ -83,11 +83,11 @@ export default React.memo(() => {
   const blocker = useCallback(e => {
     e.preventDefault();
     e.stopPropagation();
-  });
+  }, []);
 
   const weakBlocker = useCallback(e => {
     e.stopPropagation();
-  });
+  }, []);
 
   const boardName = useSelector(state => state.constraints.board);
   const board = BOARDS[boardName];
@@ -324,7 +324,7 @@ export default React.memo(() => {
       ...assigning,
       subscript: next,
     });
-  });
+  }, [analysis.entities, analysis.top, assigning]);
 
   const subscriptInc = useCallback(() => subscriptStep(1), [subscriptStep]);
   const subscriptDec = useCallback(() => subscriptStep(-1), [subscriptStep]);
