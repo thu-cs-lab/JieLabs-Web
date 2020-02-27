@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate diesel_migrations;
+use log::*;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpServer};
 use backend::{
@@ -8,6 +9,7 @@ use backend::{
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use ring::digest;
+use sentry;
 
 embed_migrations!();
 
@@ -15,6 +17,12 @@ embed_migrations!();
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
+
+    if let Ok(url) = std::env::var("SENTRY_URL") {
+        std::mem::forget(sentry::init(url));
+        sentry::integrations::panic::register_panic_handler();
+        info!("sentry report is up");
+    };
 
     let conn = std::env::var("DATABASE_URL").expect("DATABASE_URL");
     let manager = ConnectionManager::<DbConnection>::new(conn);
