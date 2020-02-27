@@ -4,6 +4,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import cn from 'classnames';
 
 import Icon from '../comps/Icon';
+import Tooltip from '../comps/Tooltip';
 
 import { BOARDS } from '../config';
 
@@ -370,18 +371,26 @@ export default React.memo(() => {
     });
   }, [assignments, analysis]);
 
+  let downloadTooltip = '';
+  if(!hasBoard) downloadTooltip = 'FPGA disconnected';
+  else if(readyLatestId === null) downloadTooltip = 'Latest build not ready';
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
     </div>
     <div className="toolbar">
-      <button className="primary" onClick={doUpload} disabled={!canUpload}>
-        <Icon>build</Icon>
-      </button>
+      <Tooltip tooltip={ (!canUpload) && 'Top entity or signal not assigned' }>
+        <button className="primary" onClick={doUpload} disabled={!canUpload}>
+          <Icon>build</Icon>
+        </button>
+      </Tooltip>
 
-      <button className="secondary" onClick={doProgram} disabled={!hasBoard || readyLatestId === null}>
-        <Icon>cloud_download</Icon>
-      </button>
+      <Tooltip tooltip={downloadTooltip}>
+        <button className="secondary" onClick={doProgram} disabled={!hasBoard || readyLatestId === null}>
+          <Icon>cloud_download</Icon>
+        </button>
+      </Tooltip>
 
       <button onClick={doShowHelp}>
         <Icon>help_outline</Icon>

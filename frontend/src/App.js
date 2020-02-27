@@ -10,6 +10,7 @@ import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
 import Icon from './comps/Icon';
+import Tooltip from './comps/Tooltip';
 
 export default React.memo(() => {
   const dispatch = useDispatch();
@@ -103,13 +104,15 @@ export default React.memo(() => {
                 { e.status === 'Compilation Success' && (
                   <>
                     <div className="build-list-sep">/</div>
-                    <Icon
-                      className={cn("build-list-action", { 'build-list-action-disabled': !hasBoard })}
-                      onClick={() => {
-                        if(e.status === 'Compilation Success')
-                          dispatch(programBitstream(e.id));
-                      }}
-                    >cloud_download</Icon>
+                    <Tooltip tooltip={(!hasBoard) && 'FPGA disconnected'} gap={true}>
+                      <Icon
+                        className={cn("build-list-action", { 'build-list-action-disabled': !hasBoard })}
+                        onClick={() => {
+                          if(e.status === 'Compilation Success')
+                            dispatch(programBitstream(e.id));
+                        }}
+                      >cloud_download</Icon>
+                    </Tooltip>
                   </>
                 )}
                 <div className="build-list-sep">/</div>
