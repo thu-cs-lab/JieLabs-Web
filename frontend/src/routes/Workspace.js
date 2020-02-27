@@ -41,6 +41,12 @@ export default React.memo(() => {
     if(readyLatestId !== null && hasBoard)
       dispatch(programBitstream(readyLatestId));
   }, [readyLatestId, hasBoard, dispatch]);
+  
+  const [showHelp, setShowHelp] = useState(false);
+  const doShowHelp = useCallback(() => {
+    setShowHelp(true);
+  }, []);
+  const dismissShowHelp = useCallback(() => setShowHelp(false), []);
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
@@ -377,7 +383,7 @@ export default React.memo(() => {
         <Icon>cloud_download</Icon>
       </button>
 
-      <button>
+      <button onClick={doShowHelp}>
         <Icon>help_outline</Icon>
       </button>
     </div>
@@ -451,6 +457,19 @@ export default React.memo(() => {
               <div className="pin-selector">
                 { pinDisp }
               </div>
+            </div>
+          </div>
+        </CSSTransition>
+      }
+      {showHelp !== false &&
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+        >
+          <div className="backdrop centering" onMouseDown={dismissShowHelp}>
+            <div className="dialog" onMouseDown={blocker}>
+              <div className="hint">Help</div>
+              <div className="dialog-title monospace"></div>
             </div>
           </div>
         </CSSTransition>
