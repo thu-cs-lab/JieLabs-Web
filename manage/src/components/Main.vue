@@ -34,29 +34,31 @@
           </v-card>
         </v-window-item>
         <v-window-item :key="1">
-          <v-card>
-            <v-card-title>
-              User
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" v-on:click="update_users">
-                <v-icon>mdi-refresh</v-icon>
-              </v-btn>
-            </v-card-title>
-            <v-card-text>
-              <v-data-table
-                :headers="user_headers"
-                :items="users"
-                :options.sync="user_options"
-                :server-items-length="user_count"
-                :loading="loading"
-              >
-                <template v-slot:item.action="{ item }">
-                  <v-icon small class="mr-2" @click="edit_user(item)">mdi-pencil-outline</v-icon>
-                  <v-icon small @click="delete_user(item)">mdi-delete</v-icon>
-                </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
+          <v-data-table
+            :headers="user_headers"
+            :items="users"
+            :options.sync="user_options"
+            :server-items-length="user_count"
+            :loading="loading"
+          >
+            <template v-slot:top>
+              <v-toolbar flat color="white">
+                <v-toolbar-title>Users</v-toolbar-title>
+                <v-divider class="mx-4" inset vertical></v-divider>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary">
+                  <v-icon>mdi-account-plus</v-icon>
+                </v-btn>
+                <v-btn text color="primary" v-on:click="update_users">
+                  <v-icon>mdi-refresh</v-icon>
+                </v-btn>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.action="{ item }">
+              <v-icon small class="mr-2" @click="edit_user(item)">mdi-pencil-outline</v-icon>
+              <v-icon small @click="delete_user(item)">mdi-delete</v-icon>
+            </template>
+          </v-data-table>
         </v-window-item>
         <v-window-item :key="2">
           <v-card>
@@ -92,11 +94,49 @@
         </v-btn>
       </v-card-actions>
     </v-card>
+    <v-dialog v-model="edit_user_dialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Edit User</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="editing_user.user_name" label="User Name"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="editing_user.real_name" label="Real Name"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="editing_user.password" label="Password"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="editing_user.class" label="Class"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="editing_user.student_id" label="Student Id"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="editing_user.role" label="Role"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
-import { get, getLines, delete_ } from "../util";
+import { get, getLines, post, delete_ } from "../util";
 export default {
   name: "Main",
 
@@ -151,6 +191,9 @@ export default {
     ],
     user_options: {},
     user_count: 0,
+
+    editing_user: {},
+    edit_user_dialog: false,
 
     boards: [],
     board_headers: [
@@ -277,13 +320,24 @@ export default {
       this.board_version = await getLines("/api/board/version");
     },
 
-    async edit_user() {},
+    edit_user(user) {
+      this.edit_user_dialog = true;
+      this.editing_user = user;
+    },
 
-    async add_user() {},
+    async save() {
+      this.edit_user_dialog = false;
+      await post(`/api/user/manage/${this.editing_user.user_name}`, this.editing_user);
+      await this.update_users();
+    },
 
     async delete_user(user) {
       await delete_(`/api/user/manage/${user.user_name}`);
       await this.update_users();
+    },
+
+    close() {
+      this.edit_user_dialog = false;
     }
   },
   watch: {
