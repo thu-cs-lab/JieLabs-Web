@@ -129,10 +129,10 @@ class Handler {
       const other = this.connectors[id].connected;
       if(other === null) continue;
 
-      result.push({
-        from: this.connectors[id].ref,
-        to: this.connectors[other].ref,
-      });
+      result.push([
+        { ref: this.connectors[id].ref, id },
+        { ref: this.connectors[other].ref, id: other },
+      ]);
 
       ignored.add(other);
       ignored.add(id);
@@ -223,6 +223,7 @@ export default React.memo(() => {
   const container = useRef();
   const canvas = useRef();
 
+  // TODO: remove me
   const lib = useSelector((state) => state.lib);
 
   const redraw = useCallback(() => {
@@ -231,17 +232,10 @@ export default React.memo(() => {
       const FACTOR = 3;
       let maze = new lib.Maze(Math.floor(canvas.current.width / FACTOR), Math.floor(canvas.current.height / FACTOR));
       // console.log(maze);
-
-      let connectRefs = new Set();
-      // console.log(lines);
-      for (const { from, to } of lines) {
-        if (!from.current) continue;
-        if (!to.current) continue;
-        connectRefs = connectRefs.add(from.current);
-        connectRefs = connectRefs.add(to.current);
-      }
-
+ 
       const MASK_RADIUS = 2;
+
+      /*
       for (let id in ctx.connectors) {
         let ref = ctx.connectors[id].ref;
         if (!ref.current) continue;
@@ -256,6 +250,8 @@ export default React.memo(() => {
           maze.fill_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
         }
       }
+      */
+
       const canvasCtx = canvas.current.getContext('2d');
       canvasCtx.clearRect(0, 0, canvas.current.width, canvas.current.height);
 
@@ -309,30 +305,50 @@ export default React.memo(() => {
     }
   }, [ctx.connectors, lib.Maze, lines]);
 
+  // Update lines when updating field
+  useLayoutEffect(() => { setTimeout(() => ctx.updateLines()) }, [field]);
+
+  // Map lines to groups
+  const groups = useMemo(() => {
+    if(!container.current) return [];
+
+    return lines.map(line => ({
+      color: 'rgba(0,0,0,.3)',
+      members: line.map(({ id, ref }) => {
+        if(!ref.current) return null;
+        const bounding = ref.current.getBoundingClientRect();
+        const { x, y } = center(bounding, container.current.getBoundingClientRect());
+
+        return {
+          x: x - scroll.x,
+          y: y - scroll.y,
+          id,
+        };
+      }).filter(e => e !== null),
+    }));
+  }, [lines]); // Intentionally leaves scroll out
+
+  const [canvasWidth, setCanvasWidth] = useState(0);
+  const [canvasHeight, setCanvasHeight] = useState(0);
+
   const observer = React.useMemo(() => new ResizeObserver(entries => {
     const { width, height } = entries[0].contentRect;
-    if(canvas.current) {
-      canvas.current.width = width;
-      canvas.current.height = height;
-      redraw();
-    }
-  }), [redraw]);
+    setCanvasWidth(width);
+    setCanvasHeight(height);
+  }), []);
 
   useEffect(() => {
     if(container.current) {
       observer.observe(container.current);
-      if(canvas.current) {
-        const rect = container.current.getBoundingClientRect();
-        canvas.current.width = rect.width;
-        canvas.current.height = rect.height;
-        redraw();
-      }
+      const rect = container.current.getBoundingClientRect();
+      setCanvasWidth(rect.width)
+      setCanvasHeight(rect.height)
     }
 
     return () => {
       observer.unobserve(container.current);
     };
-  }, [canvas, container, observer, redraw]);
+  }, [container, observer]);
 
   const [ctxMenu, setCtxMenu] = useState(null);
 
@@ -347,11 +363,14 @@ export default React.memo(() => {
     setField(field.set(idx, { ...field.get(idx), x: ax, y: ay }));
   }, [setField, field]);
 
-  useLayoutEffect(redraw, [field, scroll]);
-
+  // TODO: impl this in WireLayer
+  // useLayoutEffect(redraw, [field, scroll]);
+  
   const requestDelete = useCallback(idx => {
     setField(field.delete(idx));
   }, [setField, field]);
+
+  const requestRedraw = useCallback(() => ctx.updateLines());
 
   // FPGA Context related stuff
 
@@ -438,13 +457,18 @@ export default React.memo(() => {
               spec={spec}
               requestSettle={requestSettle}
               requestDelete={requestDelete}
-              requestRedraw={redraw}
+              requestRedraw={requestRedraw}
             >
             </BlockWrapper>
           ))}
         </div>
 
-        <canvas ref={canvas} className="lines"></canvas>
+        <WireLayer
+          groups={groups}
+          scroll={scroll}
+          width={canvasWidth}
+          height={canvasHeight}
+        />
       </SandboxContext.Provider>
     </FPGAEnvContext.Provider>
 
@@ -517,7 +541,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
     ev.preventDefault();
   }, [idx, spec, requestSettle, setMoving]);
 
-  useLayoutEffect(requestRedraw, [moving]);
+  // useLayoutEffect(requestRedraw, [moving]);
 
   const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
 
@@ -551,4 +575,197 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
       </Block>
     </div>
   </>;
+});
+
+/**
+ * Syntax of groups:
+ * [
+ *   {
+ *     color: 'some color hex',
+ *     members: [
+ *       {
+ *         x: x cord without scroll offset,
+ *         y: y cord without scroll offset,
+ *         id: ID of the connector
+ *       },
+ *       ... (other connectors in this group)
+ *     ],
+ *   },
+ *   ... (other groups)
+ * ]
+ */
+const WireLayer = React.memo(({ groups, scroll, width, height }) => {
+  const FACTOR = 3;
+  const MASK_RADIUS = 2;
+
+  const lib = useSelector((state) => state.lib);
+
+  console.log('GROUPS: ', groups);
+
+  const { minX, minY, maxX, maxY } = useMemo(() => {
+    let result = {
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity,
+    };
+
+    for(const group of groups)
+      for(const { x, y } of group.members) {
+        if(x < result.minX) result.minX = x;
+        if(x > result.maxX) result.maxX = x;
+        if(y < result.minY) result.minY = y;
+        if(y > result.maxY) result.maxY = y;
+      }
+
+    return result;
+  }, [groups]);
+
+  /*
+   * First, map groups to individual canvases
+   * canvases has the following format
+   *
+   * [
+   *   {
+   *     offset: { x, y }, // Offset from overall origin
+   *     dim: { w, h },
+   *     canvas,
+   *   }
+   * ]
+   */
+  const canvases = useMemo(() => {
+    if(!groups) return [];
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const mWidth = Math.floor(width / FACTOR) + 1;
+    const mHeight = Math.floor(height / FACTOR) + 1;
+
+    let maze = new lib.Maze(mWidth, mHeight);
+
+    function bounded(x, upper) {
+      if(x < 0) return 0;
+      if(x > upper - 1) return upper - 1;
+      return x;
+    }
+
+    function boundedRadius(x, y, delta) {
+      return [
+        bounded(x - delta, mWidth),
+        bounded(y - delta, mHeight),
+        bounded(x + delta, mWidth),
+        bounded(y + delta, mHeight),
+      ];
+    }
+
+    const result = [];
+
+    // TODO: Mask all connectors
+
+    // Draw
+    for(const group of groups) {
+      const mazeCoords = group.members.map(({ x, y }) => ({
+        x: Math.floor((x - minX) / FACTOR),
+        y: Math.floor((y - minY) / FACTOR),
+      }));
+
+      // TODO: multi-terminal
+      console.assert(mazeCoords.length === 2);
+
+      for(const { x, y } of mazeCoords)
+        maze.clean_mut(...boundedRadius(x, y, MASK_RADIUS));
+
+      const rawChangeset = maze.lee_minimum_edge_effect(
+        mazeCoords[0].x,
+        mazeCoords[0].y,
+        mazeCoords[1].x,
+        mazeCoords[1].y,
+      );
+
+      // TODO: properly handles this, maybe enlarge grid?
+      if(rawChangeset === undefined)
+        throw new Error('No solution!');
+
+      const changeset = rawChangeset.to_js();
+      maze.apply(rawChangeset);
+      rawChangeset.free();
+
+      for(const { x, y } of mazeCoords)
+        maze.fill_mut(...boundedRadius(x, y, MASK_RADIUS));
+
+      // Find bouding rect of this changeset
+      let minMCX = Infinity;
+      let minMCY = Infinity;
+      let maxMCX = -Infinity;
+      let maxMCY = -Infinity;
+
+      for(const [x, y, type] of changeset) {
+        if(x < minMCX) minMCX = x;
+        if(x > maxMCX) maxMCX = x;
+        if(y < minMCY) minMCY = y;
+        if(y > maxMCY) maxMCY = y;
+      }
+
+      const minCX = minX + minMCX * FACTOR;
+      const maxCX = maxX + (maxMCX + 1) * FACTOR; // +1 for the border column/row
+      const minCY = minY + minMCY * FACTOR;
+      const maxCY = maxY + (maxMCY + 1) * FACTOR;
+
+      // Create the canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = maxCX - minCX;
+      canvas.height = maxCY - minCY;
+
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = group.color;
+
+      // FIXME: draw different shape based on types
+      for (const [x, y, type] of changeset) {
+        const dx = (x - minMCX) * FACTOR;
+        const dy = (y - minMCY) * FACTOR;
+        console.log("DX: ", dx);
+        console.log("DY: ", dy);
+
+        ctx.fillRect(
+          dx + FACTOR * 0.1,
+          dy + FACTOR * 0.1,
+          FACTOR * 0.8,
+          FACTOR * 0.8,
+        );
+      }
+
+      result.push({
+        offset: {
+          x: minCX,
+          y: minCY,
+        },
+        dim: {
+          w: maxCX - minCX,
+          h: maxCY - minCY,
+        },
+        canvas,
+      });
+    }
+
+    maze.free();
+
+    return result;
+  }, [groups, width, height, minX, minY, maxX, maxY]);
+
+  // Overlay all canvases
+  const renderer = useCallback(canvas => {
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+
+    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases) {
+      console.log('OFFSET: ', x, y);
+      ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
+    }
+  }, [canvases, scroll, width, height]);
+
+  return (
+    <canvas ref={renderer} width={width} height={height} className="lines"></canvas>
+  );
 });
