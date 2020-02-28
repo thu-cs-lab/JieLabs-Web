@@ -229,32 +229,29 @@ export default React.memo(() => {
     // Compute line indexes
     if(canvas.current && container.current) {
       const FACTOR = 3;
-      let maze = new lib.Maze(Math.floor(canvas.current.width / FACTOR), Math.floor(canvas.current.height / FACTOR));
-      // console.log(maze);
-
-      let connectRefs = new Set();
-      // console.log(lines);
-      for (const { from, to } of lines) {
-        if (!from.current) continue;
-        if (!to.current) continue;
-        connectRefs = connectRefs.add(from.current);
-        connectRefs = connectRefs.add(to.current);
-      }
-
       const MASK_RADIUS = 2;
+      let max_x = 0, max_y = 0;
       for (let id in ctx.connectors) {
         let ref = ctx.connectors[id].ref;
         if (!ref.current) continue;
-        //if (connectRefs.has(ref.current)) continue;
+        let rect = ref.current.getBoundingClientRect();
+        const pos = center(rect, container.current.getBoundingClientRect());
+        let maze_f_x = Math.floor(pos.x / FACTOR);
+        let maze_f_y = Math.floor(pos.y / FACTOR);
+        max_x = Math.max(max_x, maze_f_x);
+        max_y = Math.max(max_y, maze_f_y);
+      }
+      let maze = new lib.Maze(max_x + MASK_RADIUS + 1, max_y + MASK_RADIUS + 1);
+
+      for (let id in ctx.connectors) {
+        let ref = ctx.connectors[id].ref;
+        if (!ref.current) continue;
         let rect = ref.current.getBoundingClientRect();
         const pos = center(rect, container.current.getBoundingClientRect());
         let maze_f_x = Math.floor(pos.x / FACTOR);
         let maze_f_y = Math.floor(pos.y / FACTOR);
         //console.log(`masking ${maze_f_x} ${maze_f_y}`);
-        if (maze_f_x + MASK_RADIUS < Math.floor(canvas.current.width / FACTOR) && maze_f_y + MASK_RADIUS <
-          Math.floor(canvas.current.height / FACTOR)) {
-          maze.fill_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
-        }
+        maze.fill_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
       }
       const canvasCtx = canvas.current.getContext('2d');
       canvasCtx.clearRect(0, 0, canvas.current.width, canvas.current.height);
