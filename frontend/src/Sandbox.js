@@ -277,7 +277,7 @@ export default React.memo(() => {
         // console.log(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
         maze.clean_mut(maze_f_x - MASK_RADIUS, maze_f_y - MASK_RADIUS, maze_f_x + MASK_RADIUS, maze_f_y + MASK_RADIUS);
         maze.clean_mut(maze_t_x - MASK_RADIUS, maze_t_y - MASK_RADIUS, maze_t_x + MASK_RADIUS, maze_t_y + MASK_RADIUS);
-        let changes = maze.lee_minimum_edge_effect(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
+        let changes = maze.mikami_tabuchi(maze_f_x, maze_f_y, maze_t_x, maze_t_y);
         let arr = [];
         if (changes !== undefined) {
           arr = changes.to_js();
