@@ -250,7 +250,7 @@ export default React.memo(() => {
         };
       }).filter(e => e !== null),
     }));
-  }, [lines]); // Intentionally leaves scroll out
+  }, [lines, scroll.x, scroll.y]); // Intentionally leaves scroll out
 
   // Keep track of all connectors
   const [connectors, setConnectors] = useState([]);
@@ -269,19 +269,19 @@ export default React.memo(() => {
         y: y - scroll.y,
       };
     }));
-  }, [scroll]);
+  }, [ctx, scroll.x, scroll.y]);
 
   // Update lines & connectors when updating field
   useLayoutEffect(() => { setTimeout(() => {
     ctx.updateLines();
     refreshConnectors();
-  }) }, [field]);
+  }) }, [ctx, field, refreshConnectors]);
 
   useEffect(() => {
     return ctx.onChange(() => {
       refreshConnectors();
     });
-  }, [refreshConnectors]);
+  }, [ctx, refreshConnectors]);
 
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
@@ -633,15 +633,15 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
       // TODO: multi-terminal
       console.assert(mazeCoords.length === 2);
 
-      for(const { x, y } of mazeCoords)
+      let points = [];
+      for (const { x, y } of mazeCoords) {
         maze.clean_mut(...boundedRadius(x, y, MASK_RADIUS));
+        points.push([x, y]);
+      }
+      const arg = new lib.Points(points);
 
-      const rawChangeset = maze.lee_minimum_edge_effect(
-        mazeCoords[0].x,
-        mazeCoords[0].y,
-        mazeCoords[1].x,
-        mazeCoords[1].y,
-      );
+      const rawChangeset = maze.mikami_tabuchi_multi(arg);
+      arg.free();
 
       // TODO: properly handles this, maybe enlarge grid?
       if(rawChangeset === undefined)
@@ -711,7 +711,7 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
     maze.free();
 
     return result;
-  }, [groups, width, height, minX, minY, maxX, maxY, connectors]);
+  }, [groups, maxX, minX, maxY, minY, lib.Maze, lib.Points, connectors]);
 
   // Overlay all canvases
   const renderer = useCallback(canvas => {
