@@ -598,6 +598,7 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
     const mHeight = Math.floor(height / FACTOR) + 1;
 
     let maze = new lib.Maze(mWidth, mHeight);
+    console.log(mWidth, mHeight);
 
     function bounded(x, upper) {
       if(x < 0) return 0;
@@ -617,6 +618,8 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
     const result = [];
 
     for(const { x, y, /* id */ } of connectors) {
+      if (x < minX || x > maxX || y < minY || y > maxY)
+        continue;
       const mx = Math.floor((x - minX) / FACTOR);
       const my = Math.floor((y - minY) / FACTOR);
 
