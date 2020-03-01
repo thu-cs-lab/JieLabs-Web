@@ -256,7 +256,7 @@ export default React.memo(() => {
         };
       }).filter(e => e !== null),
     }));
-  }, [lines, scroll.x, scroll.y]); // Intentionally leaves scroll out
+  }, [lines]); // Intentionally leaves scroll out
 
   // Keep track of all connectors
   const [connectors, setConnectors] = useState([]);
@@ -275,7 +275,7 @@ export default React.memo(() => {
         y: y - scroll.y,
       };
     }));
-  }, [ctx, scroll.x, scroll.y]);
+  }, [ctx]);
 
   // Update lines & connectors when updating field
   useLayoutEffect(() => { setTimeout(() => {
