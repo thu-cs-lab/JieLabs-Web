@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useCallback, useState, useMe
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 import { useDispatch, useSelector } from 'react-redux';
+import cn from 'classnames';
 
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
@@ -203,6 +204,11 @@ const INSERTABLES = [
   'Clock',
 ];
 
+const LAYERS = Object.freeze({
+  WIRE: Symbol('Wire'),
+  BLOCK: Symbol('Block'),
+});
+
 export default React.memo(() => {
   /**
    * Field configuration
@@ -360,91 +366,138 @@ export default React.memo(() => {
     });
   }, [ctx, cpid, dispatch]);
 
-  return <div
-    ref={container}
-    className="sandbox"
-    onContextMenu={ev => {
-      setCtxMenu({ x: ev.clientX, y: ev.clientY });
-      ev.preventDefault();
+  const [layer, setLayer] = useState(LAYERS.BLOCK);
+  const switchLayer = useCallback(() => {
+    if(layer === LAYERS.BLOCK) setLayer(LAYERS.WIRE);
+    else setLayer(LAYERS.BLOCK);
+  }, [layer]);
 
-      const discard = () => {
-        setCtxMenu(null);
-        document.removeEventListener('click', discard, false);
-      }
-      document.addEventListener('click', discard, false);
-    }}
-    onMouseDown={e => {
-      if(e.button !== 0) // Center or right key
-        return;
+  return <>
+    <div
+      ref={container}
+      className="sandbox"
+      onContextMenu={ev => {
+        setCtxMenu({ x: ev.clientX, y: ev.clientY });
+        ev.preventDefault();
 
-      let curScroll = scroll;
+        const discard = () => {
+          setCtxMenu(null);
+          document.removeEventListener('click', discard, false);
+        }
+        document.addEventListener('click', discard, false);
+      }}
+      onMouseDown={e => {
+        if(e.button !== 0) // Center or right key
+          return;
 
-      const move = ev => {
-        curScroll.x += ev.movementX;
-        curScroll.y += ev.movementY;
-        setScroll({ ...curScroll });
-      };
+        let curScroll = scroll;
 
-      const up = ev => {
-        document.removeEventListener('mousemove', move, false);
-        document.removeEventListener('mouseup', up, false);
-      };
+        const move = ev => {
+          curScroll.x += ev.movementX;
+          curScroll.y += ev.movementY;
+          setScroll({ ...curScroll });
+        };
 
-      document.addEventListener('mousemove', move, false);
-      document.addEventListener('mouseup', up, false);
-    }}
-  >
-    <FPGAEnvContext.Provider value={fpgaCtx}>
-      <SandboxContext.Provider value={ctx}>
-        <div
-          className="sandbox-scroll"
-          style={{
-            transform: `translate(${scroll.x}px,${scroll.y}px)`,
-          }}
-        >
-          { field.map((spec, idx) => (
-            <BlockWrapper
-              key={spec.id}
-              idx={idx}
-              spec={spec}
-              requestSettle={requestSettle}
-              requestDelete={requestDelete}
-              requestRedraw={requestRedraw}
-            >
-            </BlockWrapper>
+        const up = ev => {
+          document.removeEventListener('mousemove', move, false);
+          document.removeEventListener('mouseup', up, false);
+        };
+
+        document.addEventListener('mousemove', move, false);
+        document.addEventListener('mouseup', up, false);
+      }}
+    >
+      <FPGAEnvContext.Provider value={fpgaCtx}>
+        <SandboxContext.Provider value={ctx}>
+          <div
+            className="sandbox-scroll"
+            style={{
+              transform: `translate(${scroll.x}px,${scroll.y}px)`,
+            }}
+          >
+            { field.map((spec, idx) => (
+              <BlockWrapper
+                key={spec.id}
+                idx={idx}
+                spec={spec}
+                requestSettle={requestSettle}
+                requestDelete={requestDelete}
+                requestRedraw={requestRedraw}
+              >
+              </BlockWrapper>
+            ))}
+          </div>
+
+          <WireLayer
+            groups={groups}
+            connectors={connectors}
+            scroll={scroll}
+            width={canvasWidth}
+            height={canvasHeight}
+          />
+        </SandboxContext.Provider>
+      </FPGAEnvContext.Provider>
+
+      { ctxMenu !== null ?
+        <div className="ctx" style={{
+          top: ctxMenu.y,
+          left: ctxMenu.x,
+        }}>
+          { INSERTABLES.map(t => (
+            <div className="ctx-entry" key={t} onClick={() => {
+              const cont = container.current.getBoundingClientRect();
+              let pos = findAlignedPos(field, {
+                x: ctxMenu.x - scroll.x - cont.x,
+                y: ctxMenu.y - scroll.y - cont.y,
+              }, null);
+              setField(field.push(
+                { type: t, id: uuidv4(), ...pos },
+              ))
+            }}>Create {t}</div>
           ))}
+        </div> : null
+      }
+    </div>
+
+    <div className="sandbox-toolbar">
+      <div className="layer-switcher" onClick={switchLayer}>
+        <Icon
+          className={cn("layer-icon", { 'layer-icon-active': layer === LAYERS.WIRE })}
+        >settings_input_component</Icon>
+        <Icon
+          className={cn("layer-icon", { 'layer-icon-active': layer === LAYERS.BLOCK })}
+        >settings_applications</Icon>
+
+        <div className="section-hint">
+          <Icon>layers</Icon><span>Layer</span>
+        </div>
+      </div>
+
+      <div className="tools">
+
+        <div className="section-hint">
+          <Icon>bubble_chart</Icon><span>tools</span>
         </div>
 
-        <WireLayer
-          groups={groups}
-          connectors={connectors}
-          scroll={scroll}
-          width={canvasWidth}
-          height={canvasHeight}
-        />
-      </SandboxContext.Provider>
-    </FPGAEnvContext.Provider>
+        <div
+          className={cn("tool-group", { 'tool-group-shown': layer === LAYERS.WIRE })}
+        >
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+        </div>
 
-    { ctxMenu !== null ?
-      <div className="ctx" style={{
-        top: ctxMenu.y,
-        left: ctxMenu.x,
-      }}>
-        { INSERTABLES.map(t => (
-          <div className="ctx-entry" key={t} onClick={() => {
-            const cont = container.current.getBoundingClientRect();
-            let pos = findAlignedPos(field, {
-              x: ctxMenu.x - scroll.x - cont.x,
-              y: ctxMenu.y - scroll.y - cont.y,
-            }, null);
-            setField(field.push(
-              { type: t, id: uuidv4(), ...pos },
-            ))
-          }}>Create {t}</div>
-        ))}
-      </div> : null
-    }
-  </div>;
+        <div
+          className={cn("tool-group", { 'tool-group-shown': layer === LAYERS.BLOCK })}
+        >
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
+        </div>
+      </div>
+    </div>
+  </>;
 });
 
 const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requestRedraw, ...rest }) => {
@@ -571,6 +624,16 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
 
     return result;
   }, [groups]);
+
+  /*
+  const { xSet, ySet } = useMemo(() => {
+    const xSet = new Set();
+    const ySet = new Set();
+
+    for(const connector of connectors) {
+    }
+  }, [connectors]);
+  */
 
   /*
    * First, map groups to individual canvases

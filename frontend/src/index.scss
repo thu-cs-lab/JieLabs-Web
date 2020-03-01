@@ -544,6 +544,7 @@ main {
     overflow: hidden;
     margin-right: -60px;
     min-width: 0;
+    position: relative;
   }
 
   .toolbar {
@@ -1202,6 +1203,138 @@ main {
 
       .pin-assignment {
         opacity: 1;
+      }
+    }
+  }
+}
+
+.sandbox-toolbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+
+  display: flex;
+  align-items: flex-end;
+
+  .section-hint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255, .38);
+    height: 24px;
+    width: 100%;
+
+    color: $bg;
+
+    @extend .monospace;
+    font-size: 12px;
+    .material-icons {
+      font-size: 18px;
+      margin-right: 6px;
+    }
+  }
+
+  .layer-switcher {
+    $shift: 4px;
+
+    pointer-events: all;
+    cursor: pointer;
+    height: 48px + 24px + $shift;
+    margin-top: 80px - 48px - 24px - $shift;
+    width: 48px + 24px + $shift * 2;
+    position: relative;
+
+    .layer-icon {
+      color: white;
+      font-size: 48px;
+
+      position: absolute;
+      left: $shift;
+      top: 0;
+
+      transform-origin: top left;
+      transform: translate(48px, 24px) scale(0.5);
+      opacity: .38;
+      transition: transform ease .2s, opacity ease .2s;
+
+      &.layer-icon-active {
+        transform: none;
+        opacity: 1;
+      }
+    }
+
+    &:hover .layer-icon:not(.layer-icon-active) {
+      opacity: .7;
+    }
+  }
+
+  .tools {
+    $shift: 4px;
+    $move: 10px;
+    $stagger: .1s;
+
+    position: relative;
+    width: 400px;
+    margin-left: 4px;
+
+    .tool-group {
+      position: absolute;
+      bottom: 24px + $shift;
+      height: 24px;
+      left: $shift;
+
+      .tool {
+        display: inline-block;
+
+        color: white;
+        opacity: 0;
+
+        cursor: pointer;
+
+        transition-property: opacity, transform;
+        transition-timing-function: ease, ease-in; // Disappear
+        transition-duration: .2s;
+
+        @for $i from 1 through 10 {
+          &:nth-child(#{$i}) {
+            transition-delay: $i * $stagger;
+          }
+        }
+
+        transform: translateY($move);
+
+        .material-icons {
+          opacity: .7;
+
+          transition: opacity .2s ease;
+
+          &:hover {
+            opacity: 1
+          }
+        }
+      }
+
+      &.tool-group-shown {
+        .tool {
+          transform: none;
+          transition-timing-function: ease, ease-out; // Appear 
+
+          opacity: 1;
+
+          pointer-events: all;
+
+          @for $i from 1 through 10 {
+            &:nth-child(#{$i}) {
+              transition-delay: .3s + $i * $stagger;
+            }
+          }
+        }
       }
     }
   }
