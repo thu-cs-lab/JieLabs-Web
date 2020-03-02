@@ -230,13 +230,13 @@ export default React.memo(() => {
   ));
 
   const [scroll, setScroll] = useState({ x: 20, y: 20 });
-  const [scale, setScale] = useState(1);
+  // TODO: impl scaling
+  // const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
   const ctx = useMemo(() => new Handler(setLines), []);
 
   const container = useRef();
-  const canvas = useRef();
 
   // Map lines to groups
   const groups = useMemo(() => {
@@ -726,7 +726,7 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
       let maxMCX = -Infinity;
       let maxMCY = -Infinity;
 
-      for(const [x, y, type] of changeset) {
+      for(const [x, y, /* type */] of changeset) {
         if(x < minMCX) minMCX = x;
         if(x > maxMCX) maxMCX = x;
         if(y < minMCY) minMCY = y;
@@ -748,7 +748,7 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
       ctx.fillStyle = group.color;
 
       // FIXME: draw different shape based on types
-      for (const [x, y, type] of changeset) {
+      for (const [x, y, /* type */] of changeset) {
         const dx = (x - minMCX) * FACTOR;
         const dy = (y - minMCY) * FACTOR;
 

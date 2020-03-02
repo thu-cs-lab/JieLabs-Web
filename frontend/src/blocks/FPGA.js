@@ -1,7 +1,5 @@
-import React, { useState, useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import { useSelector, useDispatch }  from 'react-redux';
-import cn from 'classnames';
-import { List } from 'immutable';
 
 import { Connector, SIGNAL, MODE } from './index.js';
 import { FPGAEnvContext } from '../Sandbox';
@@ -13,8 +11,6 @@ const PIN_COUNT = 38;
 const PIN_CLOCKING = 37;
 
 export default React.memo(rest => {
-  const [reset, setReset] = useState(SIGNAL.L);
-
   const input = useSelector(state => state.input);
   const directions = useSelector(state => state.activeBuild?.directions);
   const dispatch = useDispatch();

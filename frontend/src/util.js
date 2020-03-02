@@ -1,11 +1,18 @@
 import { BACKEND } from './config';
 
+class NetworkError extends Error {
+  constructor({ msg, code }) {
+    super(msg);
+    this.code = code;
+  }
+}
+
 async function parseResp(resp) {
   if (resp.status >= 400)
-    throw {
+    throw new NetworkError({
       code: resp.status,
       msg: resp.text(),
-    };
+    });
   return await resp.json();
 }
 

@@ -84,7 +84,7 @@ export function constraints(state = { board: DEFAULT_BOARD, top: null, signals: 
       top: state.top,
 
       signals: state.signals.filter((v, k) => {
-        const regex = /^([^\[\]]+)(\[([0-9]+)\])?$/;
+        const regex = /^([^[\]]+)(\[([0-9]+)\])?$/;
         // Asserts to match
         const [, base,, subscript] = k.match(regex);
         const lookup = mapper.get(base);
