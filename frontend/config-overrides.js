@@ -3,10 +3,13 @@ const {
   addWebpackPlugin,
   addWebpackModuleRule,
   adjustWorkbox,
+  useEslintRc,
 } = require('customize-cra');
 
 const MonacoPlugin = require('monaco-editor-webpack-plugin');
 const AnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+const path = require('path');
 
 module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
@@ -21,4 +24,7 @@ module.exports = override(
       new RegExp('/[^/?]+\\.[^/]+$'),
     ],
   })),
+  useEslintRc(
+    path.resolve(__dirname, './.eslintrc.json'),
+  ),
 );
