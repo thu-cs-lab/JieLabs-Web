@@ -486,11 +486,23 @@ export default React.memo(() => {
           <span className="tool"><Icon>delete</Icon></span>
           <span className="tool"><Icon>delete</Icon></span>
           <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
+          <span className="tool"><Icon>delete</Icon></span>
         </div>
 
         <div
           className={cn("tool-group", { 'tool-group-shown': layer === LAYERS.BLOCK })}
         >
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
+          <span className="tool"><Icon>edit</Icon></span>
           <span className="tool"><Icon>edit</Icon></span>
           <span className="tool"><Icon>edit</Icon></span>
           <span className="tool"><Icon>edit</Icon></span>

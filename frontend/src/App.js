@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
+import pako from 'pako';
+import { CSSTransition } from 'react-transition-group';
 
 import { HARD_LOGOUT, BOARDS } from './config';
 
@@ -52,6 +54,42 @@ export default React.memo(() => {
       return <Icon className="latest-build-success">done</Icon>
     return <Icon className="latest-build-failed">close</Icon>
   }
+
+  const [detail, setDetail] = useState(null);
+  const currentLoading = useRef(null);
+
+  const showDetail = useCallback(e => {
+    console.log(e);
+    currentLoading.current = { basic: e, log: null, code: null, assignments: null };
+    setDetail(currentLoading.current);
+
+    // Load src
+    async function loadSrc() {
+      const resp = await fetch(e.src);
+      const buf = await resp.arrayBuffer();
+      if(currentLoading.current?.basic.id !== e.id) return;
+    }
+
+    // Load dst
+    async function loadDst() {
+      const resp = await fetch(e.dst);
+      const buf = await resp.arrayBuffer();
+      const deflated = pako.deflate(buf);
+      console.log(deflated);
+      if(currentLoading.current?.basic.id !== e.id) return;
+    }
+
+    loadSrc();
+
+    if(e.dst)
+      loadDst();
+    // TODO: mark as not available
+  }, [detail]);
+
+  const dismissDetail = useCallback(() => {
+    setDetail(null);
+    currentLoading.current = null;
+  }, []);
 
   if(loading)
     return <div className="container loading"></div>;
@@ -116,7 +154,10 @@ export default React.memo(() => {
                   </>
                 )}
                 <div className="build-list-sep">/</div>
-                <Icon className="build-list-action">edit</Icon>
+                <Icon
+                  className="build-list-action"
+                  onClick={() => showDetail(e)}
+                >more_vert</Icon>
               </div>
             ))}
 
@@ -148,5 +189,22 @@ export default React.memo(() => {
         <Workspace />
       </Route>
     </Switch>
+
+    { detail !== null && (
+      <CSSTransition
+        timeout={500}
+        classNames="fade"
+      >
+        <div className="backdrop fullscreen">
+          <div className="dialog expanded build-detail-dialog">
+            <div className="hint">Build detail</div>
+            <div className="dialog-title monospace">Build #{detail.basic.id}</div>
+            <div className="build-detail">
+              <div className="loading"></div>
+            </div>
+          </div>
+        </div>
+      </CSSTransition>
+    )}
   </div>;
 })
