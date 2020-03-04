@@ -290,13 +290,16 @@ export function submitBuild() {
       let assignments = `set_global_assignment -name TOP_LEVEL_ENTITY ${constraints.top}\n`;
       const board = BOARDS[constraints.board];
       for(const [sig, pin] of constraints.signals.entries()) {
-        const pinName = board.pins[pin].pin;
-        assignments += `set_location_assignment ${pinName} -to ${sig}\n`;
 
         // Asserts to match
         const [base] = sig.match(/^[^[\]]+/)
         const dir = sigDirs.get(base);
         directions[pin] = dir === 'output' ? 'input' : 'output';
+
+        const dirIndicator = dir === 'output' ? '->' : '<-';
+        const pinName = board.pins[pin].pin;
+        const assignment = `\n# ${sig} ${dirIndicator} ${pin}\nset_location_assignment ${pinName} -to ${sig}`;
+        assignments += assignment + '\n';
       }
 
       let tar = createTarFile(

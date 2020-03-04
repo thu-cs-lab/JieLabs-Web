@@ -63,7 +63,15 @@ export default React.memo(() => {
   const [detailTab, setDetailTab] = useState('logs');
 
   const showDetail = useCallback(e => {
-    currentLoading.current = { basic: e, code: null, assignments: null, logs: null, bit: null };
+    currentLoading.current = {
+      basic: e,
+      code: null,
+      assignments: null,
+      logs: null,
+      bit: null,
+      constraints: null,
+    };
+
     setDetail(currentLoading.current);
 
     // Load src
@@ -80,6 +88,7 @@ export default React.memo(() => {
       currentLoading.current = {
         ...currentLoading.current,
         code: readFileStr(content, TAR_FILENAMES.source),
+        constraints: readFileStr(content, TAR_FILENAMES.constraints),
       };
       setDetail(currentLoading.current);
     }
@@ -243,7 +252,7 @@ export default React.memo(() => {
           <div className="backdrop centering" onMouseDown={dismissDetail}>
             <div className="dialog build-detail-dialog" onMouseDown={weakBlocker} onAnimationEnd={weakBlocker} onTransitionEnd={weakBlocker}>
               <div className="build-detail-header">
-                <div className="hint">Build detail</div>
+                <div className="hint">BUILD DETAIL</div>
                 <div className="dialog-title monospace">Build #{detail.basic.id}</div>
 
                 <div className="build-detail-tabber-container">
@@ -272,7 +281,7 @@ export default React.memo(() => {
               <div className="build-detail">
                 <div className={cn("build-detail-pane", "padded", { 'pane-active': detailTab === 'logs' })}>
                   <div className="hint">
-                    Build status
+                    BUILD STATUS
                   </div>
                   <div className="build-detail-status">
                     { detail.basic.status || 'Compiling...' }
@@ -285,6 +294,20 @@ export default React.memo(() => {
                   ) }
 
                   <div className="build-detail-sep" />
+
+                  { detail.constraints ? (
+                    <>
+                      <div className="hint">
+                        CONSTRAINTS
+                      </div>
+
+                      <code className="build-detail-console">
+                        { detail.constraints }
+                      </code>
+
+                      <div className="build-detail-sep" />
+                    </>
+                  ) : null }
 
                   { detail.logs ? (
                     <>
