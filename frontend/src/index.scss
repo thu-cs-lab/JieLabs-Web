@@ -1556,7 +1556,7 @@ main {
     padding-right: 15px;
 
     color: white;
-    margin-top: 20px;
+    margin-top: 10px;
     cursor: pointer;
 
     > span {
@@ -1574,6 +1574,13 @@ main {
       background: $primary-color;
       padding: 10px;
     }
+  }
+
+  .build-detail-info {
+    margin-top: 20px;
+    font-size: 18px;
+    color: rgba(255,255,255,.7);
+    font-weight: 100;
   }
 }
 

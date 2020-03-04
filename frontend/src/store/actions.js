@@ -180,11 +180,14 @@ export function initLib() {
   }
 }
 
-const jobMapper = ({ id, metadata, status, src_url, dst_url }) => ({
+const jobMapper = ({ id, metadata, status, src_url, dst_url, created_at, finished_at }) => ({
   id,
   status,
   src: src_url,
   dst: dst_url,
+
+  created: created_at,
+  finished: finished_at,
   ...JSON.parse(metadata), // directions
 });
 
@@ -250,6 +253,7 @@ export async function kickoffPolling(dispatch, getState) {
     dispatch(putBuild({
       ...unfinished,
       status: info.status,
+      finished: info.finished_at,
 
       src: info.src_url,
       dst: info.dst_url,

@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
 import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
-import { untar, readFileStr, formatSize } from './util';
+import { untar, readFileStr, formatSize, formatDuration, formatDate } from './util';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -306,6 +306,12 @@ export default React.memo(() => {
                   </div>
                   <div className="build-detail-status">
                     { detail.basic.status || 'Compiling...' }
+                  </div>
+
+                  <div className="build-detail-info">
+                    Submitted at <strong>{ formatDate(new Date(detail.basic.created)) }</strong>{ !!detail.basic.finished && (
+                      <>, finished in <strong>{formatDuration(new Date(detail.basic.finished) - new Date(detail.basic.created))}</strong></>
+                    )}
                   </div>
 
                   { detail.bit !== null && (

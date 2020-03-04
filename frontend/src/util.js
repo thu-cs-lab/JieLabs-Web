@@ -176,3 +176,31 @@ export function formatSize(size) {
   size = Math.round(size * 10) / 10;
   return `${size}${SIZE_SUFFIXS[level]}`;
 }
+
+export function formatDuration(dur, showMs = false) {
+  // Start from ms
+  let acc = '';
+
+  if(dur < 1000 || showMs) acc = `${dur % 1000}ms`
+
+  dur = Math.floor(dur / 1000);
+  if(dur === 0) return acc;
+
+  acc = `${dur % 60}s ${acc}`;
+  dur = Math.floor(dur / 60);
+  if(dur === 0) return acc;
+
+  acc = `${dur % 60}m ${acc}`;
+  dur = Math.floor(dur / 60);
+  if(dur === 0) return acc;
+
+  acc = `${dur % 60}h ${acc}`;
+  dur = Math.floor(dur / 24);
+  if(dur === 0) return acc;
+
+  return `${dur}d ${acc}`
+}
+
+export function formatDate(date) {
+  return date.toLocaleString('zh-CN', { hour12: false });
+}
