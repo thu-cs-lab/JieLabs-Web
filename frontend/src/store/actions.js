@@ -18,6 +18,8 @@ export const TYPES = {
   SET_ACTIVE_BUILD: Symbol('SET_ACTIVE_BUILD'),
 
   SET_BOARD: Symbol('SET_BOARD'),
+  UPDATE_BOARD: Symbol('UPDATE_BOARD'),
+
   ASSIGN_TOP: Symbol('ASSIGN_TOP'),
   ASSIGN_PIN: Symbol('ASSIGN_PIN'),
   SET_CLOCK: Symbol('SET_CLOCK'),
@@ -28,6 +30,7 @@ export const BOARD_STATUS = Object.freeze({
   DISCONNECTED: Symbol("DISCONNECTED"),
   CONNECTED: Symbol("CONNECTED"),
   WAITING: Symbol("WAITING"),
+  PROGRAMMING: Symbol("PROGRAMMING"),
 });
 
 export function setUser(user) {
@@ -83,6 +86,13 @@ export function setBoard(board) {
   return {
     type: TYPES.SET_BOARD,
     board,
+  };
+}
+
+export function updateBoard(status) {
+  return {
+    type: TYPES.UPDATE_BOARD,
+    status,
   };
 }
 
@@ -378,7 +388,8 @@ export function connectToBoard() {
           } else if (msg["ReportIOChange"]) {
             const { data } = msg["ReportIOChange"];
             dispatch(updateInput(data));
-          }
+          } else if (msg['ProgramBitstreamFinish'])
+            dispatch(updateBoard(BOARD_STATUS.CONNECTED));
         };
 
         websocket.onclose = () => {
@@ -408,6 +419,9 @@ export function programBitstream(id) {
       let { board, builds, clock } = getState();
       const build = builds.list.find(e => e.id === id);
       if(!build || !board || !board.websocket) return false;
+      if(board.status !== BOARD_STATUS.CONNECTED) return false;
+
+      dispatch(updateBoard(BOARD_STATUS.PROGRAMMING));
 
       const { directions } = build;
 

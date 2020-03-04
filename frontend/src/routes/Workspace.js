@@ -27,7 +27,8 @@ export default React.memo(() => {
     await dispatch(submitBuild());
   }, [dispatch]);
 
-  const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
+  const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED || store.board.status === BOARD_STATUS.PROGRAMMING);
+  const idleBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
 
   // The ID of the latest build, or null if the latest build is not ready yet
   const readyLatestId = useSelector(store => {
@@ -39,9 +40,9 @@ export default React.memo(() => {
   });
 
   const doProgram = useCallback(() => {
-    if(readyLatestId !== null && hasBoard)
+    if(readyLatestId !== null && idleBoard)
       dispatch(programBitstream(readyLatestId));
-  }, [readyLatestId, hasBoard, dispatch]);
+  }, [readyLatestId, idleBoard, dispatch]);
   
   const [showHelp, setShowHelp] = useState(false);
   const doShowHelp = useCallback(() => {
@@ -387,7 +388,7 @@ export default React.memo(() => {
       </Tooltip>
 
       <Tooltip tooltip={downloadTooltip}>
-        <button className="secondary" onClick={doProgram} disabled={!hasBoard || readyLatestId === null}>
+        <button className="secondary" onClick={doProgram} disabled={!idleBoard || readyLatestId === null}>
           <Icon>cloud_download</Icon>
         </button>
       </Tooltip>

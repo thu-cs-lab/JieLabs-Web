@@ -53,6 +53,11 @@ export function activeBuild(state = null, action) {
 export function board(state = { status: BOARD_STATUS.DISCONNECTED, websocket: null }, action) {
   if(action.type === TYPES.SET_BOARD)
     return action.board;
+  if(action.type === TYPES.UPDATE_BOARD)
+    return {
+      ...state,
+      status: action.status,
+    };
   return state;
 }
 

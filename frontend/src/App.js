@@ -28,7 +28,8 @@ export default React.memo(() => {
   const latestBuilds = useSelector(state => state.builds.list);
   const buildsEnded = useSelector(state => state.builds.ended);
 
-  const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
+  const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED || store.board.status === BOARD_STATUS.PROGRAMMING);
+  const idleBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
@@ -216,9 +217,9 @@ export default React.memo(() => {
                 { e.status === 'Compilation Success' && (
                   <>
                     <div className="build-list-sep">/</div>
-                    <Tooltip tooltip={(!hasBoard) && 'FPGA disconnected'} gap={true}>
+                    <Tooltip tooltip={!hasBoard && 'FPGA disconnected'} gap={true}>
                       <Icon
-                        className={cn("build-list-action", { 'build-list-action-disabled': !hasBoard })}
+                        className={cn("build-list-action", { 'build-list-action-disabled': !idleBoard })}
                         onClick={() => {
                           if(e.status === 'Compilation Success')
                             dispatch(programBitstream(e.id));
@@ -321,10 +322,12 @@ export default React.memo(() => {
                       </div>
 
                       <div
-                        className={cn("build-detail-btn", { 'build-detail-btn-disabled': !hasBoard })}
+                        className={cn("build-detail-btn", { 'build-detail-btn-disabled': !idleBoard })}
                         onClick={() => dispatch(programBitstream(detail.basic.id))}
                       >
-                        <Icon>cloud_download</Icon> <span>{ hasBoard ?'FLASH FPGA' : 'FPGA DISCONNECTED' }</span>
+                        <Icon>cloud_download</Icon> <span>{ hasBoard ? (
+                          idleBoard ? 'PROGRAM FPGA' : 'PROGRAMMING...'
+                        ) : 'FPGA DISCONNECTED' }</span>
                       </div>
                     </>
                   ) }
