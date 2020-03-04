@@ -180,17 +180,19 @@ export function initLib() {
   }
 }
 
+const jobMapper = ({ id, metadata, status, src_url, dst_url }) => ({
+  id,
+  status,
+  src: src_url,
+  dst: dst_url,
+  ...JSON.parse(metadata), // directions
+});
+
 export function initBuilds() {
   return async (dispatch, getState) => {
     try {
       const builds = await get(`/api/task/?limit=${BUILD_LIST_FETCH_LENGTH}`); // Why hurt me so much actix router?
-      const mapped = builds.jobs.map(({ id, metadata, status, src_url, dst_url }) => ({
-        id,
-        status,
-        src: src_url,
-        dst: dst_url,
-        ...JSON.parse(metadata), // directions
-      }));
+      const mapped = builds.jobs.map(jobMapper);
       dispatch(loadBuilds(IList(mapped), mapped.length < BUILD_LIST_FETCH_LENGTH));
       kickoffPolling(dispatch, getState); // Fire-and-fly
       return true;
@@ -205,13 +207,7 @@ export function loadMoreBuilds() {
     const { builds: current } = getState();
     try {
       const additional = await get(`/api/task/?offset=${current.list.size}&limit=${BUILD_LIST_FETCH_LENGTH}`);
-      const mapped = additional.jobs.map(({ id, metadata, status, src_url, dst_url }) => ({
-        id,
-        status,
-        src: src_url,
-        dst: dst_url,
-        ...JSON.parse(metadata), // directions
-      }));
+      const mapped = additional.jobs.map(jobMapper);
 
       const { builds } = getState();
 
@@ -318,14 +314,10 @@ export function submitBuild() {
         }),
       });
 
-      dispatch(putBuild({
-        id,
-        status: null,
-        directions,
+      // Immediately fetch the job to get an agreed dst
+      const job = await get(`/api/task/get/${id}`);
 
-        src: url,
-        dst: null,
-      }));
+      dispatch(putBuild(jobMapper(job)));
 
       // TODO: use another action instead
       kickoffPolling(dispatch, getState); // Fire-and-forget

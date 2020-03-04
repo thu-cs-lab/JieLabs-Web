@@ -162,3 +162,17 @@ export function readFileStr(parsedTar, fn) {
   const raw = parsedTar.find(e => e.name === fn).content;
   return decoder.decode(raw);
 }
+
+const SIZE_SUFFIXS = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+export function formatSize(size) {
+  let level = 0;
+  while(size >= 1024) {
+    level += 1;
+    size = size / 1024;
+  }
+
+  if(SIZE_SUFFIXS.length <= level) return 'Meow?';
+
+  size = Math.round(size * 10) / 10;
+  return `${size}${SIZE_SUFFIXS[level]}`;
+}

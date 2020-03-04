@@ -7,6 +7,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "classnames": "^2.2.6",
+    "file-saver": "^2.0.2",
     "immutable": "^4.0.0-rc.12",
     "monaco-editor": "^0.20.0",
     "monaco-editor-webpack-plugin": "^1.8.2",

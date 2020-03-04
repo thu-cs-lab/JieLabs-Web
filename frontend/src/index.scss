@@ -1546,6 +1546,35 @@ main {
     @extend .monospace;
     font-size: 14px;
   }
+
+  .build-detail-bit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 44px;
+    background: rgba(0,0,0,.1);
+    padding-right: 15px;
+
+    color: white;
+    margin-top: 20px;
+    cursor: pointer;
+
+    > span {
+      opacity: .7;
+      transition: opacity .2s ease;
+    }
+
+    &:hover > span {
+      opacity: 1;
+    }
+
+    .material-icons {
+      margin-right: 15px;
+      color: white;
+      background: $primary-color;
+      padding: 10px;
+    }
+  }
 }
 
 .loading {

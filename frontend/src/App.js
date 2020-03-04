@@ -5,10 +5,11 @@ import cn from 'classnames';
 import pako from 'pako';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Monaco from 'react-monaco-editor';
+import { saveAs } from 'file-saver';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
 import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
-import { untar, readFileStr } from './util';
+import { untar, readFileStr, formatSize } from './util';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -62,7 +63,7 @@ export default React.memo(() => {
   const [detailTab, setDetailTab] = useState('logs');
 
   const showDetail = useCallback(e => {
-    currentLoading.current = { basic: e, code: null, assignments: null, logs: null };
+    currentLoading.current = { basic: e, code: null, assignments: null, logs: null, bit: null };
     setDetail(currentLoading.current);
 
     // Load src
@@ -93,21 +94,25 @@ export default React.memo(() => {
       console.log(content);
       if(currentLoading.current?.basic.id !== e.id) return;
 
+      const bit = content.find(e => e.name === TAR_FILENAMES.bitstream)?.content || null;
+
       currentLoading.current = {
         ...currentLoading.current,
         logs: {
           stdout: readFileStr(content, TAR_FILENAMES.stdout),
           stderr: readFileStr(content, TAR_FILENAMES.stderr),
         },
+        bit,
       };
       setDetail(currentLoading.current);
     }
 
     loadSrc();
 
-    if(e.dst)
+    if(e.dst && e.status !== null)
       loadDst();
     // TODO: mark as not available
+    // TODO: poll for e.status
   }, [detail]);
 
   const dismissDetail = useCallback(() => {
@@ -123,6 +128,12 @@ export default React.memo(() => {
   const weakBlocker = useCallback(e => {
     e.stopPropagation();
   }, []);
+
+  const downloadBit = useCallback(e => {
+    if(!detail?.bit) return;
+    const blob = new Blob(detail.bit);
+    saveAs(blob, `bitstream-${detail.basic.id}.bit`);
+  }, [detail?.bit]);
 
   if(loading)
     return <div className="container loading"></div>;
@@ -264,8 +275,14 @@ export default React.memo(() => {
                     Build status
                   </div>
                   <div className="build-detail-status">
-                    { detail.basic.status }
+                    { detail.basic.status || 'Compiling...' }
                   </div>
+
+                  { detail.bit !== null && (
+                    <div className="build-detail-bit" onClick={downloadBit}>
+                      <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit.length)})</span>
+                    </div>
+                  ) }
 
                   <div className="build-detail-sep" />
 
