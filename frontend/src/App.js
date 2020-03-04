@@ -59,7 +59,7 @@ export default React.memo(() => {
   const [detail, setDetail] = useState(null);
   const currentLoading = useRef(null);
 
-  const [detailTab, setDetailTab] = useState('code');
+  const [detailTab, setDetailTab] = useState('logs');
 
   const showDetail = useCallback(e => {
     console.log(e);
@@ -241,27 +241,69 @@ export default React.memo(() => {
                   <div className="tabber-click-zone" onClick={toggleTabber}>
                     <div className="descs">
                       <div
-                        className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'code' })}
-                      >CODE</div>
+                        className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'logs' })}
+                      >INFO</div>
 
                       <div
-                        className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'logs' })}
-                      >LOGS</div>
+                        className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'code' })}
+                      >CODE</div>
                     </div>
                     <div className="tabbers">
                       <Icon
-                        className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
-                      >code</Icon>
+                        className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
+                      >notes</Icon>
                       <span className="sep">/</span>
                       <Icon
-                        className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
-                      >note</Icon>
+                        className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
+                      >code</Icon>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="build-detail">
-                <div className={cn("build-detail-pane", { 'pane-active': detailTab === 'code' })}>
+                <div className={cn("build-detail-pane", "padded", { 'pane-active': detailTab === 'logs' })}>
+                  <div className="hint">
+                    Build status
+                  </div>
+                  <div className="build-detail-status">
+                    { detail.basic.status }
+                  </div>
+
+                  <div className="build-detail-sep" />
+
+                  { detail.logs ? (
+                    <>
+                      { detail.logs.stderr !== '' || (
+                        <>
+                          <div className="hint">
+                            STDERR
+                          </div>
+
+                          <code className="build-detail-stdout">
+                            { detail.logs.stderr }
+                          </code>
+
+                          <div className="build-detail-sep" />
+                        </>
+                      ) }
+
+                      <div className="hint">
+                        STDOUT
+                      </div>
+
+                      <code className="build-detail-stdout">
+                        { detail.logs.stdout }
+                      </code>
+                    </>
+                  ) : (
+                    <div className="build-detail-placeholder">
+                      <div className="loading" />
+                    </div>
+                  ) }
+
+                </div>
+
+                <div className={cn("build-detail-pane", "centering", { 'pane-active': detailTab === 'code' })}>
                   { detail.code ? (
                     <Monaco
                       options={{
@@ -270,19 +312,6 @@ export default React.memo(() => {
                         readonly: true,
                       }}
                       value={detail.code}
-                    />
-                  ) : <div className="loading"></div> }
-                </div>
-
-                <div className={cn("build-detail-pane", { 'pane-active': detailTab === 'logs' })}>
-                  { detail.logs ? (
-                    <Monaco
-                      options={{
-                        theme: 'vs-dark',
-                        language: 'text',
-                        readonly: true,
-                      }}
-                      value={detail.logs.stdout}
                     />
                   ) : <div className="loading"></div> }
                 </div>
