@@ -1547,6 +1547,7 @@ main {
     display: block;
     background: #121212;
     white-space: pre-wrap;
+    word-break: break-word;
     color: rgba(255,255,255,.7);
     margin-top: 10px;
     @extend .monospace;
