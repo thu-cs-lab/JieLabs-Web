@@ -8,7 +8,7 @@ import Monaco from 'react-monaco-editor';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
 import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
-import { untar } from './util';
+import { untar, readFileStr } from './util';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -59,9 +59,11 @@ export default React.memo(() => {
   const [detail, setDetail] = useState(null);
   const currentLoading = useRef(null);
 
+  const [detailTab, setDetailTab] = useState('code');
+
   const showDetail = useCallback(e => {
     console.log(e);
-    currentLoading.current = { basic: e, log: null, code: null, assignments: null };
+    currentLoading.current = { basic: e, log: null, code: null, assignments: null, logs: null };
     setDetail(currentLoading.current);
 
     // Load src
@@ -75,12 +77,9 @@ export default React.memo(() => {
       const content = untar(arr);
 
       // Get source
-      const decoder = new TextDecoder();
-      const sourceRaw = content.find(e => e.name === TAR_FILENAMES.source).content;
-      const source = decoder.decode(sourceRaw);
       currentLoading.current = {
         ...currentLoading.current,
-        code: source,
+        code: readFileStr(content, TAR_FILENAMES.source),
       };
       setDetail(currentLoading.current);
     }
@@ -92,7 +91,17 @@ export default React.memo(() => {
       const inflated = pako.inflate(buf);
 
       const content = untar(inflated);
+      console.log(content);
       if(currentLoading.current?.basic.id !== e.id) return;
+
+      currentLoading.current = {
+        ...currentLoading.current,
+        logs: {
+          stdout: readFileStr(content, TAR_FILENAMES.stdout),
+          stderr: readFileStr(content, TAR_FILENAMES.stderr),
+        },
+      };
+      setDetail(currentLoading.current);
     }
 
     loadSrc();
@@ -217,15 +226,36 @@ export default React.memo(() => {
           timeout={500}
           classNames="fade"
         >
-          <div className="backdrop fullscreen" onMouseDown={dismissDetail}>
-            <div className="dialog expanded build-detail-dialog" onMouseDown={blocker} onAnimationEnd={blocker} onTransitionEnd={blocker}>
+          <div className="backdrop centering" onMouseDown={dismissDetail}>
+            <div className="dialog build-detail-dialog" onMouseDown={blocker} onAnimationEnd={blocker} onTransitionEnd={blocker}>
               <div className="build-detail-header">
                 <div className="hint">Build detail</div>
                 <div className="dialog-title monospace">Build #{detail.basic.id}</div>
+
+                <div className="build-detail-tabber-container">
+                  <Icon
+                    className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
+                    onClick={() => setDetailTab('code')}
+                  >code</Icon>
+                  <span className="sep">/</span>
+                  <Icon
+                    className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
+                    onClick={() => setDetailTab('logs')}
+                  >note</Icon>
+                </div>
               </div>
               <div className="build-detail">
                 <div className="build-detail-pane">
-                  <div className="loading"></div>
+                  { detail.logs ? (
+                    <Monaco
+                      options={{
+                        theme: 'vs-dark',
+                        language: 'text',
+                        readonly: true,
+                      }}
+                      value={detail.logs.stdout}
+                    />
+                  ) : <div className="loading"></div> }
                 </div>
 
                 <div className="build-detail-pane">

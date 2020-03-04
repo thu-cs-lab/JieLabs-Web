@@ -8,7 +8,7 @@ export const BUILD_LIST_FETCH_LENGTH = 5;
 export const TAR_FILENAMES = {
   bitstream: 'bitstream.rbf',
   stdout: 'stdout',
-  stdin: 'stdin',
+  stderr: 'stderr',
 
   source: 'src/mod_top.vhd',
   constraints: 'src/mod_top.qsf',

@@ -156,3 +156,9 @@ export function untar(tar) {
 
   return result;
 }
+
+export function readFileStr(parsedTar, fn) {
+  const decoder = new TextDecoder();
+  const raw = parsedTar.find(e => e.name === fn).content;
+  return decoder.decode(raw);
+}
