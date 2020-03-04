@@ -1367,20 +1367,50 @@ main {
       align-items: center;
       justify-content: center;
 
+      .tabber-click-zone {
+        display: inline-flex;
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+
+        &:hover .build-detail-tabber {
+          opacity: .7;
+
+          &.tabber-active {
+            opacity: 1;
+          }
+        }
+      }
+
+      .tabbers {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+      }
+
+      .descs {
+        width: 0;
+        height: 16px; // Same as line-height
+        position: relative;
+      }
+
       .build-detail-tabber {
         color: transparent;
-        opacity: .54;
+        opacity: .38;
 
         transition: opacity .2s ease, background-position .5s ease;
-        cursor: pointer;
 
         $selected: #FFC738;
         background-clip: text;
         background-size: 300% 100%;
         background-origin: 100% 0%;
 
-        &:hover {
-          opacity: .7;
+        &.tabber-active {
+          opacity: 1;
         }
 
         &:first-child {
@@ -1398,9 +1428,43 @@ main {
 
           &.tabber-active {
             background-position: 0% 50%;
+            opacity: 1;
           }
         }
+      }
 
+      .build-detail-tab-desc {
+        @extend .monospace;
+        font-size: 12px;
+        line-height: 16px;
+        color: white;
+        letter-spacing: .3em;
+
+        width: 100px;
+
+        position: absolute;
+        bottom: 0;
+        left: -50px;
+
+        text-align: center;
+
+        $shift: 20px;
+
+        opacity: 0;
+        transition: opacity .5s ease, transform .5s ease;
+
+        &:first-child {
+          transform: translateX($shift);
+        }
+
+        &:last-child {
+          transform: translateX(-$shift);
+        }
+
+        &.desc-active {
+          transform: none;
+          opacity: .38;
+        }
       }
     }
   }

@@ -116,6 +116,11 @@ export default React.memo(() => {
     currentLoading.current = null;
   }, []);
 
+  const toggleTabber = useCallback(() => {
+    if(detailTab === 'code') setDetailTab('logs');
+    else setDetailTab('code');
+  }, [detailTab]);
+
   const blocker = useCallback(e => {
     e.preventDefault();
     e.stopPropagation();
@@ -233,15 +238,26 @@ export default React.memo(() => {
                 <div className="dialog-title monospace">Build #{detail.basic.id}</div>
 
                 <div className="build-detail-tabber-container">
-                  <Icon
-                    className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
-                    onClick={() => setDetailTab('code')}
-                  >code</Icon>
-                  <span className="sep">/</span>
-                  <Icon
-                    className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
-                    onClick={() => setDetailTab('logs')}
-                  >note</Icon>
+                  <div className="tabber-click-zone" onClick={toggleTabber}>
+                    <div className="descs">
+                      <div
+                        className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'code' })}
+                      >CODE</div>
+
+                      <div
+                        className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'logs' })}
+                      >LOGS</div>
+                    </div>
+                    <div className="tabbers">
+                      <Icon
+                        className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
+                      >code</Icon>
+                      <span className="sep">/</span>
+                      <Icon
+                        className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
+                      >note</Icon>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="build-detail">
