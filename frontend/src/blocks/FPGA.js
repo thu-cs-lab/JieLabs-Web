@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useContext } from 'react';
 import { useSelector, useDispatch }  from 'react-redux';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { Connector, SIGNAL, MODE } from './index.js';
 import { FPGAEnvContext } from '../Sandbox';
@@ -59,18 +60,36 @@ export default React.memo(rest => {
       </div>
     ))}
 
-    { status === BOARD_STATUS.DISCONNECTED && (
-      <div className="fpga-connect-mask" onClick={doConnect}>
-        <div className="fpga-connect-hint">
-          FPGA disconnected
-        </div>
+    <TransitionGroup className="fpga-mask-anchor">
+      { status === BOARD_STATUS.DISCONNECTED && (
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+        >
+          <div className="fpga-mask" onClick={doConnect}>
+            <div className="fpga-mask-hint">
+              FPGA disconnected
+            </div>
 
-        <Icon>settings_ethernet</Icon>
+            <Icon>settings_ethernet</Icon>
 
-        <div className="fpga-connect-hint">
-          click to connect
-        </div>
-      </div>
-    )}
+            <div className="fpga-mask-hint">
+              click to connect
+            </div>
+          </div>
+        </CSSTransition>
+      )}
+
+      { status === BOARD_STATUS.PROGRAMMING && (
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+        >
+          <div className="fpga-mask">
+            <div className="loading" />
+          </div>
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   </div>
 });
