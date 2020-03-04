@@ -93,15 +93,39 @@ export default React.memo(() => {
       setDetail(currentLoading.current);
     }
 
+    // Dst is loaded in a separated useEffect hook to support deferred loading
+
+    loadSrc();
+  }, [detail]);
+
+  const detailedBuild = detail === null ? null : latestBuilds.find(e => e.id === detail.basic.id);
+  useEffect(() => {
+    if(!detailedBuild?.status) return;
+    if(!Number.isInteger(detail?.basic.id)) return;
+    if(!detail?.basic.dst) return;
+
+    if(detailedBuild.status !== detail.basic.status) {
+      // This is executed synchronously, so the id shouldn't have changed
+      console.assert(currentLoading.current.basic.id === detailedBuild.id);
+
+      currentLoading.current = {
+        ...currentLoading.current,
+        basic: {
+          ...detailedBuild,
+        },
+      };
+
+      setDetail(currentLoading.current);
+    }
+
     // Load dst
     async function loadDst() {
-      const resp = await fetch(e.dst);
+      const resp = await fetch(detail.basic.dst);
       const buf = await resp.arrayBuffer();
       const inflated = pako.inflate(buf);
 
       const content = untar(inflated);
-      console.log(content);
-      if(currentLoading.current?.basic.id !== e.id) return;
+      if(currentLoading.current?.basic.id !== detail.basic.id) return;
 
       const bit = content.find(e => e.name === TAR_FILENAMES.bitstream)?.content || null;
 
@@ -116,13 +140,10 @@ export default React.memo(() => {
       setDetail(currentLoading.current);
     }
 
-    loadSrc();
+    loadDst();
 
-    if(e.dst && e.status !== null)
-      loadDst();
-    // TODO: mark as not available
-    // TODO: poll for e.status
-  }, [detail]);
+    // Fetch
+  }, [detailedBuild?.status, detail?.basic.id, detail?.basic.dst]);
 
   const dismissDetail = useCallback(() => {
     setDetail(null);
