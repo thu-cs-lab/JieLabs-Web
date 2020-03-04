@@ -315,9 +315,18 @@ export default React.memo(() => {
                   </div>
 
                   { detail.bit !== null && (
-                    <div className="build-detail-bit" onClick={downloadBit}>
-                      <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit.length)})</span>
-                    </div>
+                    <>
+                      <div className="build-detail-btn" onClick={downloadBit}>
+                        <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit.length)})</span>
+                      </div>
+
+                      <div
+                        className={cn("build-detail-btn", { 'build-detail-btn-disabled': !hasBoard })}
+                        onClick={() => dispatch(programBitstream(detail.basic.id))}
+                      >
+                        <Icon>cloud_download</Icon> <span>{ hasBoard ?'FLASH FPGA' : 'FPGA DISCONNECTED' }</span>
+                      </div>
+                    </>
                   ) }
 
                   <div className="build-detail-sep" />

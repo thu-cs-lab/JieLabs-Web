@@ -1547,17 +1547,20 @@ main {
     font-size: 14px;
   }
 
-  .build-detail-bit {
+  .build-detail-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 44px;
-    background: rgba(0,0,0,.1);
+    background: rgba(0,0,0,.18);
     padding-right: 15px;
 
     color: white;
     margin-top: 10px;
     cursor: pointer;
+    margin-right: 10px;
+
+    user-select: none;
 
     > span {
       opacity: .7;
@@ -1573,6 +1576,22 @@ main {
       color: white;
       background: $primary-color;
       padding: 10px;
+    }
+
+    &.build-detail-btn-disabled {
+      cursor: default;
+
+      .material-icons {
+        filter: grayscale(1);
+      }
+
+      > span {
+        opacity: .38;
+      }
+
+      &:hover > span {
+        opacity: .38;
+      }
     }
   }
 
