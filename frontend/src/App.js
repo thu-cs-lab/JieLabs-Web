@@ -62,8 +62,7 @@ export default React.memo(() => {
   const [detailTab, setDetailTab] = useState('logs');
 
   const showDetail = useCallback(e => {
-    console.log(e);
-    currentLoading.current = { basic: e, log: null, code: null, assignments: null, logs: null };
+    currentLoading.current = { basic: e, code: null, assignments: null, logs: null };
     setDetail(currentLoading.current);
 
     // Load src
@@ -121,8 +120,7 @@ export default React.memo(() => {
     else setDetailTab('code');
   }, [detailTab]);
 
-  const blocker = useCallback(e => {
-    e.preventDefault();
+  const weakBlocker = useCallback(e => {
     e.stopPropagation();
   }, []);
 
@@ -232,7 +230,7 @@ export default React.memo(() => {
           classNames="fade"
         >
           <div className="backdrop centering" onMouseDown={dismissDetail}>
-            <div className="dialog build-detail-dialog" onMouseDown={blocker} onAnimationEnd={blocker} onTransitionEnd={blocker}>
+            <div className="dialog build-detail-dialog" onMouseDown={weakBlocker} onAnimationEnd={weakBlocker} onTransitionEnd={weakBlocker}>
               <div className="build-detail-header">
                 <div className="hint">Build detail</div>
                 <div className="dialog-title monospace">Build #{detail.basic.id}</div>
@@ -273,13 +271,13 @@ export default React.memo(() => {
 
                   { detail.logs ? (
                     <>
-                      { detail.logs.stderr !== '' || (
+                      { detail.logs.stderr !== '' && (
                         <>
                           <div className="hint">
                             STDERR
                           </div>
 
-                          <code className="build-detail-stdout">
+                          <code className="build-detail-console">
                             { detail.logs.stderr }
                           </code>
 
@@ -291,7 +289,7 @@ export default React.memo(() => {
                         STDOUT
                       </div>
 
-                      <code className="build-detail-stdout">
+                      <code className="build-detail-console">
                         { detail.logs.stdout }
                       </code>
                     </>

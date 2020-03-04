@@ -39,6 +39,11 @@ code {
   justify-content: center;
 }
 
+/* Components */
+.icon {
+  user-select: none;
+}
+
 /* Frame */
 
 .container {
@@ -1530,6 +1535,17 @@ main {
     padding: 40px 0;
     @include centering;
   }
+
+  .build-detail-console {
+    padding: 20px 30px;
+    display: block;
+    background: #121212;
+    white-space: pre-wrap;
+    color: rgba(255,255,255,.7);
+    margin-top: 10px;
+    @extend .monospace;
+    font-size: 14px;
+  }
 }
 
 .loading {
@@ -1591,4 +1607,6 @@ main {
   @extend .monospace;
   color: rgba(255,255,255,.18);
   margin: 0 10px;
+
+  user-select: none;
 }
