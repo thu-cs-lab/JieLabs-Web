@@ -261,20 +261,7 @@ export default React.memo(() => {
                 </div>
               </div>
               <div className="build-detail">
-                <div className="build-detail-pane">
-                  { detail.logs ? (
-                    <Monaco
-                      options={{
-                        theme: 'vs-dark',
-                        language: 'text',
-                        readonly: true,
-                      }}
-                      value={detail.logs.stdout}
-                    />
-                  ) : <div className="loading"></div> }
-                </div>
-
-                <div className="build-detail-pane">
+                <div className={cn("build-detail-pane", { 'pane-active': detailTab === 'code' })}>
                   { detail.code ? (
                     <Monaco
                       options={{
@@ -283,6 +270,19 @@ export default React.memo(() => {
                         readonly: true,
                       }}
                       value={detail.code}
+                    />
+                  ) : <div className="loading"></div> }
+                </div>
+
+                <div className={cn("build-detail-pane", { 'pane-active': detailTab === 'logs' })}>
+                  { detail.logs ? (
+                    <Monaco
+                      options={{
+                        theme: 'vs-dark',
+                        language: 'text',
+                        readonly: true,
+                      }}
+                      value={detail.logs.stdout}
                     />
                   ) : <div className="loading"></div> }
                 </div>

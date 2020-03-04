@@ -1470,19 +1470,43 @@ main {
   }
 
   .build-detail {
-    display: flex;
+    position: relative;
     flex: 1;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
+
+    overflow: hidden;
 
     .build-detail-pane {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      top: 0;
+
       display: flex;
-      flex: 1;
       align-items: center;
       justify-content: center;
 
-      flex: 1;
-      height: 100%;
+      $shift: 20%;
+
+      opacity: 0;
+      transition: opacity .5s ease, transform .5s ease;
+      pointer-events: none;
+
+      &:first-child {
+        transform: translateX($shift);
+      }
+
+      &:last-child {
+        transform: translateX(-$shift);
+      }
+
+      &.pane-active {
+        transform: none;
+        opacity: 1;
+
+        pointer-events: all;
+      }
     }
   }
 }
