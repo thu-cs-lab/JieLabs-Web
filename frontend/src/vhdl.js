@@ -19,13 +19,9 @@ function posCmp(la, ca, lb, cb) {
 
 let store = null;
 
-export default _store => {
-  store = _store;
-
-  monaco.languages.register({ id: 'vhdl' });
-
+function applyHighlight(lang) {
   // Modified from the tokenizer from highlight.js
-  monaco.languages.setMonarchTokensProvider('vhdl', {
+  monaco.languages.setMonarchTokensProvider(lang, {
     kw: [
       'abs', 'access', 'after', 'alias', 'all', 'and', 'architecture', 'array', 'assert', 'assume', 'assume_guarantee', 'attribute',
       'begin', 'block', 'body', 'buffer', 'bus', 'case', 'component', 'configuration', 'constant', 'context', 'cover', 'disconnect',
@@ -79,6 +75,17 @@ export default _store => {
       ],
     }
   });
+
+}
+
+export default _store => {
+  store = _store;
+
+  monaco.languages.register({ id: 'vhdl' });
+  monaco.languages.register({ id: 'vhdl-ro' }); // Readonly vhdl, no codelens
+
+  applyHighlight('vhdl');
+  applyHighlight('vhdl-ro');
 
   monaco.languages.registerHoverProvider('vhdl', {
     provideHover: (model, pos) => {

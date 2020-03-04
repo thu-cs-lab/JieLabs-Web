@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 import pako from 'pako';
 import { CSSTransition } from 'react-transition-group';
+import Monaco from 'react-monaco-editor';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
 import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
@@ -69,14 +70,19 @@ export default React.memo(() => {
       const buf = await resp.arrayBuffer();
       const arr = new Uint8Array(buf);
 
-      const content = untar(arr);
       if(currentLoading.current?.basic.id !== e.id) return;
+
+      const content = untar(arr);
 
       // Get source
       const decoder = new TextDecoder();
       const sourceRaw = content.find(e => e.name === TAR_FILENAMES.source).content;
       const source = decoder.decode(sourceRaw);
-      console.log(source);
+      currentLoading.current = {
+        ...currentLoading.current,
+        code: source,
+      };
+      setDetail(currentLoading.current);
     }
 
     // Load dst
@@ -207,14 +213,26 @@ export default React.memo(() => {
       >
         <div className="backdrop fullscreen">
           <div className="dialog expanded build-detail-dialog">
-            <div className="hint">Build detail</div>
-            <div className="dialog-title monospace">Build #{detail.basic.id}</div>
+            <div className="build-detail-header">
+              <div className="hint">Build detail</div>
+              <div className="dialog-title monospace">Build #{detail.basic.id}</div>
+            </div>
             <div className="build-detail">
               <div className="build-detail-pane">
+                <div className="loading"></div>
               </div>
 
               <div className="build-detail-pane">
-                <div className="loading"></div>
+                { detail.code ? (
+                  <Monaco
+                    options={{
+                      theme: 'vs-dark',
+                      language: 'vhdl-ro',
+                      readonly: true,
+                    }}
+                    value={detail.code}
+                  />
+                ) : <div className="loading"></div> }
               </div>
             </div>
           </div>

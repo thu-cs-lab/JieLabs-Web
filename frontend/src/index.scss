@@ -1352,6 +1352,13 @@ main {
 .build-detail-dialog {
   display: flex;
   flex-direction: column;
+  padding: 0;
+
+  .build-detail-header {
+    padding: 20px 30px 0 30px;
+    box-shadow: rgba(0,0,0,.7) 0 2px 6px;
+    z-index: 1;
+  }
 
   .build-detail {
     display: flex;
@@ -1366,6 +1373,7 @@ main {
       justify-content: center;
 
       flex: 1;
+      height: 100%;
     }
   }
 }
