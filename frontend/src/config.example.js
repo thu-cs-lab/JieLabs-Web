@@ -5,6 +5,15 @@ export const CODE_ANALYSE_DEBOUNCE = 100;
 export const BUILD_POLL_INTERVAL = 3000;
 export const BUILD_LIST_FETCH_LENGTH = 5;
 
+export const TAR_FILENAMES = {
+  bitstream: 'bitstream.rbf',
+  stdout: 'stdout',
+  stdin: 'stdin',
+
+  source: 'src/mod_top.vhd',
+  constraints: 'src/mod_top.qsf',
+};
+
 export const DEFAULT_BOARD = 'default';
 
 export const BOARDS = {

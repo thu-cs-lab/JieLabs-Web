@@ -1,7 +1,7 @@
 import { Map as IMap, List as IList } from 'immutable';
 
 import { get, post, putS3, createTarFile } from '../util';
-import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL, BUILD_LIST_FETCH_LENGTH } from '../config';
+import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL, BUILD_LIST_FETCH_LENGTH, TAR_FILENAMES } from '../config';
 import { SIGNAL } from '../blocks';
 
 export const TYPES = {
@@ -303,8 +303,12 @@ export function submitBuild() {
         directions[pin] = dir === 'output' ? 'input' : 'output';
       }
 
-      let tar = createTarFile([{ name: 'src/mod_top.vhd', body: code },
-      { name: 'src/mod_top.qsf', body: assignments }]);
+      let tar = createTarFile(
+        [
+          { name: TAR_FILENAMES.source, body: code },
+          { name: TAR_FILENAMES.constraints, body: assignments }
+        ]
+      );
       await putS3(url, tar);
 
       const id = await post('/api/task/build', {

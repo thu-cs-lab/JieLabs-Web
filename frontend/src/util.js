@@ -113,3 +113,46 @@ export function createTarFile(files) {
   }
   return file;
 }
+
+function parseTarEntry(tar, at) {
+  const decoder = new TextDecoder();
+  const headerBlk = tar.slice(at, at + 512);
+
+  if(at >= tar.length - 512*2)
+    return null;
+  if(headerBlk.every(e => e === 0) && tar.slice(at+512, at+1024).every(e => e === 0))
+    return null;
+
+  // Read name
+  const nameDelim = headerBlk.findIndex(e => e === 0);
+  const name = decoder.decode(headerBlk.slice(0, nameDelim));
+
+  // Read length
+  const lenStr = decoder.decode(headerBlk.slice(124, 124+12));
+  const len = Number.parseInt(lenStr, 8);
+  if(Number.isNaN(len)) throw new Error(`Unexpected len ${lenStr}`);
+
+  const paddedLen = Math.ceil(len / 512) * 512;
+
+  return {
+    name,
+    len,
+    paddedLen,
+    content: tar.slice(at + 512, at + 512 + len),
+  };
+}
+
+export function untar(tar) {
+  // Parse headers 
+  let currentAt = 0;
+  const result = [];
+  while(true) {
+    const entry = parseTarEntry(tar, currentAt);
+    if(!entry) break;
+
+    currentAt += 512 + entry.paddedLen;
+    result.push(entry);
+  }
+
+  return result;
+}

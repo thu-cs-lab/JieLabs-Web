@@ -5,9 +5,9 @@ import cn from 'classnames';
 import pako from 'pako';
 import { CSSTransition } from 'react-transition-group';
 
-import { HARD_LOGOUT, BOARDS } from './config';
-
+import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
 import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
+import { untar } from './util';
 
 import Login from './routes/Login';
 import Workspace from './routes/Workspace';
@@ -67,15 +67,25 @@ export default React.memo(() => {
     async function loadSrc() {
       const resp = await fetch(e.src);
       const buf = await resp.arrayBuffer();
+      const arr = new Uint8Array(buf);
+
+      const content = untar(arr);
       if(currentLoading.current?.basic.id !== e.id) return;
+
+      // Get source
+      const decoder = new TextDecoder();
+      const sourceRaw = content.find(e => e.name === TAR_FILENAMES.source).content;
+      const source = decoder.decode(sourceRaw);
+      console.log(source);
     }
 
     // Load dst
     async function loadDst() {
       const resp = await fetch(e.dst);
       const buf = await resp.arrayBuffer();
-      const deflated = pako.deflate(buf);
-      console.log(deflated);
+      const inflated = pako.inflate(buf);
+
+      const content = untar(inflated);
       if(currentLoading.current?.basic.id !== e.id) return;
     }
 
@@ -200,7 +210,12 @@ export default React.memo(() => {
             <div className="hint">Build detail</div>
             <div className="dialog-title monospace">Build #{detail.basic.id}</div>
             <div className="build-detail">
-              <div className="loading"></div>
+              <div className="build-detail-pane">
+              </div>
+
+              <div className="build-detail-pane">
+                <div className="loading"></div>
+              </div>
             </div>
           </div>
         </div>
