@@ -3,7 +3,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 import pako from 'pako';
-import { CSSTransition } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Monaco from 'react-monaco-editor';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
@@ -107,6 +107,11 @@ export default React.memo(() => {
     currentLoading.current = null;
   }, []);
 
+  const blocker = useCallback(e => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
   if(loading)
     return <div className="container loading"></div>;
 
@@ -206,38 +211,40 @@ export default React.memo(() => {
       </Route>
     </Switch>
 
-    { detail !== null && (
-      <CSSTransition
-        timeout={500}
-        classNames="fade"
-      >
-        <div className="backdrop fullscreen">
-          <div className="dialog expanded build-detail-dialog">
-            <div className="build-detail-header">
-              <div className="hint">Build detail</div>
-              <div className="dialog-title monospace">Build #{detail.basic.id}</div>
-            </div>
-            <div className="build-detail">
-              <div className="build-detail-pane">
-                <div className="loading"></div>
+    <TransitionGroup>
+      { detail !== null && (
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+        >
+          <div className="backdrop fullscreen" onMouseDown={dismissDetail}>
+            <div className="dialog expanded build-detail-dialog" onMouseDown={blocker} onAnimationEnd={blocker} onTransitionEnd={blocker}>
+              <div className="build-detail-header">
+                <div className="hint">Build detail</div>
+                <div className="dialog-title monospace">Build #{detail.basic.id}</div>
               </div>
+              <div className="build-detail">
+                <div className="build-detail-pane">
+                  <div className="loading"></div>
+                </div>
 
-              <div className="build-detail-pane">
-                { detail.code ? (
-                  <Monaco
-                    options={{
-                      theme: 'vs-dark',
-                      language: 'vhdl-ro',
-                      readonly: true,
-                    }}
-                    value={detail.code}
-                  />
-                ) : <div className="loading"></div> }
+                <div className="build-detail-pane">
+                  { detail.code ? (
+                    <Monaco
+                      options={{
+                        theme: 'vs-dark',
+                        language: 'vhdl-ro',
+                        readonly: true,
+                      }}
+                      value={detail.code}
+                    />
+                  ) : <div className="loading"></div> }
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </CSSTransition>
-    )}
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   </div>;
 })
