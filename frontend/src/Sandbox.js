@@ -699,7 +699,6 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
     const mHeight = Math.floor(height / FACTOR) + 1;
 
     let maze = new lib.Maze(mWidth, mHeight);
-    console.log(mWidth, mHeight);
 
     function bounded(x, upper) {
       if(x < 0) return 0;
@@ -817,53 +816,113 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
     return result;
   }, [groups, maxX, minX, maxY, minY, lib.Maze, lib.Points, connectors]);
 
-  // Overlay all canvases
-  const renderer = useCallback(canvas => {
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, width, height);
-
-    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
-      ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
-  }, [canvases, scroll, width, height]);
-
   const collide = useCallback((x, y) => {
     const dx = x - scroll.x;
     const dy = y - scroll.y;
 
-    for(const { group, offset, dim, canvas } of canvases) {
+    for(const cur of canvases) {
+      const { group, offset, dim, canvas } = cur;
       const cdx = dx - offset.x;
       const cdy = dy - offset.y;
 
       if(cdx < 0 || cdy < 0) continue;
       if(cdx >= dim.w || cdy >= dim.h) continue;
-      console.log(cdx, cdy);
 
       const ctx = canvas.getContext('2d');
       const imgData = ctx.getImageData(cdx, cdy, 1, 1);
 
       // Extract alpha
       const alpha = imgData.data[3];
-      if(alpha > 0)
-        return group;
+      if(alpha > 0) {
+        console.log('Collided with ', group);
+        return cur;
+      }
     }
 
     return null;
   }, [canvases, scroll]);
 
-  const handleClick = useCallback(e => {
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  const handleMouse = useCallback(e => {
     const { x, y } = e.target.getBoundingClientRect();
-    const collision = collide(e.clientX - x, e.clientY - y);
-    console.log('COLLISION: ', collision);
-  }, [collide]);
+
+    setMouse({
+      x: e.clientX - x,
+      y: e.clientY - y,
+    })
+  }, []);
+
+  const collided = useMemo(() => {
+    return collide(mouse.x, mouse.y);
+  }, [collide, mouse]);
+
+  const [focused, setFocused] = useState(null);
+
+  const handleMouseDown = useCallback(e => {
+    e.stopPropagation();
+    if(collided) setFocused(collided);
+    else setFocused(null);
+  }, [collided]);
+
+  // Composite all canvases
+  const renderer = useCallback(canvas => {
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
+      if(!collided || cvs !== collided.canvas) {
+        ctx.globalAlpha = 0.7;
+        ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
+      }
+
+    function drawWithShadow(spec, color, blur, mapper = null) {
+      const { offset: { x, y }, dim: { w, h }, canvas: cvs } = spec;
+
+      ctx.globalAlpha = 1;
+
+      ctx.shadowColor = color;
+      ctx.shadowBlur = blur;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      const mapped = mapper ? mapper(cvs) : cvs;
+
+      ctx.drawImage(mapped, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
+
+      ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+    }
+
+    function recolor(canvas, color) {
+      const ncvs = document.createElement('canvas');
+      ncvs.height = canvas.height;
+      ncvs.width = canvas.width;
+      const ctx = ncvs.getContext('2d');
+
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, ncvs.width, ncvs.height);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(canvas, 0, 0);
+      return ncvs;
+    }
+
+    // Draw shadow for focused object
+    if(focused)
+      drawWithShadow(focused, 'rgba(255, 199, 56, 1)', 12, cvs => recolor(cvs, 'rgb(255,199,56)'));
+
+    // Draw shadow for hovered object
+    if(collided && collided !== focused)
+      drawWithShadow(collided, 'rgba(255, 199, 56, .8)', 4);
+  }, [canvases, scroll, width, height, collided, focused]);
 
   return (
     <canvas
       ref={renderer}
       width={width}
       height={height}
-      className={cn('wires', { 'wires-shown': active }, className)}
-      onClick={handleClick}
+      className={cn('wires', { 'wires-shown': active, 'wires-collided': collided !== null }, className)}
+      onMouseMove={handleMouse}
+      onMouseDown={handleMouseDown}
     />
   );
 });
