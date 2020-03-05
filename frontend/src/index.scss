@@ -680,8 +680,14 @@ main {
   border: rgba(0,0,0,.3) 5px solid;
   box-shadow: rgba(0,0,0,.1) 0 1px 3px;
 
+  transition: border-color .2s ease; // TODO: optimize, use filter
+
   &.clocking {
     border-color: mix($primary-color, #333);
+  }
+
+  &.selected {
+    border-color: mix($selected-color, #333);
   }
 }
 
@@ -1415,7 +1421,6 @@ main {
 
         transition: opacity .2s ease, background-position .5s ease;
 
-        $selected: #FFC738;
         background-clip: text;
         background-size: 300% 100%;
         background-origin: 100% 0%;
@@ -1425,7 +1430,7 @@ main {
         }
 
         &:first-child {
-          background-image: linear-gradient(-90deg, $selected 0 50%, white 50% 100%);
+          background-image: linear-gradient(-90deg, $selected-color 0 50%, white 50% 100%);
           background-position: 0% 50%;
 
           &.tabber-active {
@@ -1434,7 +1439,7 @@ main {
         }
 
         &:last-child {
-          background-image: linear-gradient(90deg, $selected 0 50%, white 50% 100%);
+          background-image: linear-gradient(90deg, $selected-color 0 50%, white 50% 100%);
           background-position: 100% 50%;
 
           &.tabber-active {

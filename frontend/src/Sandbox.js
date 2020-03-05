@@ -29,10 +29,10 @@ class Handler {
   selecting = null;
   listeners = new Set();
 
-  register(cbref, mode, data) {
+  register(cbref, mode, data, selcbref) {
     const id = uuidv4();
     const ref = React.createRef();
-    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode, data };
+    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode, data, selcb: selcbref };
     this.fireListeners();
     return { ref, id };
   }
@@ -77,6 +77,12 @@ class Handler {
     }
   }
 
+  tryUpdateSel(id) {
+    const ref = this.connectors[id].selcb.current;
+    if(!ref) return;
+    ref(id === this.selecting);
+  }
+
   click(id) {
     let updated = false;
     const original = this.connectors[id].connected;
@@ -89,9 +95,13 @@ class Handler {
       updated = true;
     }
 
-    if(this.selecting === null) this.selecting = id;
-    else if(this.selecting === id) this.selecting = null;
-    else {
+    if(this.selecting === null) {
+      this.selecting = id;
+      this.tryUpdateSel(id);
+    } else if(this.selecting === id) {
+      this.selecting = null;
+      this.tryUpdateSel(id);
+    } else {
       if(this.checkConnectable(id, this.selecting)) {
         this.connectors[this.selecting].connected = id;
         this.connectors[id].connected = this.selecting;
@@ -101,7 +111,9 @@ class Handler {
         updated = true;
       }
 
+      const original = this.selecting;
       this.selecting = null;
+      this.tryUpdateSel(original);
     }
 
     if(updated) {
