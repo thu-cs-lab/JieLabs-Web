@@ -345,6 +345,12 @@ export default React.memo(() => {
         subscriptInc();
 
       ev.preventDefault();
+    } else if (ev.key === 'n' && ev.ctrlKey) {
+      // C-n
+      subscriptInc();
+    } else if (ev.key === 'p' && ev.ctrlKey) {
+      // C-p
+      subscriptDec();
     }
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
 
