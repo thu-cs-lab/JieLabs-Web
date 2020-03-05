@@ -156,6 +156,8 @@ export function restore() {
 
       dispatch(setUser(data));
 
+      dispatch(initBuilds());
+
       return true;
     } catch (e) {
       console.error(e);
@@ -239,9 +241,8 @@ export function init() {
   return async (dispatch) => {
     const restored = dispatch(restore());
     const libLoaded = dispatch(initLib());
-    const buildsLoaded = dispatch(initBuilds());
 
-    const [logined,] = await Promise.all([restored, libLoaded, buildsLoaded]);
+    const [logined,] = await Promise.all([restored, libLoaded]);
     return logined;
   }
 }
