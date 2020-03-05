@@ -11,6 +11,18 @@ import store from './store';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
+/* Polyfills */
+import { ResizeObserver, TextEncoder, TextDecoder } from './polyfills';
+
+if(!window.ResizeObserver)
+  window.ResizeObserver = ResizeObserver;
+
+if(!window.TextEncoder)
+  window.TextEncoder = TextEncoder;
+
+if(!window.TextDecoder)
+  window.TextDecoder = TextDecoder;
+
 initVhdl(store);
 
 const Render = () => <Provider store={store}>

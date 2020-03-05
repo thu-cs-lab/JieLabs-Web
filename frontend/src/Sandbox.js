@@ -10,11 +10,6 @@ import { updateClock } from './store/actions';
 
 import Icon from './comps/Icon';
 
-import { ResizeObserver as Polyfill } from '@juggle/resize-observer';
-
-// For Safari 11
-const ResizeObserver = window.ResizeObserver || Polyfill;
-
 export const SandboxContext = React.createContext(null);
 export const FPGAEnvContext = React.createContext(null);
 
