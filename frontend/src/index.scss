@@ -1000,6 +1000,11 @@ main {
     opacity: 1;
     pointer-events: all;
   }
+
+  &.wires-off {
+    opacity: 0;
+    transition-duration: .1s;
+  }
 }
 
 .ctx {

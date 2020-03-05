@@ -325,7 +325,13 @@ export default React.memo(() => {
 
   const [ctxMenu, setCtxMenu] = useState(null);
 
+  const [moving, setMoving] = useState(false);
+
+  const requestLift = useCallback(() => setMoving(true));
+
   const requestSettle = useCallback((idx, { x, y }) => {
+    setMoving(false);
+
     const ax = alignToBlock(x);
     const ay = alignToBlock(y);
 
@@ -432,6 +438,7 @@ export default React.memo(() => {
                 key={spec.id}
                 idx={idx}
                 spec={spec}
+                requestLift={requestLift}
                 requestSettle={requestSettle}
                 requestDelete={requestDelete}
                 requestRedraw={requestRedraw}
@@ -448,7 +455,8 @@ export default React.memo(() => {
             scroll={scroll}
             width={canvasWidth}
             height={canvasHeight}
-            className={cn({ 'wires-shown': layer === LAYERS.WIRE })}
+            active={layer === LAYERS.WIRE}
+            className={cn({ 'wires-off': moving })}
           />
         </SandboxContext.Provider>
       </FPGAEnvContext.Provider>
@@ -527,7 +535,7 @@ export default React.memo(() => {
   </>;
 });
 
-const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requestRedraw, ...rest }) => {
+const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, requestDelete, requestRedraw, ...rest }) => {
   const [moving, setMoving] = useState(null);
 
   const style = useMemo(() => {
@@ -552,6 +560,9 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
   const onMouseDown = useCallback(ev => {
     const cur = { x: spec.x, y: spec.y };
     setMoving(cur);
+
+    if(requestLift)
+      requestLift();
 
     const move = ev => {
       cur.x += ev.movementX;
@@ -627,7 +638,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
  *   ... (other groups)
  * ]
  */
-const WireLayer = React.memo(({ className, groups, scroll, width, height, connectors }) => {
+const WireLayer = React.memo(({ className, groups, scroll, width, height, connectors, active }) => {
   const FACTOR = 3;
   const MASK_RADIUS = 2;
 
@@ -851,7 +862,7 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
       ref={renderer}
       width={width}
       height={height}
-      className={cn("wires", className)}
+      className={cn('wires', { 'wires-shown': active }, className)}
       onClick={handleClick}
     />
   );
