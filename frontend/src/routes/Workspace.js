@@ -332,7 +332,7 @@ export default React.memo(() => {
   const subscriptDec = useCallback(() => subscriptStep(-1), [subscriptStep]);
 
   const checkKey= useCallback(ev => {
-    if(ev.key === 'Escape')
+    if(ev.key === 'Escape' || (ev.key === 'g' && ev.ctrlKey))
       setAssigning(null);
     else if(ev.key === 'Enter') {
       if(firstFilteredIndex !== -1)
