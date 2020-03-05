@@ -1247,44 +1247,28 @@ main {
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 0;
-  height: 80px;
-  pointer-events: none;
+  height: 48px + 20px;
+  width: 300px;
+  padding: 10px 20px 10px 10px;
+  background: #121212;
 
-  display: flex;
-  align-items: flex-end;
+  box-shadow: rgba(0,0,0,.3) 0 2px 6px;
+  border-left: $primary-color 5px solid;
+
+  display: inline-flex;
+  align-items: flex-start;
 
   z-index: 5; // 4 is for wire-layer
 
-  .section-hint {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255,255,255, .38);
-    height: 24px;
-    width: 100%;
-
-    color: $bg;
-
-    @extend .monospace;
-    font-size: 12px;
-    .material-icons {
-      font-size: 18px;
-      margin-right: 6px;
-    }
-  }
+  background-image: linear-gradient(90deg, change-color($primary-color, $alpha: .3) 0px (48px+10px*2), transparent (48px+10px*2) 100%);
 
   .layer-switcher {
-    $shift: 4px;
+    $ratio: 0.5;
 
     pointer-events: all;
     cursor: pointer;
-    height: 48px + 24px + $shift;
-    margin-top: 80px - 48px - 24px - $shift;
-    width: 48px + 24px + $shift * 2;
+    height: 48px;
+    width: 48px * (1+$ratio) + 20px;
     position: relative;
 
     .layer-icon {
@@ -1292,11 +1276,11 @@ main {
       font-size: 48px;
 
       position: absolute;
-      left: $shift;
+      left: 0;
       top: 0;
 
       transform-origin: top left;
-      transform: translate(48px, 24px) scale(0.5);
+      transform: translate(48px + 20px, 0) scale($ratio);
       opacity: .38;
       transition: transform ease .2s, opacity ease .2s;
 
@@ -1311,68 +1295,136 @@ main {
     }
   }
 
-  .tools {
-    $shift: 4px;
-    $move: 10px;
-    $stagger: .025s;
+  .sep {
+    height: 24px;
+    height: 24px;
+  }
 
-    position: relative;
-    width: 400px;
-    margin-left: 4px;
+  $move: 10px;
+  $stagger: .1s;
+  $interval: .1s;
 
-    .tool-group {
-      position: absolute;
-      bottom: 24px + $shift;
-      height: 24px;
-      left: $shift;
+  $block-tool-count: 2;
 
-      .tool {
-        display: inline-block;
+  .tool {
+    color: white;
+    margin-right: 5px;
+    cursor: pointer;
 
-        color: white;
-        opacity: 0;
+    transition: opacity .2s ease;
 
-        cursor: pointer;
+    &:hover {
+      opacity: 1;
 
-        transition-property: opacity, transform;
-        transition-timing-function: ease, ease-in; // Disappear
-        transition-duration: .2s;
-
-        @for $i from 1 through 10 {
-          &:nth-child(#{$i}) {
-            transition-delay: $i * $stagger;
-          }
-        }
-
-        transform: translateY($move);
-
-        .material-icons {
-          opacity: .7;
-
-          transition: opacity .2s ease;
-
-          &:hover {
-            opacity: 1
-          }
-        }
+      + .tool-activated {
+        opacity: 1;
       }
+    }
 
-      &.tool-group-shown {
-        .tool {
-          transform: none;
-          transition-timing-function: ease, ease-out; // Appear 
+    z-index: 1;
 
-          opacity: 1;
+    transform: translateY($move);
+    opacity: 0;
 
-          pointer-events: all;
+    transition-property: transform, opacity;
+    transition-timing-function: ease;
+    transition-duration: .2s;
+    pointer-events: none;
 
-          @for $i from 1 through 10 {
-            &:nth-child(#{$i}) {
-              transition-delay: .3s + $i * $stagger;
-            }
-          }
-        }
+    @for $i from 1 through 10 {
+      &[data-tool~="#{$i}"] {
+        transition-delay: ($i - 1) * $stagger;
       }
+    }
+
+    &.tool[data-tool~="wire"] {
+      transform: translateY($move) translateX(-$block-tool-count*(5px + 24px));
+    }
+  }
+
+  @mixin tool-shown {
+    transform: none;
+    opacity: .54;
+    pointer-events: all;
+
+    @for $i from 1 through 10 {
+      &[data-tool~="#{$i}"] {
+        transition-delay: .2s + $interval + ($i - 1) * $stagger;
+      }
+    }
+  }
+
+  &.block-mode {
+    .tool[data-tool~="block"] {
+      @include tool-shown;
+    }
+  }
+
+  &.wire-mode {
+    .tool[data-tool~="wire"] {
+      @include tool-shown;
+      transform: translateX(-$block-tool-count*(5px + 24px));
+    }
+  }
+
+  .sandbox-toolbar-hint {
+    position: absolute;
+    bottom: 0;
+    left: 48px + 20px;
+    bottom: 0px;
+    right: 0;
+
+    height: 24px;
+    padding: 0 10px;
+    line-height: 24px;
+    font-size: 12px;
+    @extend .monospace;
+    color: white;
+    background: #333;
+
+    user-select: none;
+
+    z-index: 0;
+
+    &.tool-activated {
+      z-index: 2;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+  }
+
+  .layer-hint {
+    position: absolute;
+
+    transition: opacity .5s ease, transform .5s ease;
+
+    $shift: 15px;
+
+    opacity: 0;
+
+    &[data-iter="1"] {
+      transform: translateX(-$shift);
+    }
+
+    &[data-iter="2"] {
+      transform: translateX($shift);
+    }
+
+    &.layer-hint-active {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  .layer-hint-tail {
+    transition: transform .5s ease;
+
+    &.layer-hint-tail-block {
+      transform: translateX(3.5em); // Roboto has a ratio of .5
+    }
+
+    &.layer-hint-tail-wire {
+      transform: translateX(3em);
     }
   }
 }

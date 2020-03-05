@@ -482,54 +482,34 @@ export default React.memo(() => {
       }
     </div>
 
-    <div className="sandbox-toolbar">
+    <div className={cn("sandbox-toolbar", { 'block-mode': layer === LAYERS.BLOCK, 'wire-mode': layer === LAYERS.WIRE })}>
       <div className="layer-switcher" onClick={switchLayer}>
         <Icon
-          className={cn("layer-icon", { 'layer-icon-active': layer === LAYERS.WIRE })}
-        >settings_input_component</Icon>
-        <Icon
           className={cn("layer-icon", { 'layer-icon-active': layer === LAYERS.BLOCK })}
-        >settings_applications</Icon>
-
-        <div className="section-hint">
-          <Icon>layers</Icon><span>Layer</span>
-        </div>
+        >border_all</Icon>
+        <Icon
+          className={cn("layer-icon", { 'layer-icon-active': layer === LAYERS.WIRE })}
+        >device_hub</Icon>
       </div>
 
-      <div className="tools">
+      <div className="sep">/</div>
 
-        <div className="section-hint">
-          <Icon>bubble_chart</Icon><span>tools</span>
-        </div>
+      <span className="tool" data-tool="block 1"><Icon>save</Icon></span>
+      <div className="sandbox-toolbar-hint tool-activated">Save sandbox <small>[C-s]</small></div>
 
-        <div
-          className={cn("tool-group", { 'tool-group-shown': layer === LAYERS.WIRE })}
-        >
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-          <span className="tool"><Icon>delete</Icon></span>
-        </div>
+      <span className="tool" data-tool="block 2"><Icon>open_in_browser</Icon></span>
+      <div className="sandbox-toolbar-hint tool-activated">Load sandbox <small>[C-o]</small></div>
 
-        <div
-          className={cn("tool-group", { 'tool-group-shown': layer === LAYERS.BLOCK })}
-        >
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-          <span className="tool"><Icon>edit</Icon></span>
-        </div>
+      <span className="tool" data-tool="wire 1"><Icon>close</Icon></span>
+      <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[C-d]</small></div>
+
+      <span className="tool" data-tool="wire 2"><Icon>format_paint</Icon></span>
+      <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-c]</small></div>
+
+      <div className="sandbox-toolbar-hint">
+        <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>
+        <div data-iter="2" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.WIRE })}>Wire</div>
+        <div className={cn('layer-hint-tail', `layer-hint-tail-${layer === LAYERS.WIRE ? 'wire' : 'block'}`)}>layer [C-l]</div>
       </div>
     </div>
   </>;
