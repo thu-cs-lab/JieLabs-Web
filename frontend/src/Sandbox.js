@@ -255,7 +255,7 @@ export default React.memo(() => {
     if(!container.current) return [];
 
     return lines.map(line => ({
-      color: 'rgba(0,0,0,.3)',
+      color: 'black',
       members: line.map(({ id, ref }) => {
         if(!ref.current) return null;
         const bounding = ref.current.getBoundingClientRect();
@@ -440,12 +440,15 @@ export default React.memo(() => {
             ))}
           </div>
 
+          <Shutter open={layer === LAYERS.WIRE} />
+
           <WireLayer
             groups={groups}
             connectors={connectors}
             scroll={scroll}
             width={canvasWidth}
             height={canvasHeight}
+            className={cn({ 'wires-shown': layer === LAYERS.WIRE })}
           />
         </SandboxContext.Provider>
       </FPGAEnvContext.Provider>
@@ -624,7 +627,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestSettle, requestDelete, requ
  *   ... (other groups)
  * ]
  */
-const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => {
+const WireLayer = React.memo(({ className, groups, scroll, width, height, connectors }) => {
   const FACTOR = 3;
   const MASK_RADIUS = 2;
 
@@ -848,8 +851,15 @@ const WireLayer = React.memo(({ groups, scroll, width, height, connectors }) => 
       ref={renderer}
       width={width}
       height={height}
-      className="wires"
+      className={cn("wires", className)}
       onClick={handleClick}
     />
   );
+});
+
+const Shutter = React.memo(({ open, className, ...rest }) => {
+  return <div className={cn('shutter', className, { 'shutter-open': open })} {...rest}>
+    <div className="shutter-top"></div>
+    <div className="shutter-bottom"></div>
+  </div>;
 });

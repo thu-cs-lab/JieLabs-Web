@@ -1,0 +1,40 @@
+$tile-size: 100px;
+$shutter-color: rgba(255,255,255,.3);
+
+.shutter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  pointer-events: none;
+}
+
+.shutter-top {
+  position: absolute;
+  bottom: -$tile-size;
+  left: -$tile-size;
+  right: -$tile-size;
+  top: -$tile-size;
+
+  background: linear-gradient(45deg, $shutter-color 0% 25%, transparent 25% 50%, $shutter-color 50% 75%, transparent 75% 100%);
+  background-size: $tile-size $tile-size;
+  background-repeat: repeat;
+
+  mask-image: linear-gradient(45deg, black 0% 25%, transparent 25% 50%, black 50% 75%, transparent 75% 100%);
+  mask-size: $tile-size $tile-size;
+  mask-repeat: repeat;
+  mask-position: $tile-size/2 0px;
+
+  transition: mask-position .5s ease;
+
+  .shutter.shutter-open & {
+    mask-position: 0px 0px;
+  }
+}
+
+.shutter-bottom {
+  @extend .shutter-top;
+  transform: translateY($tile-size/2);
+}

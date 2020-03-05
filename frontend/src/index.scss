@@ -3,6 +3,7 @@
 @import "styles/transition.scss";
 @import "styles/editor.scss";
 @import "styles/tooltip.scss";
+@import "styles/shutter.scss";
 
 * {
   box-sizing: inherit;
@@ -990,6 +991,15 @@ main {
   top: 0;
 
   z-index: 4;
+
+  opacity: .3;
+
+  transition: opacity .5s ease;
+
+  &.wires-shown {
+    opacity: 1;
+    pointer-events: all;
+  }
 }
 
 .ctx {
@@ -1233,6 +1243,8 @@ main {
 
   display: flex;
   align-items: flex-end;
+
+  z-index: 5; // 4 is for wire-layer
 
   .section-hint {
     position: absolute;
