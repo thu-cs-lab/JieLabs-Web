@@ -113,16 +113,16 @@ impl Handler<GetBoardList> for BoardManagerActor {
 
     fn handle(&mut self, _req: GetBoardList, _ctx: &mut Context<Self>) -> BoardInfoList {
         let mut res = vec![];
-        for board in &self.idle_boards {
-            res.push(BoardInfo2 {
-                board: board.info.clone(),
-                connected_user: None,
-            });
-        }
         for (user, board) in &self.connections {
             res.push(BoardInfo2 {
                 board: board.info.clone(),
                 connected_user: Some(user.user_name.clone()),
+            });
+        }
+        for board in &self.idle_boards {
+            res.push(BoardInfo2 {
+                board: board.info.clone(),
+                connected_user: None,
             });
         }
         BoardInfoList(res)
