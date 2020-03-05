@@ -204,10 +204,12 @@ const jobMapper = ({ id, metadata, status, src_url, dst_url, created_at, finishe
 export function initBuilds() {
   return async (dispatch, getState) => {
     try {
-      const builds = await get(`/api/task/?limit=${BUILD_LIST_FETCH_LENGTH}`); // Why hurt me so much actix router?
-      const mapped = builds.jobs.map(jobMapper);
-      dispatch(loadBuilds(IList(mapped), mapped.length < BUILD_LIST_FETCH_LENGTH));
-      kickoffPolling(dispatch, getState); // Fire-and-fly
+      if (getState().user) {
+        const builds = await get(`/api/task/?limit=${BUILD_LIST_FETCH_LENGTH}`); // Why hurt me so much actix router?
+        const mapped = builds.jobs.map(jobMapper);
+        dispatch(loadBuilds(IList(mapped), mapped.length < BUILD_LIST_FETCH_LENGTH));
+        kickoffPolling(dispatch, getState); // Fire-and-fly
+      }
       return true;
     } catch(e) {
       console.error(e);
