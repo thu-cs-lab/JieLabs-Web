@@ -11,7 +11,7 @@ async function parseResp(resp) {
   if (resp.status >= 400)
     throw new NetworkError({
       code: resp.status,
-      msg: resp.text(),
+      msg: await resp.text(),
     });
   return await resp.json();
 }

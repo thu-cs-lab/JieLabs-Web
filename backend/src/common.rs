@@ -105,6 +105,10 @@ pub async fn download_s3(file_name: String) -> Option<Bytes> {
 pub fn err<T: Display>(err: T) -> Error {
     let error_token = generate_uuid();
     error!("Error {}: {}", error_token, err);
+    sentry::capture_message(
+        &format!("token: {}, err: {}", error_token, err),
+        sentry::Level::Error,
+    );
     ErrorInternalServerError(format!(
         "Please contact admin with error token {}",
         error_token

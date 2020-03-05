@@ -543,7 +543,7 @@ main {
 .workspace {
   display: flex;
 
-  .left {
+  > .left {
     flex: 1;
     overflow: hidden;
     margin-right: -60px;
@@ -551,7 +551,7 @@ main {
     position: relative;
   }
 
-  .toolbar {
+  > .toolbar {
     z-index: 10;
     width: 60px;
     backdrop-filter: blur(4px);
@@ -588,7 +588,7 @@ main {
     }
   }
 
-  .right {
+  > .right {
     flex: 1;
     z-index: 10;
     min-width: 0;
