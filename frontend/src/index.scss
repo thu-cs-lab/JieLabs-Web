@@ -1281,7 +1281,7 @@ main {
 
       transform-origin: top left;
       transform: translate(48px + 20px, 0) scale($ratio);
-      opacity: .38;
+      opacity: .54;
       transition: transform ease .2s, opacity ease .2s;
 
       &.layer-icon-active {
@@ -1290,8 +1290,8 @@ main {
       }
     }
 
-    &:hover .layer-icon:not(.layer-icon-active) {
-      opacity: .7;
+    &:hover .layer-icon {
+      opacity: 1;
     }
   }
 
