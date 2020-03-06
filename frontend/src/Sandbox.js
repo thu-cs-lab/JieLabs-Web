@@ -988,10 +988,7 @@ const WireLayer = React.memo(({
       }
 
     if(hovered !== null && (focus?.type !== 'connector' || hovered.id !== focus.id)) {
-      ctx.shadowColor = 'rgba(255, 199, 56, .8)'
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = 'rgba(255, 199, 56, .8)'
 
       ctx.beginPath();
       ctx.arc(hovered.x + scroll.x, hovered.y + scroll.y, connectorRadius, 0, 2*Math.PI);
@@ -1005,8 +1002,13 @@ const WireLayer = React.memo(({
     if(focus?.type === 'connector') focused = connectors.find(e => e.id === focus.id);
 
     if(focused) {
-      ctx.fillStyle = 'rgba(255, 199, 56, .5)'
-      ctx.strokeStyle = 'rgba(255, 199, 56, 1)'
+      if(linking) {
+        ctx.fillStyle = 'rgba(87, 255, 242, .5)'
+        ctx.strokeStyle = 'rgba(87, 255, 242, 1)'
+      } else {
+        ctx.fillStyle = 'rgba(255, 199, 56, .5)'
+        ctx.strokeStyle = 'rgba(255, 199, 56, 1)'
+      }
       ctx.beginPath();
       ctx.arc(focused.x + scroll.x, focused.y + scroll.y, connectorRadius, 0, 2*Math.PI);
       ctx.fill();
@@ -1014,7 +1016,7 @@ const WireLayer = React.memo(({
 
       ctx.shadowColor = 'transparent';
     }
-  }, [connectors, scroll, width, height, hovered, focus]);
+  }, [connectors, scroll, width, height, hovered, focus, linking]);
 
   // Composite all canvases
   const renderer = useCallback(canvas => {
@@ -1050,9 +1052,9 @@ const WireLayer = React.memo(({
       return ncvs;
     }
 
-    let focusedComp = null;
+    let focused = null;
     if(focus && focus.type === 'group')
-      focusedComp = canvases.find(e => e.group.id === focus.id);
+      focused = canvases.find(e => e.group.id === focus.id);
 
     ctx.globalAlpha = 0.7;
     for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
@@ -1061,14 +1063,18 @@ const WireLayer = React.memo(({
 
     ctx.globalAlpha = 1;
 
-    // Draw shadow for focused object
-    if(focusedComp)
-      drawWithShadow(focusedComp, 'rgba(255, 199, 56, 1)', 12, cvs => recolor(cvs, 'rgb(255,199,56)'));
-
     // Draw shadow for hovered object
-    if(!hovered && collided && collided !== focusedComp)
+    if(!hovered && collided && collided !== focused)
       drawWithShadow(collided, 'rgba(255, 199, 56, .8)', 4);
-  }, [canvases, scroll, width, height, collided, focus, hovered]);
+
+    // Draw shadow for focused object
+    if(focused)
+      if(linking) {
+        drawWithShadow(focused, 'rgba(87, 255, 242, 1)', 12, cvs => recolor(cvs, 'rgb(87,255,242)'));
+      } else {
+        drawWithShadow(focused, 'rgba(255, 199, 56, 1)', 12, cvs => recolor(cvs, 'rgb(255,199,56)'));
+      }
+  }, [canvases, scroll, width, height, collided, focus, hovered, linking]);
 
   const handleMouseDown = useCallback(e => {
     if(linking) {
