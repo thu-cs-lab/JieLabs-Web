@@ -80,7 +80,7 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
 
                         if let Some(ref constraint) = decl.subtype_indication.constraint {
                             let inner: &SubtypeConstraint = &constraint.item;
-                            log(&format!("{:#?}", constraint));
+                            //log(&format!("{:#?}", constraint));
 
                             if let &SubtypeConstraint::Array(ref vec, None) = inner {
                                 if let [DiscreteRange::Range(Range::Range(RangeConstraint {
