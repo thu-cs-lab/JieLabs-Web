@@ -107,7 +107,8 @@ export default React.memo(() => {
 
     if(detailedBuild.status !== detail.basic.status) {
       // This is executed synchronously, so the id shouldn't have changed
-      console.assert(currentLoading.current.basic.id === detailedBuild.id);
+      if(currentLoading.current.basic.id !== detailedBuild.id)
+        throw new Error('Detailed build id changed!');
 
       currentLoading.current = {
         ...currentLoading.current,

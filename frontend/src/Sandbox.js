@@ -54,7 +54,7 @@ class Handler {
     this.connectors[id].group = null;
 
     const group = this.groups[gid];
-    console.assert(group.delete(id));
+    if(!group.delete(id)) throw new Error(`Unexpected: removing ${id} from ${group}, but not in conn set`);
 
     if(group.size === 0)
       delete this.groups[gid];
@@ -172,8 +172,8 @@ class Handler {
     console.log(this.groups);
     const result = [];
     for(const gid in this.groups) {
+      if(this.groups[gid].size) throw new Error(`Unexpected group size ${ids.length}`);
       const ids = Array.from(this.groups[gid]);
-      console.assert(ids.length > 1);
 
       result.push(ids.map(id => ({
         ref: this.connectors[id].ref,
