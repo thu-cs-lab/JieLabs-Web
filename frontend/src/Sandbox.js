@@ -90,16 +90,49 @@ class Handler {
     this.tryUpdateSet(ag);
   }
 
-  connectPin(aid, bid) {
-    console.log(aid);
-    console.log(bid);
+  checkCompatible(aid, bid) {
+    const aset = this.connSet(aid);
+    const bset = this.connSet(bid);
+
+    // TODO: optimize, but hey, it's js, and this is probably not on the hot path
+    const modes = [...aset, ...bset].map(id => this.connectors[id].mode);
+    console.log(modes);
+
+    /*
+     * Possible values for state:
+     * null: nothing
+     * ANY: normal IO pins, can connect to clocking dst, cannot connect to clocking src
+     * CLOCKING: clocking network with clock src, can only connect to anything clock dst
+     * CLOCKING_PARTIAL: clocking network without clock src, can connect to anything
+     */
+    let state = null;
+    for(const mode of modes) {
+      if(state === null) {
+        if(mode === MODE.NORMAL) state = 'ANY';
+        else if(mode === MODE.CLOCK_SRC) state = 'CLOCKING';
+        else if(mode === MODE.CLOCK_DEST) state = 'CLOCKING_PARTIAL';
+      } else if(state === 'ANY') {
+        if(mode === MODE.CLOCK_SRC) return false;
+      } else if(state === 'CLOCKING') {
+        if(mode !== MODE.CLOCK_DEST) return false;
+      } else if(state === 'CLOCKING_PARTIAL') {
+        if(mode === MODE.NORMAL) state = 'ANY';
+        else if(mode === MODE.CLOCK_SRC) state = 'CLOCKING';
+      }
+    }
+
+    return true;
+  }
+
+  connect(aid, bid) {
+    if(!this.checkCompatible(aid, bid)) return false;
 
     const gaid = this.connectors[aid].group;
     const gbid = this.connectors[bid].group;
 
     if(gaid && gbid) {
       this.unionGroup(gaid, gbid);
-      return;
+      return true;
     }
 
     let gid = gaid || gbid;
@@ -117,6 +150,8 @@ class Handler {
     this.connectors[bid].group = gid;
 
     this.tryUpdateSet(group);
+
+    return true;
   }
 
   tryUpdateSet(set) {
@@ -156,16 +191,6 @@ class Handler {
   click(id) {
     if(this.onConnectorClicked)
       this.onConnectorClicked(id);
-  }
-
-  checkConnectable(aid, bid) {
-    // TODO: check if clock is connected to multiple clock source, this is forbidden
-    const { mode: am } = this.connectors[aid];
-    const { mode: bm } = this.connectors[bid];
-
-    if(am === MODE.CLOCK_DEST || bm === MODE.CLOCK_DEST) return true;
-    if(am === MODE.CLOCK_SRC || bm === MODE.CLOCK_SRC) return false;
-    return true;
   }
 
   getLines() {
@@ -296,10 +321,13 @@ export default React.memo(() => {
   }), []);
 
   const link = useCallback(id => {
+    let result;
     if(focus.type === 'connector')
-      handler.connectPin(focus.id, id);
+      result = handler.connect(focus.id, id);
     else
-      handler.connectPin(handler.getLeaderId(focus.id), id);
+      result = handler.connect(handler.getLeaderId(focus.id), id);
+    if(!result) return;
+
     setLines(handler.getLines());
     setLinking(false);
     setFocus(null)
