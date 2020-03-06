@@ -851,6 +851,11 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
     else setFocused(null);
   }, [collided]);
 
+  // Unfocuse on layer switch
+  useEffect(() => {
+    if(!active) setFocused(null);
+  }, [active])
+
   // Composite all canvases
   const renderer = useCallback(canvas => {
     if(!canvas) return;
