@@ -539,7 +539,7 @@ export default React.memo(() => {
 
   const [paletteShown, setPaletteShown] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
-  const showPalette = useCallback(() => setPaletteShown(true), []);
+  const togglePalette = useCallback(() => setPaletteShown(!paletteShown), [paletteShown]);
 
   useEffect(() => {
     const listener = e => setPaletteShown(false);
@@ -584,11 +584,11 @@ export default React.memo(() => {
       disconnect: doDisconnect,
       layer: switchLayer,
       dye: doDye,
-      palette: showPalette,
+      palette: togglePalette,
       shiftColor,
       shiftBackColor,
     };
-  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking, doDye, showPalette, shiftColor, shiftBackColor]);
+  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking, doDye, togglePalette, shiftColor, shiftBackColor]);
 
   function invoke(action, e) {
     const func = hotkeys.current[action];
@@ -760,7 +760,7 @@ export default React.memo(() => {
 
       <div className="sep">/</div>
 
-      <span className="tool tool-last" onClick={showPalette}>
+      <span className="tool tool-last" onClick={togglePalette}>
         <div className="palette-stub" style={{ backgroundColor: color }}></div>
       </span>
       <div className="sandbox-toolbar-hint tool-activated">Palette <small>[C-c] / Swap [(S-)TAB]</small></div>
