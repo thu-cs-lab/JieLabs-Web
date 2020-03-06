@@ -66,12 +66,28 @@ class Handler {
     this.tryUpdate(id);
   }
 
+  unionGroup(aid, bid) {
+    const ag = this.groups[aid];
+    const bg = this.groups[bid];
+    console.log(ag, bg);
+
+    for(const id of bg) {
+      this.connectors[id].group = aid;
+      ag.add(id);
+    }
+
+    delete this.groups[bid];
+    this.tryUpdateSet(ag);
+  }
+
   connectPin(aid, bid) {
     const gaid = this.connectors[aid].group;
     const gbid = this.connectors[bid].group;
 
-    if(gaid && gbid)
-      throw new Error('Union group');
+    if(gaid && gbid) {
+      this.unionGroup(gaid, gbid);
+      return;
+    }
 
     let gid = gaid || gbid;
 
