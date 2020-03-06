@@ -535,6 +535,31 @@ export default React.memo(() => {
     setFocus(null);
   }, [focus, handler]);
 
+  /* Color stuff */
+
+  const [paletteShown, setPaletteShown] = useState(false);
+  const [color, setColor] = useState(COLORS[0]);
+  const showPalette = useCallback(() => setPaletteShown(true), []);
+
+  useEffect(() => {
+    const listener = e => setPaletteShown(false);
+    document.addEventListener('mousedown', listener);
+    return () => document.removeEventListener('mousedown', listener);
+  }, []);
+
+  useLayoutEffect(() => {
+    if(handler) handler.setActiveColor(color);
+  }, [color, handler]);
+
+  const doDye = useCallback(() => {
+    if(focus?.type !== 'group') return;
+    handler.dyeGroup(focus.id);
+    setFocus(null);
+    setLines(handler.getLines());
+  }, [focus, handler]);
+
+  /* Hotkeys */
+
   const hotkeys = useRef();
 
   useEffect(() => {
@@ -571,22 +596,6 @@ export default React.memo(() => {
       document.removeEventListener('keyup', releaseListener);
     }
   }, []);
-
-  /* Color stuff */
-
-  const [paletteShown, setPaletteShown] = useState(false);
-  const [color, setColor] = useState(COLORS[0]);
-  const showPalette = useCallback(() => setPaletteShown(true), []);
-
-  useEffect(() => {
-    const listener = e => setPaletteShown(false);
-    document.addEventListener('mousedown', listener);
-    return () => document.removeEventListener('mousedown', listener);
-  }, []);
-
-  useLayoutEffect(() => {
-    if(handler) handler.setActiveColor(color);
-  }, [color, handler]);
 
   return <>
     <div
@@ -723,7 +732,11 @@ export default React.memo(() => {
       ><Icon>link_off</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[DEL/BS]</small></div>
 
-      <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 3"><Icon>format_paint</Icon></span>
+      <span
+        className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })}
+        data-tool="wire 3"
+        onClick={doDye}
+      ><Icon>format_paint</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Dye <small>[C-d]</small></div>
 
       <div className="spanner"></div>
