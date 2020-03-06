@@ -854,124 +854,136 @@ const WireLayer = React.memo(({
     // and everything screams
     if(groups.length === 0) return [];
 
-    const width = maxX - minX;
-    const height = maxY - minY;
-    const mWidth = Math.floor(width / FACTOR) + 1;
-    const mHeight = Math.floor(height / FACTOR) + 1;
+    function tryRoute(backoff) {
+      const width = maxX - minX + 2 * backoff;
+      const height = maxY - minY + 2 * backoff;
+      const mWidth = Math.floor(width / FACTOR) + 1;
+      const mHeight = Math.floor(height / FACTOR) + 1;
 
-    let maze = new lib.Maze(mWidth, mHeight);
+      let maze = new lib.Maze(mWidth, mHeight);
 
-    function bounded(x, upper) {
-      if(x < 0) return 0;
-      if(x > upper - 1) return upper - 1;
-      return x;
-    }
-
-    function boundedRadius(x, y, delta) {
-      return [
-        bounded(x - delta, mWidth),
-        bounded(y - delta, mHeight),
-        bounded(x + delta, mWidth),
-        bounded(y + delta, mHeight),
-      ];
-    }
-
-    const result = [];
-
-    for(const { x, y, /* id */ } of connectors) {
-      if (x < minX || x > maxX || y < minY || y > maxY)
-        continue;
-      const mx = Math.floor((x - minX) / FACTOR);
-      const my = Math.floor((y - minY) / FACTOR);
-
-      maze.fill_mut(...boundedRadius(mx, my, MASK_RADIUS));
-    }
-
-    // Draw
-    for(const group of groups) {
-      const mazeCoords = group.members.map(({ x, y }) => ({
-        x: Math.floor((x - minX) / FACTOR),
-        y: Math.floor((y - minY) / FACTOR),
-      }));
-
-      let points = [];
-      for (const { x, y } of mazeCoords) {
-        maze.clean_mut(...boundedRadius(x, y, MASK_RADIUS));
-        points.push([x, y]);
-      }
-      const arg = new lib.Points(points);
-
-      const rawChangeset = maze.multi_terminal(arg);
-      arg.free();
-
-      // TODO: properly handles this, maybe enlarge grid?
-      if(rawChangeset === undefined)
-        throw new Error('No solution!');
-
-      const changeset = rawChangeset.to_js();
-      maze.apply(rawChangeset);
-      rawChangeset.free();
-
-      for(const { x, y } of mazeCoords)
-        maze.fill_mut(...boundedRadius(x, y, MASK_RADIUS));
-
-      // Find bouding rect of this changeset
-      let minMCX = Infinity;
-      let minMCY = Infinity;
-      let maxMCX = -Infinity;
-      let maxMCY = -Infinity;
-
-      for(const [x, y, /* type */] of changeset) {
-        if(x < minMCX) minMCX = x;
-        if(x > maxMCX) maxMCX = x;
-        if(y < minMCY) minMCY = y;
-        if(y > maxMCY) maxMCY = y;
+      function bounded(x, upper) {
+        if(x < 0) return 0;
+        if(x > upper - 1) return upper - 1;
+        return x;
       }
 
-      const minCX = minX + minMCX * FACTOR;
-      const maxCX = maxX + (maxMCX + 1) * FACTOR; // +1 for the border column/row
-      const minCY = minY + minMCY * FACTOR;
-      const maxCY = maxY + (maxMCY + 1) * FACTOR;
-
-      // Create the canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = maxCX - minCX;
-      canvas.height = maxCY - minCY;
-
-      const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = group.color;
-
-      // FIXME: draw different shape based on types
-      for (const [x, y, /* type */] of changeset) {
-        const dx = (x - minMCX) * FACTOR;
-        const dy = (y - minMCY) * FACTOR;
-
-        ctx.fillRect(
-          dx,
-          dy,
-          FACTOR,
-          FACTOR,
-        );
+      function boundedRadius(x, y, delta) {
+        return [
+          bounded(x - delta, mWidth),
+          bounded(y - delta, mHeight),
+          bounded(x + delta, mWidth),
+          bounded(y + delta, mHeight),
+        ];
       }
 
-      result.push({
-        group,
-        offset: {
-          x: minCX,
-          y: minCY,
-        },
-        dim: {
-          w: maxCX - minCX,
-          h: maxCY - minCY,
-        },
-        canvas,
-      });
+      const result = [];
+
+      for(const { x, y, /* id */ } of connectors) {
+        if (x < minX - backoff || x > maxX + backoff || y < minY - backoff || y > maxY + backoff)
+          continue;
+        const mx = Math.floor((x - minX + backoff) / FACTOR);
+        const my = Math.floor((y - minY + backoff) / FACTOR);
+
+        maze.fill_mut(...boundedRadius(mx, my, MASK_RADIUS));
+      }
+
+      // Draw
+      for(const group of groups) {
+        const mazeCoords = group.members.map(({ x, y }) => ({
+          x: Math.floor((x - minX + backoff) / FACTOR),
+          y: Math.floor((y - minY + backoff) / FACTOR),
+        }));
+
+        let points = [];
+        for (const { x, y } of mazeCoords) {
+          maze.clean_mut(...boundedRadius(x, y, MASK_RADIUS));
+          points.push([x, y]);
+        }
+        const arg = new lib.Points(points);
+
+        const rawChangeset = maze.multi_terminal(arg);
+        arg.free();
+
+        if(rawChangeset === undefined)
+          return null;
+
+        const changeset = rawChangeset.to_js();
+        maze.apply(rawChangeset);
+        rawChangeset.free();
+
+        for(const { x, y } of mazeCoords)
+          maze.fill_mut(...boundedRadius(x, y, MASK_RADIUS));
+
+        // Find bouding rect of this changeset
+        let minMCX = Infinity;
+        let minMCY = Infinity;
+        let maxMCX = -Infinity;
+        let maxMCY = -Infinity;
+
+        for(const [x, y, /* type */] of changeset) {
+          if(x < minMCX) minMCX = x;
+          if(x > maxMCX) maxMCX = x;
+          if(y < minMCY) minMCY = y;
+          if(y > maxMCY) maxMCY = y;
+        }
+
+        const minCX = minX - backoff + minMCX * FACTOR;
+        const maxCX = minX - backoff + (maxMCX + 1) * FACTOR; // +1 for the border column/row
+        const minCY = minY - backoff + minMCY * FACTOR;
+        const maxCY = minY - backoff + (maxMCY + 1) * FACTOR;
+
+        // Create the canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = maxCX - minCX;
+        canvas.height = maxCY - minCY;
+
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = group.color;
+
+        // FIXME: draw different shape based on types
+        for (const [x, y, /* type */] of changeset) {
+          const dx = (x - minMCX) * FACTOR;
+          const dy = (y - minMCY) * FACTOR;
+
+          ctx.fillRect(
+            dx,
+            dy,
+            FACTOR,
+            FACTOR,
+          );
+        }
+
+        result.push({
+          group,
+          offset: {
+            x: minCX,
+            y: minCY,
+          },
+          dim: {
+            w: maxCX - minCX,
+            h: maxCY - minCY,
+          },
+          canvas,
+        });
+      }
+
+      maze.free();
+
+      return result;
     }
 
-    maze.free();
+    // Retry until it has an answer
+    const BACKOFFS = [0, 20, 80, 320];
 
-    return result;
+    for(const backoff of BACKOFFS) {
+      const round = tryRoute(backoff);
+      if(round !== null) return round;
+      console.log(`Routing failed on ${backoff}, backoff...`);
+    }
+
+    throw new Error('No solution!');
   }, [groups, maxX, minX, maxY, minY, lib.Maze, lib.Points, connectors]);
 
   const collide = useCallback((x, y) => {
