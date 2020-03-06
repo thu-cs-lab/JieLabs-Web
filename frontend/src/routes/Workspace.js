@@ -267,8 +267,6 @@ export default React.memo(() => {
 
     const editor = editorRef.current.editor;
 
-    console.log(decorations);
-
     const ids = editor.deltaDecorations([], decorations);
 
     return () => {
@@ -381,13 +379,16 @@ export default React.memo(() => {
   let downloadTooltip = '';
   if(!hasBoard) downloadTooltip = 'FPGA disconnected';
   else if(readyLatestId === null) downloadTooltip = 'Latest build not ready';
+  let buildTooltip = '';
+  if(!canUpload) buildTooltip = 'Top entity or signal not assigned';
+  else if (readyLatestId === null) buildTooltip = 'Latest build not ready, please wait';
 
   return <main className="workspace">
     <div className="left">
       <Sandbox />
     </div>
     <div className="toolbar">
-      <Tooltip tooltip={ (!canUpload) && 'Top entity or signal not assigned' }>
+      <Tooltip tooltip={buildTooltip}>
         <button className="primary" onClick={doUpload} disabled={!canUpload}>
           <Icon>build</Icon>
         </button>
