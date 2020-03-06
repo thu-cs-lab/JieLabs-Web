@@ -148,3 +148,45 @@
     }
   }
 }
+
+.help-layout {
+  .help-layout-base {
+    display: flex;
+    position: absolute;
+    top: 60px;
+    bottom: 0;
+    right: 0;
+    left: 0;
+
+    .help-layout-half {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+
+      padding: 20px;
+    }
+  }
+
+  .help-layout-box {
+    max-width: 400px;
+    padding: 20px;
+
+    background: rgba(0,0,0,.7);
+
+    strong {
+      display: block;
+      font-size: 32px;
+      line-height: 32px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .help-layout-toolbar {
+    position: absolute;
+    top: 60px;
+    left: calc(50vw - 60px);
+  }
+}

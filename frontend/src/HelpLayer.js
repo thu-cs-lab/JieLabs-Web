@@ -16,10 +16,10 @@ const STEPS = [
           <div className="brand"><strong>Jie</strong>Labs</div>
           <div className="help-welcome-desc">
             <p>
-              欢迎来到<del>杰哥的掌握</del>数电在线实验平台。这是您首次使用 JieLabs，因此我们为您准备了一个交互式的指南，希望能帮助您尽快熟悉平台的使用方法。
+              欢迎来到<del>杰哥的掌握</del>数电在线实验平台。这是你首次使用 JieLabs，因此我们为你准备了一个交互式的指南，希望能帮助你尽快熟悉平台的使用方法。
             </p>
             <p>
-              指南的控制面板在页面右侧。您可以使用这些按钮来控制指南的进行。
+              指南的控制面板在页面右侧。你可以使用这些按钮来控制指南的进行。
             </p>
 
             <div className="help-welcome-icons">
@@ -32,6 +32,26 @@ const STEPS = [
               <div className="help-welcome-icon"><Icon>settings_backup_restore</Icon> 重置当前步骤</div>
               <div className="sep">/</div>
               <div className="help-welcome-icon"><Icon>stop</Icon> 结束指南</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }, {
+    done: () => true,
+    renderer: () => (
+      <div className="help-layout">
+        <div className="help-layout-base">
+          <div className="help-layout-half">
+            <div className="help-layout-box">
+              <strong>沙盒</strong>
+              你可以在这里增删、移动模块，修改连线，修改按钮、开关等输入部件的状态，并得到反馈。
+            </div>
+          </div>
+          <div className="help-layout-half">
+            <div className="help-layout-box">
+              <strong>编辑器</strong>
+              你可以在这里修改 RTL 代码，修改引脚映射等综合设定，并可以实时得到语法检查报告。
             </div>
           </div>
         </div>
