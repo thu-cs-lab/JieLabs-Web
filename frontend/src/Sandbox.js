@@ -568,8 +568,10 @@ export default React.memo(() => {
       cancelConnect: doCancelLinking,
       disconnect: doDisconnect,
       layer: switchLayer,
+      dye: doDye,
+      palette: showPalette,
     };
-  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking]);
+  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking, doDye, showPalette]);
 
   useEffect(() => {
     function invoke(action, e) {
@@ -581,6 +583,8 @@ export default React.memo(() => {
 
     const listener = e => {
       if(e.ctrlKey && e.key === 'f') invoke('layer', e);
+      if(e.ctrlKey && e.key === 'd') invoke('dye', e);
+      if(e.ctrlKey && e.key === 'c') invoke('palette', e);
       else if(e.key === 'Backspace' || e.key === 'Delete') invoke('disconnect', e);
       else if(e.key === 'Shift') invoke('connect', e);
     };
