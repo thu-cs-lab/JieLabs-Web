@@ -28,6 +28,7 @@ export const MODE = Object.freeze({
 export const Connector = React.memo(({
   output: _output,
   mode: _mode,
+  id: _id,
   data,
   onChange,
   onReg,
@@ -60,7 +61,7 @@ export const Connector = React.memo(({
   }, [data]);
 
   useEffect(() => {
-    const { id: nid, ref: nref } = snd.register(cb, mode, dataref, selcb);
+    const { id: nid, ref: nref } = snd.register(_id, cb, mode, dataref, selcb);
     setId(nid);
     setRef(nref);
 

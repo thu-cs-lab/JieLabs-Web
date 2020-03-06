@@ -11,7 +11,7 @@ import { BOARD_STATUS, setOutput, connectToBoard } from '../store/actions';
 const PIN_COUNT = 38;
 const PIN_CLOCKING = 37;
 
-export default React.memo(rest => {
+export default React.memo(({ id, ...rest }) => {
   const input = useSelector(state => state.input);
   const directions = useSelector(state => state.activeBuild?.directions);
   const dispatch = useDispatch();
@@ -45,10 +45,10 @@ export default React.memo(rest => {
     { padded.slice(0, PIN_COUNT).map((sig, idx) => (
       <div key={idx} className="pin-group">
         <Connector
+          id={`${id}-${idx}`}
           className="pin"
           mode={idx === PIN_CLOCKING ? MODE.CLOCK_DEST : MODE.NORMAL}
           onChange={updated => {
-            console.log(idx, updated);
             if(directions && idx in directions && directions[idx] === 'output')
               dispatch(setOutput(idx, updated))
           }}

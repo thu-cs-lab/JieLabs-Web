@@ -5,7 +5,7 @@ import { Connector, SIGNAL, MODE } from './index.js';
 
 const CLOCK_FREQUENCY = [16, 8, 4, 2, 1];
 
-export default React.memo(rest => {
+export default React.memo(({ id, ...rest }) => {
   const [manualClock, setManualClock] = useState(SIGNAL.L);
   const [manualReset, setManualReset] = useState(SIGNAL.L);
 
@@ -18,6 +18,7 @@ export default React.memo(rest => {
               <Connector
                 mode={MODE.CLOCK_SRC}
                 data={f * 1000000}
+                id={`${id}-${f}`}
               />
               <div className="clock-label">{f}<small>M</small></div>
             </div>)
@@ -26,7 +27,7 @@ export default React.memo(rest => {
     </div>
     <div className="clock-bottom">
       <div className="clock-box">
-        <Connector output={manualClock}></Connector>
+        <Connector output={manualClock} id={`${id}-clk`}></Connector>
         <div
           className={cn("press-btn", { pusheen: manualClock === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualClock(SIGNAL.H); }}
@@ -34,7 +35,7 @@ export default React.memo(rest => {
         ></div>
       </div>
       <div className="clock-box">
-        <Connector output={manualReset}></Connector>
+        <Connector output={manualReset} id={`${id}-rst`}></Connector>
         <div
           className={cn("press-btn", { pusheen: manualReset === SIGNAL.H })}
           onMouseDown={e => { e.stopPropagation(); setManualReset(SIGNAL.H); }}

@@ -28,7 +28,7 @@ function getRotate(part) {
   return 0;
 }
 
-export default React.memo(rest => {
+export default React.memo(({ id, ...rest }) => {
   const [pins, setPins] = useState(List(Array(3 * 7).fill(SIGNAL.X)));
 
   const currentPins = useRef(pins);
@@ -41,10 +41,13 @@ export default React.memo(rest => {
           gridColumn: Math.floor(idx / 7) + 1,
         }}>
           {(6 - (idx % 7) + 10).toString(17).toUpperCase()}
-          <Connector onChange={v => {
-            currentPins.current = currentPins.current.set(idx, v);
-            setPins(currentPins.current);
-          }}></Connector>
+          <Connector
+            id={`${id}-${idx}`}
+            onChange={v => {
+              currentPins.current = currentPins.current.set(idx, v);
+              setPins(currentPins.current);
+            }}
+          ></Connector>
         </div>)
       }
     </div>

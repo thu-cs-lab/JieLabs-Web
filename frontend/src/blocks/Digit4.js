@@ -3,7 +3,7 @@ import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
 
-export default React.memo(rest => {
+export default React.memo(({ id, ...rest }) => {
   const [pins, setPins] = useState(List(Array(12).fill(SIGNAL.X)));
 
   const currentPins = useRef(pins);
@@ -25,10 +25,13 @@ export default React.memo(rest => {
           gridColumn: Math.floor(idx / 4) + 1,
         }}>
           {idx % 2 === 1 ? (1 << idx % 4) : ""}
-          <Connector onChange={v => {
-            currentPins.current = currentPins.current.set(idx, v);
-            setPins(currentPins.current);
-          }}></Connector>
+          <Connector
+            id={`${id}-idx`}
+            onChange={v => {
+              currentPins.current = currentPins.current.set(idx, v);
+              setPins(currentPins.current);
+            }}
+          ></Connector>
           {idx % 2 === 0 ? (1 << idx % 4) : ""}
         </div>)
       }

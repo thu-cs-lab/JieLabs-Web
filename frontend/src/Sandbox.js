@@ -29,8 +29,8 @@ class Handler {
   selecting = null;
   listeners = new Set();
 
-  register(cbref, mode, data, selcbref) {
-    const id = uuidv4();
+  register(id, cbref, mode, data, selcbref) {
+    if(!id) throw new Error('Connector registered without ID');
     const ref = React.createRef();
     this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode, data, selcb: selcbref };
     this.fireListeners();
@@ -600,6 +600,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, reques
         )}
       </div>
       <Block
+        id={spec.id}
         onMouseDown={onMouseDown}
       >
       </Block>
