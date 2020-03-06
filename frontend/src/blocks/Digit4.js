@@ -26,7 +26,7 @@ export default React.memo(({ id, ...rest }) => {
         }}>
           {idx % 2 === 1 ? (1 << idx % 4) : ""}
           <Connector
-            id={`${id}-idx`}
+            id={`${id}-${idx}`}
             onChange={v => {
               currentPins.current = currentPins.current.set(idx, v);
               setPins(currentPins.current);
