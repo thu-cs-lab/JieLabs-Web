@@ -320,6 +320,8 @@ export default React.memo(() => {
   const [linking, setLinking] = useState(false);
   const [focus, setFocus] = useState(null);
 
+  const [layer, setLayer] = useState(LAYERS.BLOCK);
+
   const handler = useMemo(() => new Handler(id => {
     setLinking(true);
     setFocus({ type: 'connector', id });
@@ -339,9 +341,16 @@ export default React.memo(() => {
   }, [handler, linking, focus]);
 
   const doStartLinking = useCallback(() => {
+    if(layer !== LAYERS.WIRE) return;
     if(!focus) return;
-    setLinking(true)
-  }, [focus]);
+    console.log('Linking!');
+    setLinking(true);
+  }, [layer, focus]);
+
+  const doCancelLinking = useCallback(() => {
+    if(layer !== LAYERS.WIRE) return;
+    setLinking(false);
+  }, [layer]);
 
   const linkCancel = useCallback(() => {
     setLinking(null);
@@ -486,7 +495,6 @@ export default React.memo(() => {
     });
   }, [handler, cpid, dispatch]);
 
-  const [layer, setLayer] = useState(LAYERS.BLOCK);
   const switchLayer = useCallback(() => {
     if(layer === LAYERS.BLOCK) setLayer(LAYERS.WIRE);
     else setLayer(LAYERS.BLOCK);
@@ -514,29 +522,36 @@ export default React.memo(() => {
   useEffect(() => {
     hotkeys.current = {
       connect: doStartLinking,
+      cancelConnect: doCancelLinking,
       disconnect: doDisconnect,
       layer: switchLayer,
     };
-  }, [doStartLinking, doDisconnect, switchLayer]);
+  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking]);
 
   useEffect(() => {
-    const mapping = {
-      c: 'connect',
-      d: 'disconnect',
-      f: 'layer',
-    };
+    function invoke(action, e) {
+      const func = hotkeys.current[action];
+      if(func)
+        func();
+      e.preventDefault();
+    }
 
     const listener = e => {
-      if(!e.ctrlKey) return;
-      if(e.key in mapping) {
-        e.preventDefault();
-        const func = hotkeys.current[mapping[e.key]];
-        if(func) func();
-      }
+      if(e.ctrlKey && e.key === 'f') invoke('layer', e);
+      else if(e.key === 'Backspace' || e.key === 'Delete') invoke('disconnect', e);
+      else if(e.key === 'Shift') invoke('connect', e);
     };
 
+    const releaseListener = e => {
+      if(e.key === 'Shift') invoke('cancelConnect', e);
+    }
+
     document.addEventListener('keydown', listener);
-    return () => document.removeEventListener('keydown', listener);
+    document.addEventListener('keyup', releaseListener);
+    return () => {
+      document.removeEventListener('keydown', listener);
+      document.removeEventListener('keyup', releaseListener);
+    }
   }, []);
 
   return <>
@@ -661,14 +676,14 @@ export default React.memo(() => {
         data-tool="wire 1"
         onClick={doStartLinking}
       ><Icon>link</Icon></span>
-      <div className="sandbox-toolbar-hint tool-activated">Connect <small>[C-c]</small></div>
+      <div className="sandbox-toolbar-hint tool-activated">Connect <small>[SHIFT]</small></div>
 
       <span
         className={cn("tool", { 'tool-disabled': linking || focus === null })}
         data-tool="wire 2"
         onClick={doDisconnect}
       ><Icon>link_off</Icon></span>
-      <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[C-d]</small></div>
+      <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[DEL/BS]</small></div>
 
       <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 3"><Icon>format_paint</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-p]</small></div>
