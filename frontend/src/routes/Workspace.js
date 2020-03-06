@@ -379,9 +379,16 @@ export default React.memo(() => {
   let downloadTooltip = '';
   if(!hasBoard) downloadTooltip = 'FPGA disconnected';
   else if(readyLatestId === null) downloadTooltip = 'Latest build not ready';
+
+  const lastBuildFinished = useSelector(store => {
+    const { builds } = store;
+    const latest = builds.list.get(0);
+    if(!latest) return true;
+    return latest.status !== null;
+  });
   let buildTooltip = '';
   if(!canUpload) buildTooltip = 'Top entity or signal not assigned';
-  else if (readyLatestId === null) buildTooltip = 'Latest build not ready, please wait';
+  else if (!lastBuildFinished) buildTooltip = 'Latest build not finished, please wait';
 
   return <main className="workspace">
     <div className="left">
