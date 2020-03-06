@@ -490,7 +490,10 @@ export default React.memo(() => {
     setFocus(null);
   }, [layer]);
 
-  const onBlur = useCallback(() => setFocus(null), []);
+  const onBlur = useCallback(() => {
+    setFocus(null);
+    setLinking(false);
+  }, []);
 
   const doDisconnect = useCallback(() => {
     if(!focus) return;
@@ -1146,6 +1149,8 @@ const WireLayer = React.memo(({
       } else if(collided) {
         // Asserts group have more than 0 member
         if(link) link(collided.group.members[0].id);
+      } else {
+        if(onBlur) onBlur();
       }
     } else {
       if(hovered) {
