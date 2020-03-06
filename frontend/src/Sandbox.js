@@ -176,7 +176,7 @@ class Handler {
   }
 
   getAllConnectors() {
-    return Object.keys(this.connectors).map(k => {
+    return Object.keys(this.connectors).filter(e => !!this.connectors[e]).map(k => {
       return {
         id: k,
         ref: this.connectors[k].ref,
@@ -290,14 +290,16 @@ export default React.memo(() => {
   }, [ctx]);
 
   // Update lines & connectors when updating field
-  useLayoutEffect(() => { setTimeout(() => {
+  useLayoutEffect(() => {
     ctx.updateLines();
-    refreshConnectors();
-  }) }, [ctx, field, refreshConnectors]);
+    setTimeout(() => {
+      refreshConnectors();
+    });
+  }, [ctx, field]);
 
   useEffect(() => {
     return ctx.onChange(() => {
-      refreshConnectors();
+      setTimeout(() => refreshConnectors());
     });
   }, [ctx, refreshConnectors]);
 
@@ -569,6 +571,10 @@ const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, reques
 
   const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
 
+  const weakBlocker = useCallback(e => {
+    e.stopPropagation();
+  });
+
   const Block = blocks[spec.type];
 
   return <>
@@ -588,7 +594,7 @@ const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, reques
     >
       <div className="block-ops">
         { (!spec.persistent) && (
-          <button className="delete" onClick={onDelete}>
+          <button className="delete" onClick={onDelete} onMouseDown={weakBlocker}>
             <Icon>close</Icon>
           </button>
         )}
