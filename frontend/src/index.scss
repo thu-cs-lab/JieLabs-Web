@@ -1740,59 +1740,115 @@ main {
     margin-top: 10px;
   }
 
-  .build-detail-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 44px;
-    background: rgba(0,0,0,.18);
-    padding-right: 15px;
-
-    color: white;
-    margin-top: 10px;
-    cursor: pointer;
-    margin-right: 10px;
-
-    user-select: none;
-
-    > span {
-      opacity: .7;
-      transition: opacity .2s ease;
-    }
-
-    &:hover > span {
-      opacity: 1;
-    }
-
-    .material-icons {
-      margin-right: 15px;
-      color: white;
-      background: $primary-color;
-      padding: 10px;
-    }
-
-    &.build-detail-btn-disabled {
-      cursor: default;
-
-      .material-icons {
-        filter: grayscale(1);
-      }
-
-      > span {
-        opacity: .38;
-      }
-
-      &:hover > span {
-        opacity: .38;
-      }
-    }
-  }
-
   .build-detail-info {
     margin-top: 20px;
     font-size: 18px;
     color: rgba(255,255,255,.7);
     font-weight: 100;
+  }
+}
+
+.labeled-btn {
+  @include rst-input;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 44px;
+  background: rgba(0,0,0,.18);
+  padding-right: 15px;
+
+  color: white;
+  margin-top: 10px;
+  cursor: pointer;
+  margin-right: 10px;
+
+  user-select: none;
+
+  > span {
+    opacity: .7;
+    transition: opacity .2s ease;
+  }
+
+  &:hover > span {
+    opacity: 1;
+  }
+
+  .material-icons, .labeled-btn-icon {
+    margin-right: 15px;
+    color: white;
+    background: $primary-color;
+    padding: 10px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .labeled-btn-icon {
+    line-height: 24px;
+    font-size: 18px;
+  }
+
+  &:disabled {
+    cursor: default;
+
+    .material-icons, .labeled-btn-icon {
+      filter: grayscale(1);
+    }
+
+    > span {
+      opacity: .38;
+    }
+
+    &:hover > span {
+      opacity: .38;
+    }
+  }
+}
+
+
+.help-dialog {
+  display: flex;
+  flex-direction: column;
+
+  width: calc(100vw - 80px);
+  height: auto;
+
+  max-width: 600px;
+
+  .help-segment-header {
+    font-size: 28px;
+    color: white;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+
+  .help-body {
+    color: rgba(255,255,255,.87);
+    font-size: 18px;
+  }
+
+  .help-spacer {
+    height: 20px;
+  }
+
+  .help-cheatsheet {
+    color: white;
+    column-count: 2;
+
+    .help-shortcut {
+      color: rgba(255,255,255,.54);
+      font-size: 16px;
+      display: flex;
+      line-height: 24px;
+      strong {
+        display: inline-block;
+        width: 100px;
+        @extend .monospace;
+        color: rgba(255,255,255,.87);
+        margin-right: 5px;
+        flex: 1;
+      }
+    }
   }
 }
 

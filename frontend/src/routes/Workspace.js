@@ -491,14 +491,32 @@ export default React.memo(() => {
           classNames="fade"
         >
           <div className="backdrop centering" onMouseDown={dismissShowHelp}>
-            <div className="dialog" onMouseDown={blocker}>
-              <div className="dialog-title monospace">Help</div>
-              <div style={{ color: "white" }}>
-                TL; DR. 
-                <p>第一步：在界面左半部分拖动模块，连线，分配 FPGA</p>
-                <p>第二步：在界面右半部分编写 VHDL 代码，设置顶层模块，把所有信号分配到引脚</p>
-                <p>第三步：点击中间的构建按钮，等待右上角的进度显示为完成</p>
-                <p>第四步：点击中间的下载按钮，然后左侧的 FPGA 模块的输出就会有相应的变化。</p>
+            <div className="dialog help-dialog" onMouseDown={blocker}>
+              <div className="hint">STOP IT,</div>
+              <div className="dialog-title monospace">Get some help</div>
+              <div className="help-body">
+                You can restart the interactive tutorial by clicking the button below.<br/>
+                <button
+                  className="labeled-btn"
+                >
+                  <div className="labeled-btn-icon">🍓</div> <span>START</span>
+                </button>
+              </div>
+              <div className="help-spacer" />
+              <div className="hint help-cheatsheet-header">Sandbox - Global</div>
+              <div className="help-cheatsheet">
+                <div className="help-shortcut"><strong>Ctrl-F</strong> Switch layer</div>
+                <div className="help-shortcut"><strong>Ctrl-C</strong> Open color palette</div>
+                <div className="help-shortcut"><strong>Tab</strong> Select next color</div>
+                <div className="help-shortcut"><strong>Shift-Tab</strong> Select previous color</div>
+              </div>
+              <div className="help-spacer" />
+              <div className="hint help-cheatsheet-header">Sandbox - Wire Layer</div>
+              <div className="help-cheatsheet">
+                <div className="help-shortcut"><strong>Shift</strong> Connect mode</div>
+                <div className="help-shortcut"><strong>Delete</strong> Disconnect</div>
+                <div className="help-shortcut"><strong>Backspace</strong> Disconnect</div>
+                <div className="help-shortcut"><strong>Ctrl-D</strong> Dye current color</div>
               </div>
             </div>
           </div>
