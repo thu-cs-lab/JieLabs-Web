@@ -15,6 +15,7 @@ import Login from './routes/Login';
 import Workspace from './routes/Workspace';
 import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
+import Highlighter from './comps/Highlighter';
 
 export default React.memo(() => {
   const dispatch = useDispatch();
@@ -341,9 +342,11 @@ export default React.memo(() => {
                         CONSTRAINTS
                       </div>
 
-                      <code className="build-detail-console">
-                        { detail.constraints }
-                      </code>
+                      <Highlighter
+                        className="build-detail-console"
+                        source={detail.constraints}
+                        type="constraints"
+                      />
 
                       <div className="build-detail-sep" />
                     </>
@@ -357,9 +360,11 @@ export default React.memo(() => {
                             STDERR
                           </div>
 
-                          <code className="build-detail-console">
-                            { detail.logs.stderr }
-                          </code>
+                          <Highlighter
+                            className="build-detail-console"
+                            source={detail.logs.stderr}
+                            type="log"
+                          />
 
                           <div className="build-detail-sep" />
                         </>
@@ -369,9 +374,11 @@ export default React.memo(() => {
                         STDOUT
                       </div>
 
-                      <code className="build-detail-console">
-                        { detail.logs.stdout }
-                      </code>
+                      <Highlighter
+                        className="build-detail-console"
+                        source={detail.logs.stdout}
+                        type="log"
+                      />
                     </>
                   ) : (
                     <div className="build-detail-placeholder">

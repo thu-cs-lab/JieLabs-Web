@@ -4,6 +4,7 @@
 @import "styles/editor.scss";
 @import "styles/tooltip.scss";
 @import "styles/shutter.scss";
+@import "styles/highlighter.scss";
 
 * {
   box-sizing: inherit;
@@ -1738,8 +1739,6 @@ main {
     word-break: break-word;
     color: rgba(255,255,255,.7);
     margin-top: 10px;
-    @extend .monospace;
-    font-size: 14px;
   }
 
   .build-detail-btn {

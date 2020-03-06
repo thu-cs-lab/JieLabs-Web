@@ -1,0 +1,25 @@
+$warning: #ffeb3b;
+$error: #ef5350;
+$comment: #7cb342;
+
+.highlighter {    
+  @extend .monospace;
+  font-size: 14px;
+  line-height: 18px;
+
+  .highlighter-comment {
+    color: $comment;
+  }
+
+  .highlighter-warning {
+    color: $warning;
+  }
+
+  .highlighter-error {
+    color: $error;
+  }
+
+  code {
+    word-break: break-all;
+  }
+}
