@@ -267,8 +267,6 @@ export default React.memo(() => {
 
     const editor = editorRef.current.editor;
 
-    console.log(decorations);
-
     const ids = editor.deltaDecorations([], decorations);
 
     return () => {
@@ -382,12 +380,22 @@ export default React.memo(() => {
   if(!hasBoard) downloadTooltip = 'FPGA disconnected';
   else if(readyLatestId === null) downloadTooltip = 'Latest build not ready';
 
+  const lastBuildFinished = useSelector(store => {
+    const { builds } = store;
+    const latest = builds.list.get(0);
+    if(!latest) return true;
+    return latest.status !== null;
+  });
+  let buildTooltip = '';
+  if(!canUpload) buildTooltip = 'Top entity or signal not assigned';
+  else if (!lastBuildFinished) buildTooltip = 'Latest build not finished, please wait';
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
     </div>
     <div className="toolbar">
-      <Tooltip tooltip={ (!canUpload) && 'Top entity or signal not assigned' }>
+      <Tooltip tooltip={buildTooltip}>
         <button className="primary" onClick={doUpload} disabled={!canUpload}>
           <Icon>build</Icon>
         </button>
@@ -485,7 +493,7 @@ export default React.memo(() => {
           <div className="backdrop centering" onMouseDown={dismissShowHelp}>
             <div className="dialog" onMouseDown={blocker}>
               <div className="dialog-title monospace">Help</div>
-              <div>
+              <div style={{ color: "white" }}>
                 TL; DR. 
                 <p>第一步：在界面左半部分拖动模块，连线，分配 FPGA</p>
                 <p>第二步：在界面右半部分编写 VHDL 代码，设置顶层模块，把所有信号分配到引脚</p>

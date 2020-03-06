@@ -12,6 +12,11 @@ let lastBoard = window.localStorage.getItem('board') || DEFAULT_BOARD;
 let lastTop = window.localStorage.getItem('top') || null;
 let lastSignals = Map(JSON.parse(window.localStorage.getItem('signals')) || {});
 
+let middleware = [thunk];
+if (process.env.NODE_ENV !== 'production') {
+  middleware = [...middleware, logger]
+}
+
 const store = createStore(
   combineReducers(reducers),
   {
@@ -22,7 +27,7 @@ const store = createStore(
       signals: lastSignals,
     }
   },
-  applyMiddleware(thunk, logger),
+  applyMiddleware(...middleware),
 );
 
 store.subscribe(() => {
