@@ -79,7 +79,6 @@ class Handler {
   unionGroup(aid, bid) {
     const ag = this.groups[aid];
     const bg = this.groups[bid];
-    console.log(ag, bg);
 
     for(const id of bg) {
       this.connectors[id].group = aid;
@@ -96,7 +95,6 @@ class Handler {
 
     // TODO: optimize, but hey, it's js, and this is probably not on the hot path
     const modes = [...aset, ...bset].map(id => this.connectors[id].mode);
-    console.log(modes);
 
     /*
      * Possible values for state:
