@@ -555,6 +555,7 @@ export default React.memo(() => {
   }, []);
 
   const [paletteShown, setPaletteShown] = useState(false);
+  const [color, setColor] = useState(COLORS[0]);
   const showPalette = useCallback(() => setPaletteShown(true), []);
 
   useEffect(() => {
@@ -706,7 +707,7 @@ export default React.memo(() => {
       <div className="sep">/</div>
 
       <span className="tool tool-last" onClick={showPalette}>
-        <div className="palette-stub"></div>
+        <div className="palette-stub" style={{ backgroundColor: color }}></div>
       </span>
       <div className="sandbox-toolbar-hint tool-activated">Color Palette <small>[C-c]</small></div>
 
@@ -717,8 +718,13 @@ export default React.memo(() => {
       </div>
 
       <div className="palette">
-        { COLORS.map((c, idx) => (
-          <div className="palette-slot" data-color={c} style={{ backgroundColor: c }}></div>
+        { COLORS.map(c => (
+          <div
+            key={c}
+            className="palette-slot"
+            style={{ backgroundColor: c }}
+            onMouseDown={() => setColor(c)}
+          ></div>
         )) }
       </div>
     </div>

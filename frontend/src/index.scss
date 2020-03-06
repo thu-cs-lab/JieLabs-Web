@@ -1470,8 +1470,9 @@ main {
     margin: $margin;
 
     border: rgba(255,255,255,.1) 1px solid;
-    background: red;
     cursor: pointer;
+
+    transition: background-color .2s ease; // This is a small region, so repaint shouldn't be that too expensive
 
     pointer-events: all;
   }
