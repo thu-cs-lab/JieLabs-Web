@@ -600,6 +600,7 @@ main {
   height: 100%;
   position: relative;
   cursor: move;
+  outline: 0;
 }
 
 .block {
@@ -1812,6 +1813,7 @@ main {
 
   width: calc(100vw - 80px);
   height: auto;
+  padding: 30px 40px;
 
   max-width: 600px;
 
@@ -1847,6 +1849,7 @@ main {
         color: rgba(255,255,255,.87);
         margin-right: 5px;
         flex: 1;
+        white-space: nowrap;
       }
     }
   }
