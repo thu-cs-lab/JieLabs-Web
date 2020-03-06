@@ -343,7 +343,6 @@ export default React.memo(() => {
   const doStartLinking = useCallback(() => {
     if(layer !== LAYERS.WIRE) return;
     if(!focus) return;
-    console.log('Linking!');
     setLinking(true);
   }, [layer, focus]);
 
@@ -686,7 +685,16 @@ export default React.memo(() => {
       <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[DEL/BS]</small></div>
 
       <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 3"><Icon>format_paint</Icon></span>
-      <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-p]</small></div>
+      <div className="sandbox-toolbar-hint tool-activated">Dye <small>[C-d]</small></div>
+
+      <div className="spanner"></div>
+
+      <div className="sep">/</div>
+
+      <span className="tool tool-last">
+        <div className="palette"></div>
+      </span>
+      <div className="sandbox-toolbar-hint tool-activated">Color Palette <small>[C-c]</small></div>
 
       <div className="sandbox-toolbar-hint">
         <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>

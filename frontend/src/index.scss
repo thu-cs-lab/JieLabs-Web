@@ -1264,8 +1264,8 @@ main {
   bottom: 0;
   left: 0;
   height: 48px + 20px;
-  width: 300px;
-  padding: 10px 20px 10px 10px;
+  width: 350px;
+  padding: 10px;
   background: #121212;
 
   box-shadow: rgba(0,0,0,.3) 0 2px 6px;
@@ -1347,8 +1347,8 @@ main {
       }
     }
 
-    &.tool[data-tool~="wire"] {
-      transform: translateX(-$block-tool-count*(5px + 24px));
+    &.tool[data-tool="wire 1"] {
+      margin-left: -$block-tool-count*(5px + 24px);
     }
 
     transition: opacity .2s ease;
@@ -1366,6 +1366,10 @@ main {
     &.tool-disabled {
       cursor: default;
       opacity: .18;
+    }
+
+    &.tool-last {
+      margin-right: 0;
     }
   }
 
@@ -1455,6 +1459,20 @@ main {
     &.layer-hint-tail-wire {
       transform: translateX(3em);
     }
+  }
+
+  .palette {
+    $margin: 2px;
+    box-sizing: border-box;
+    width: 24px - $margin * 2;
+    height: 24px - $margin * 2;
+    margin: $margin;
+
+    border: rgba(255,255,255,.1) 1px solid;
+    background: red;
+    cursor: pointer;
+
+    pointer-events: all;
   }
 }
 
