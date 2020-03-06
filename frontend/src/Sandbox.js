@@ -267,6 +267,7 @@ export default React.memo(() => {
 
   const [lines, setLines] = useState(List());
   const [linking, setLinking] = useState(null);
+  const [focus, setFocus] = useState(null);
 
   const handler = useMemo(() => new Handler(setLinking), []);
 
@@ -422,7 +423,13 @@ export default React.memo(() => {
   const switchLayer = useCallback(() => {
     if(layer === LAYERS.BLOCK) setLayer(LAYERS.WIRE);
     else setLayer(LAYERS.BLOCK);
+
+    setLinking(null);
+    setFocus(null);
   }, [layer]);
+  console.log(focus);
+
+  const onBlur = useCallback(() => { console.log('BLUR'); setFocus(null); }, []);
 
   return <>
     <div
@@ -494,6 +501,9 @@ export default React.memo(() => {
             linking={linking}
             link={link}
             linkCancel={linkCancel}
+            focus={focus}
+            onFocus={setFocus}
+            onBlur={onBlur}
             className={cn({ 'wires-off': moving })}
           />
         </SandboxContext.Provider>
@@ -673,6 +683,10 @@ const WireLayer = React.memo(({
   linking,
   link,
   linkCancel,
+
+  onFocus,
+  onBlur,
+  focus,
 }) => {
   const FACTOR = 3;
   const MASK_RADIUS = 2;
@@ -889,13 +903,6 @@ const WireLayer = React.memo(({
     return collide(mouse.x, mouse.y);
   }, [collide, mouse]);
 
-  const [focused, setFocused] = useState(null);
-
-  // Unfocuse on layer switch
-  useEffect(() => {
-    if(!active) setFocused(null);
-  }, [active])
-
   // Connector stuff
   const connectorRadius = 15 / 2;
 
@@ -999,14 +1006,19 @@ const WireLayer = React.memo(({
 
     ctx.globalAlpha = 1;
 
+    console.log(focus);
+    let focusedComp = null;
+    if(focus && focus.type === 'group')
+      focusedComp = canvases.find(e => e.group.members.some(e => e.id === focus.leader));
+
     // Draw shadow for focused object
-    if(focused)
-      drawWithShadow(focused, 'rgba(255, 199, 56, 1)', 12, cvs => recolor(cvs, 'rgb(255,199,56)'));
+    if(focusedComp)
+      drawWithShadow(focusedComp, 'rgba(255, 199, 56, 1)', 12, cvs => recolor(cvs, 'rgb(255,199,56)'));
 
     // Draw shadow for hovered object
-    if(!hovered && collided && collided !== focused)
+    if(!hovered && collided && collided !== focusedComp)
       drawWithShadow(collided, 'rgba(255, 199, 56, .8)', 4);
-  }, [canvases, scroll, width, height, collided, focused, hovered]);
+  }, [canvases, scroll, width, height, collided, focus, hovered]);
 
   const handleMouseDown = useCallback(e => {
     if(linking) {
@@ -1021,8 +1033,14 @@ const WireLayer = React.memo(({
     } else {
       if(collided) {
         e.stopPropagation();
-        setFocused(collided);
-      } else setFocused(null);
+        if(onFocus)
+          onFocus({
+            type: 'group',
+            leader: collided.group.members[0].id,
+          });
+      } else {
+        if(onBlur) onBlur();
+      }
     }
   }, [collided, hovered, linking, link]);
 
