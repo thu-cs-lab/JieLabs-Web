@@ -129,6 +129,8 @@ class Handler {
     const gbid = this.connectors[bid].group;
 
     if(gaid && gbid) {
+      if(gaid === gbid) return true;
+
       this.unionGroup(gaid, gbid);
       return true;
     }
