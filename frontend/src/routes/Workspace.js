@@ -493,7 +493,7 @@ export default React.memo(() => {
           <div className="backdrop centering" onMouseDown={dismissShowHelp}>
             <div className="dialog" onMouseDown={blocker}>
               <div className="dialog-title monospace">Help</div>
-              <div>
+              <div style={{ color: "white" }}>
                 TL; DR. 
                 <p>第一步：在界面左半部分拖动模块，连线，分配 FPGA</p>
                 <p>第二步：在界面右半部分编写 VHDL 代码，设置顶层模块，把所有信号分配到引脚</p>
