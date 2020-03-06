@@ -91,6 +91,9 @@ class Handler {
   }
 
   connectPin(aid, bid) {
+    console.log(aid);
+    console.log(bid);
+
     const gaid = this.connectors[aid].group;
     const gbid = this.connectors[bid].group;
 
@@ -216,6 +219,10 @@ class Handler {
       };
     }).filter(e => !!e.ref);
   }
+
+  getLeaderId(gid) {
+    return this.groups[gid]?.values()?.next().value || null;
+  }
 }
 
 function center(rect, ref) {
@@ -280,20 +287,30 @@ export default React.memo(() => {
   // const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
-  const [linking, setLinking] = useState(null);
+  const [linking, setLinking] = useState(false);
   const [focus, setFocus] = useState(null);
 
-  const handler = useMemo(() => new Handler(setLinking), []);
+  const handler = useMemo(() => new Handler(id => {
+    setLinking(true);
+    setFocus({ type: 'connector', id });
+  }), []);
 
   const link = useCallback(id => {
-    handler.connectPin(linking, id);
+    if(focus.type === 'connector')
+      handler.connectPin(focus.id, id);
+    else
+      handler.connectPin(handler.getLeaderId(focus.id), id);
     setLines(handler.getLines());
-    setLinking(null);
-  }, [handler, linking]);
+    setLinking(false);
+    setFocus(null)
+  }, [handler, linking, focus]);
+
+  const doStartLinking = useCallback(() => setLinking(true), []);
 
   const linkCancel = useCallback(() => {
     setLinking(null);
-  });
+    setFocus(null);
+  }, []);
 
   const container = useRef();
 
@@ -450,6 +467,7 @@ export default React.memo(() => {
     else handler.removeFromGroup(focus.id);
 
     setLines(handler.getLines());
+    setFocus(null);
   }, [focus, handler]);
 
   return <>
@@ -518,7 +536,7 @@ export default React.memo(() => {
             scroll={scroll}
             width={canvasWidth}
             height={canvasHeight}
-            active={layer === LAYERS.WIRE || linking !== null}
+            active={layer === LAYERS.WIRE || linking}
             linking={linking}
             link={link}
             linkCancel={linkCancel}
@@ -570,13 +588,20 @@ export default React.memo(() => {
       <div className="sandbox-toolbar-hint tool-activated">Load sandbox <small>[C-o]</small></div>
 
       <span
-        className={cn("tool", { 'tool-disabled': focus === null })}
+        className={cn("tool", { 'tool-disabled': linking || focus === null })}
         data-tool="wire 1"
+        onClick={doStartLinking}
+      ><Icon>link</Icon></span>
+      <div className="sandbox-toolbar-hint tool-activated">Connect <small>[C-c]</small></div>
+
+      <span
+        className={cn("tool", { 'tool-disabled': linking || focus === null })}
+        data-tool="wire 2"
         onClick={doDisconnect}
-      ><Icon>close</Icon></span>
+      ><Icon>link_off</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[C-d]</small></div>
 
-      <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 2"><Icon>format_paint</Icon></span>
+      <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 3"><Icon>format_paint</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-c]</small></div>
 
       <div className="sandbox-toolbar-hint">
@@ -955,14 +980,14 @@ const WireLayer = React.memo(({
     ctx.fillStyle = 'rgba(0,0,0,.3)';
     ctx.strokeStyle = 'rgba(0,0,0,.7)';
     for(const { id, x, y } of connectors) 
-      if(id !== hovered?.id && id !== linking) {
+      if(id !== hovered?.id && (focus?.type !== 'connector' || focus.id !== id)) {
         ctx.beginPath();
         ctx.arc(x + scroll.x, y + scroll.y, connectorRadius, 0, 2*Math.PI);
         ctx.fill();
         ctx.stroke();
       }
 
-    if(hovered !== null && hovered.id !== linking) {
+    if(hovered !== null && (focus?.type !== 'connector' || hovered.id !== focus.id)) {
       ctx.shadowColor = 'rgba(255, 199, 56, .8)'
       ctx.shadowBlur = 4;
       ctx.shadowOffsetX = 0;
@@ -976,19 +1001,20 @@ const WireLayer = React.memo(({
       ctx.shadowColor = 'transparent';
     }
 
-    const linkingComp = connectors.find(e => e.id === linking);
+    let focused = null;
+    if(focus?.type === 'connector') focused = connectors.find(e => e.id === focus.id);
 
-    if(linkingComp) {
+    if(focused) {
       ctx.fillStyle = 'rgba(255, 199, 56, .5)'
       ctx.strokeStyle = 'rgba(255, 199, 56, 1)'
       ctx.beginPath();
-      ctx.arc(linkingComp.x + scroll.x, linkingComp.y + scroll.y, connectorRadius, 0, 2*Math.PI);
+      ctx.arc(focused.x + scroll.x, focused.y + scroll.y, connectorRadius, 0, 2*Math.PI);
       ctx.fill();
       ctx.stroke();
 
       ctx.shadowColor = 'transparent';
     }
-  }, [connectors, scroll, width, height, hovered, linking]);
+  }, [connectors, scroll, width, height, hovered, focus]);
 
   // Composite all canvases
   const renderer = useCallback(canvas => {
@@ -1046,7 +1072,7 @@ const WireLayer = React.memo(({
 
   const handleMouseDown = useCallback(e => {
     if(linking) {
-      if(hovered && hovered.id === linking) {
+      if(hovered && hovered.id === focus.id) {
         if(linkCancel) linkCancel();
       } else if(hovered) {
         if(link) link(hovered.id);
@@ -1055,7 +1081,14 @@ const WireLayer = React.memo(({
         if(link) link(collided.group.members[0].id);
       }
     } else {
-      if(collided) {
+      if(hovered) {
+        e.stopPropagation();
+        if(onFocus)
+          onFocus({
+            type: 'connector',
+            id: hovered.id,
+          });
+      } else if(collided) {
         e.stopPropagation();
         if(onFocus)
           onFocus({
@@ -1066,7 +1099,7 @@ const WireLayer = React.memo(({
         if(onBlur) onBlur();
       }
     }
-  }, [collided, hovered, linking, link]);
+  }, [collided, hovered, linking, link, focus]);
 
   return (
     <>
