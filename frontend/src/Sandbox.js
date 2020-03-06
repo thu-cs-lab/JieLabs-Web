@@ -66,6 +66,16 @@ class Handler {
     this.tryUpdate(id);
   }
 
+  disassembleGroup(gid) {
+    const g = this.groups[gid];
+    for(const id of g) {
+      this.connectors[id].group = null;
+      this.tryUpdate(id);
+    }
+
+    delete this.groups[gid];
+  }
+
   unionGroup(aid, bid) {
     const ag = this.groups[aid];
     const bg = this.groups[bid];
@@ -431,9 +441,16 @@ export default React.memo(() => {
     setLinking(null);
     setFocus(null);
   }, [layer]);
-  console.log(focus);
 
-  const onBlur = useCallback(() => { console.log('BLUR'); setFocus(null); }, []);
+  const onBlur = useCallback(() => setFocus(null), []);
+
+  const doDisconnect = useCallback(() => {
+    if(!focus) return;
+    if(focus.type === 'group') handler.disassembleGroup(focus.id);
+    else handler.removeFromGroup(focus.id);
+
+    setLines(handler.getLines());
+  }, [focus, handler]);
 
   return <>
     <div
@@ -552,7 +569,11 @@ export default React.memo(() => {
       <span className="tool" data-tool="block 2"><Icon>open_in_browser</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Load sandbox <small>[C-o]</small></div>
 
-      <span className={cn("tool", { 'tool-disabled': focus === null })} data-tool="wire 1"><Icon>close</Icon></span>
+      <span
+        className={cn("tool", { 'tool-disabled': focus === null })}
+        data-tool="wire 1"
+        onClick={doDisconnect}
+      ><Icon>close</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[C-d]</small></div>
 
       <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 2"><Icon>format_paint</Icon></span>
