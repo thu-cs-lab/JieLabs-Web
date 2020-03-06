@@ -1058,7 +1058,7 @@ const WireLayer = React.memo(({
 
     ctx.globalAlpha = 0.7;
     for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
-      if(hovered || !collided || cvs !== collided.canvas) // TODO: focus?
+      if(hovered || (cvs !== collided?.canvas && cvs !== focused?.canvas))
         ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
 
     ctx.globalAlpha = 1;
