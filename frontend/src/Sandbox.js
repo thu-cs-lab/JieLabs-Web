@@ -305,7 +305,10 @@ export default React.memo(() => {
     setFocus(null)
   }, [handler, linking, focus]);
 
-  const doStartLinking = useCallback(() => setLinking(true), []);
+  const doStartLinking = useCallback(() => {
+    if(!focus) return;
+    setLinking(true)
+  }, [focus]);
 
   const linkCancel = useCallback(() => {
     setLinking(null);
@@ -470,6 +473,31 @@ export default React.memo(() => {
     setFocus(null);
   }, [focus, handler]);
 
+  const hotkeys = useRef();
+
+  useEffect(() => {
+    hotkeys.current = {
+      connect: doStartLinking,
+      disconnect: doDisconnect,
+    };
+  }, [doStartLinking, doDisconnect]);
+
+  useEffect(() => {
+    const listener = e => {
+      if(!e.ctrlKey) return;
+      if(e.key === 'c') {
+        if(hotkeys.current.connect) hotkeys.current.connect();
+        e.preventDefault();
+      } else if(e.key === 'd') {
+        if(hotkeys.current.disconnect) hotkeys.current.disconnect();
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('keydown', listener);
+    return () => document.removeEventListener('keydown', listener);
+  }, []);
+
   return <>
     <div
       ref={container}
@@ -602,7 +630,7 @@ export default React.memo(() => {
       <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[C-d]</small></div>
 
       <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 3"><Icon>format_paint</Icon></span>
-      <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-c]</small></div>
+      <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-p]</small></div>
 
       <div className="sandbox-toolbar-hint">
         <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>
