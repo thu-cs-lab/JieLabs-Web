@@ -479,18 +479,23 @@ export default React.memo(() => {
     hotkeys.current = {
       connect: doStartLinking,
       disconnect: doDisconnect,
+      layer: switchLayer,
     };
-  }, [doStartLinking, doDisconnect]);
+  }, [doStartLinking, doDisconnect, switchLayer]);
 
   useEffect(() => {
+    const mapping = {
+      c: 'connect',
+      d: 'disconnect',
+      f: 'layer',
+    };
+
     const listener = e => {
       if(!e.ctrlKey) return;
-      if(e.key === 'c') {
-        if(hotkeys.current.connect) hotkeys.current.connect();
+      if(e.key in mapping) {
         e.preventDefault();
-      } else if(e.key === 'd') {
-        if(hotkeys.current.disconnect) hotkeys.current.disconnect();
-        e.preventDefault();
+        const func = hotkeys.current[mapping[e.key]];
+        if(func) func();
       }
     };
 
@@ -635,7 +640,7 @@ export default React.memo(() => {
       <div className="sandbox-toolbar-hint">
         <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>
         <div data-iter="2" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.WIRE })}>Wire</div>
-        <div className={cn('layer-hint-tail', `layer-hint-tail-${layer === LAYERS.WIRE ? 'wire' : 'block'}`)}>layer [C-l]</div>
+        <div className={cn('layer-hint-tail', `layer-hint-tail-${layer === LAYERS.WIRE ? 'wire' : 'block'}`)}>layer [C-f]</div>
       </div>
     </div>
   </>;
