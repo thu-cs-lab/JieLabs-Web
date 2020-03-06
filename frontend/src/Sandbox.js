@@ -552,10 +552,10 @@ export default React.memo(() => {
       <span className="tool" data-tool="block 2"><Icon>open_in_browser</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Load sandbox <small>[C-o]</small></div>
 
-      <span className="tool" data-tool="wire 1"><Icon>close</Icon></span>
+      <span className={cn("tool", { 'tool-disabled': focus === null })} data-tool="wire 1"><Icon>close</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Disconnect <small>[C-d]</small></div>
 
-      <span className="tool" data-tool="wire 2"><Icon>format_paint</Icon></span>
+      <span className={cn("tool", { 'tool-disabled': focus?.type !== 'group' })} data-tool="wire 2"><Icon>format_paint</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Color <small>[C-c]</small></div>
 
       <div className="sandbox-toolbar-hint">

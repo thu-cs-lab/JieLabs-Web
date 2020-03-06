@@ -1328,44 +1328,58 @@ main {
     margin-right: 5px;
     cursor: pointer;
 
-    transition: opacity .2s ease;
-
-    &:hover {
-      opacity: 1;
-
-      + .tool-activated {
-        opacity: 1;
-      }
-    }
-
     z-index: 1;
-
-    transform: translateY($move);
-    opacity: 0;
-
-    transition-property: transform, opacity;
-    transition-timing-function: ease;
-    transition-duration: .2s;
     pointer-events: none;
+
+    .material-icons {
+      transform: translateY($move);
+      opacity: 0;
+
+      transition-property: transform, opacity;
+      transition-timing-function: ease;
+      transition-duration: .2s;
+    }
 
     @for $i from 1 through 10 {
       &[data-tool~="#{$i}"] {
-        transition-delay: ($i - 1) * $stagger;
+        .material-icons {
+          transition-delay: ($i - 1) * $stagger;
+        }
       }
     }
 
     &.tool[data-tool~="wire"] {
-      transform: translateY($move) translateX(-$block-tool-count*(5px + 24px));
+      transform: translateX(-$block-tool-count*(5px + 24px));
+    }
+
+    transition: opacity .2s ease;
+
+    opacity: .54;
+
+    &:hover {
+      opacity: 1;
+
+      & + .tool-activated {
+        opacity: 1;
+      }
+    }
+
+    &.tool-disabled {
+      cursor: default;
+      opacity: .18;
     }
   }
 
   @mixin tool-shown {
-    transform: none;
-    opacity: .54;
     pointer-events: all;
 
+    .material-icons {
+      transform: none;
+      opacity: 1;
+    }
+
     @for $i from 1 through 10 {
-      &[data-tool~="#{$i}"] {
+      &[data-tool~="#{$i}"] .material-icons {
         transition-delay: .2s + $interval + ($i - 1) * $stagger;
       }
     }
@@ -1380,7 +1394,6 @@ main {
   &.wire-mode {
     .tool[data-tool~="wire"] {
       @include tool-shown;
-      transform: translateX(-$block-tool-count*(5px + 24px));
     }
   }
 
