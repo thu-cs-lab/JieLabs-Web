@@ -145,3 +145,15 @@ export function input(state = null, action) {
 
   return state;
 }
+
+export function help(state = null, action) {
+  if(action.type === TYPES.STEP_HELP)
+    return state + 1;
+  if(action.type === TYPES.UNSTEP_HELP)
+    return state === 0 ? 0 : state - 1;
+  else if(action.type === TYPES.END_HELP)
+    return null;
+  else if(action.type === TYPES.START_HELP)
+    return 0;
+  return state;
+}

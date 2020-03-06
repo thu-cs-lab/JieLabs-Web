@@ -16,6 +16,7 @@ import Workspace from './routes/Workspace';
 import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
 import Highlighter from './comps/Highlighter';
+import HelpLayer from './HelpLayer';
 
 export default React.memo(() => {
   const dispatch = useDispatch();
@@ -407,5 +408,7 @@ export default React.memo(() => {
         </CSSTransition>
       )}
     </TransitionGroup>
+
+    <HelpLayer />
   </div>;
 })

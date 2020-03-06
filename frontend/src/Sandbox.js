@@ -615,7 +615,7 @@ export default React.memo(() => {
     <div
       ref={container}
       className="sandbox"
-      tabindex="0"
+      tabIndex="0"
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       onContextMenu={ev => {

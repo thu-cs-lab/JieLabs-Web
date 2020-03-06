@@ -24,6 +24,11 @@ export const TYPES = {
   ASSIGN_PIN: Symbol('ASSIGN_PIN'),
   SET_CLOCK: Symbol('SET_CLOCK'),
   UPDATE_INPUT: Symbol('UPDATE_INPUT'),
+
+  STEP_HELP: Symbol('STEP_HELP'),
+  UNSTEP_HELP: Symbol('UNSTEP_HELP'),
+  START_HELP: Symbol('START_HELP'),
+  END_HELP: Symbol('END_HELP'),
 };
 
 export const BOARD_STATUS = Object.freeze({
@@ -122,6 +127,22 @@ export function updateInput(data) {
     type: TYPES.UPDATE_INPUT,
     data,
   };
+}
+
+export function startHelp() {
+  return { type: TYPES.START_HELP };
+}
+
+export function endHelp() {
+  return { type: TYPES.END_HELP };
+}
+
+export function stepHelp() {
+  return { type: TYPES.STEP_HELP };
+}
+
+export function unstepHelp() {
+  return { type: TYPES.UNSTEP_HELP };
 }
 
 export function login(user, pass) {

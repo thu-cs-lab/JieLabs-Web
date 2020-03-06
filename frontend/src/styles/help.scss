@@ -1,0 +1,81 @@
+.help {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  pointer-events: none;
+
+  z-index: 120;
+}
+
+.help-backdrop {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 0;
+
+  background: black;
+  opacity: 0;
+  transition: opacity .2s ease;
+
+  &.help-backdrop-shown {
+    opacity: .3;
+    pointer-events: all;
+  }
+}
+
+.help-controller-cont {
+  position: fixed;
+
+  right: 0;
+  width: 60px;
+  top: 0;
+  bottom: 0;
+
+  display: flex;
+  align-items: center;
+
+  transform: translateX(60px + 12px);
+  transition: transform .2s ease;
+}
+
+.help-controller {
+  flex: 1;
+  height: auto;
+  background: $bg;
+  box-shadow: rgba(0,0,0,.3) 0 4px 12px;
+  display: inline-flex;
+  flex-direction: column;
+
+  pointer-events: all;
+}
+
+.help-open .help-controller-cont {
+  transform: none;
+}
+
+.help-controller-action {
+  height: 60px;
+  width: 60px;
+  line-height: 60px;
+  text-align: center;
+  color: white;
+
+  cursor: pointer;
+
+  opacity: .7;
+  transition: opacity .2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &.help-controller-action-disabled {
+    cursor: default;
+    opacity: .18;
+  }
+}

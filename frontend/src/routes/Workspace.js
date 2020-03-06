@@ -8,7 +8,7 @@ import Tooltip from '../comps/Tooltip';
 
 import { BOARDS } from '../config';
 
-import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin } from '../store/actions';
+import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp } from '../store/actions';
 
 import { registerCodeLens } from '../vhdl';
 
@@ -44,11 +44,11 @@ export default React.memo(() => {
       dispatch(programBitstream(readyLatestId));
   }, [readyLatestId, idleBoard, dispatch]);
   
-  const [showHelp, setShowHelp] = useState(false);
-  const doShowHelp = useCallback(() => {
-    setShowHelp(true);
+  const [help, setHelp] = useState(false);
+  const showHelp = useCallback(() => {
+    setHelp(true);
   }, []);
-  const dismissShowHelp = useCallback(() => setShowHelp(false), []);
+  const dismissHelp = useCallback(() => setHelp(false), []);
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
@@ -390,6 +390,11 @@ export default React.memo(() => {
   if(!canUpload) buildTooltip = 'Top entity or signal not assigned';
   else if (!lastBuildFinished) buildTooltip = 'Latest build not finished, please wait';
 
+  const startIntHelp = useCallback(() => {
+    setHelp(false);
+    dispatch(startHelp());
+  });
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
@@ -407,7 +412,7 @@ export default React.memo(() => {
         </button>
       </Tooltip>
 
-      <button onClick={doShowHelp}>
+      <button onClick={showHelp}>
         <Icon>help_outline</Icon>
       </button>
     </div>
@@ -485,12 +490,12 @@ export default React.memo(() => {
           </div>
         </CSSTransition>
       }
-      {showHelp !== false &&
+      {help !== false &&
         <CSSTransition
           timeout={500}
           classNames="fade"
         >
-          <div className="backdrop centering" onMouseDown={dismissShowHelp}>
+          <div className="backdrop centering" onMouseDown={dismissHelp}>
             <div className="dialog help-dialog" onMouseDown={blocker}>
               <div className="hint">STOP IT,</div>
               <div className="dialog-title monospace">Get some help</div>
@@ -498,6 +503,7 @@ export default React.memo(() => {
                 You can restart the interactive tutorial by clicking the button below.<br/>
                 <button
                   className="labeled-btn"
+                  onClick={startIntHelp}
                 >
                   <div className="labeled-btn-icon">🍓</div> <span>START</span>
                 </button>
