@@ -161,10 +161,14 @@ class Handler {
       if(this.groups[gid].size <= 1) throw new Error(`Unexpected group size ${this.groups[gid].size}`);
       const ids = Array.from(this.groups[gid]);
 
-      result.push(ids.map(id => ({
-        ref: this.connectors[id].ref,
-        id
-      })));
+      result.push({
+        id: gid,
+        color: 'black',
+        members: ids.map(id => ({
+          ref: this.connectors[id].ref,
+          id
+        })),
+      });
     }
 
     return result;
@@ -287,9 +291,9 @@ export default React.memo(() => {
   const groups = useMemo(() => {
     if(!container.current) return [];
 
-    return lines.map(line => ({
-      color: 'black',
-      members: line.map(({ id, ref }) => {
+    return lines.map(({ id, color, members })=> ({
+      id, color,
+      members: members.map(({ id, ref }) => {
         if(!ref.current) return null;
         const bounding = ref.current.getBoundingClientRect();
         const { x, y } = center(bounding, container.current.getBoundingClientRect());
@@ -999,17 +1003,16 @@ const WireLayer = React.memo(({
       return ncvs;
     }
 
+    let focusedComp = null;
+    if(focus && focus.type === 'group')
+      focusedComp = canvases.find(e => e.group.id === focus.id);
+
     ctx.globalAlpha = 0.7;
     for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
-      if(hovered || !collided || cvs !== collided.canvas)
+      if(hovered || !collided || cvs !== collided.canvas) // TODO: focus?
         ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
 
     ctx.globalAlpha = 1;
-
-    console.log(focus);
-    let focusedComp = null;
-    if(focus && focus.type === 'group')
-      focusedComp = canvases.find(e => e.group.members.some(e => e.id === focus.leader));
 
     // Draw shadow for focused object
     if(focusedComp)
@@ -1036,7 +1039,7 @@ const WireLayer = React.memo(({
         if(onFocus)
           onFocus({
             type: 'group',
-            leader: collided.group.members[0].id,
+            id: collided.group.id,
           });
       } else {
         if(onBlur) onBlur();
