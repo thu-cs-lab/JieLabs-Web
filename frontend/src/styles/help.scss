@@ -4,10 +4,13 @@
   left: 0;
   right: 0;
   top: 0;
+  padding: 40px;
 
   pointer-events: none;
 
   z-index: 120;
+
+  color: white;
 }
 
 .help-backdrop {
@@ -77,5 +80,71 @@
   &.help-controller-action-disabled {
     cursor: default;
     opacity: .18;
+  }
+}
+
+.help-content {
+  transition: opacity .2s ease;
+
+  &.help-content-hidden {
+    opacity: 0;
+  }
+}
+
+.help-welcome {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  .help-welcome-inner {
+    padding: 30px 40px;
+    background: rgba(0,0,0,.7);
+  }
+
+  .brand {
+    font-size: 48px;
+    color: white;
+    line-height: 48px;
+  }
+
+  .help-welcome-desc {
+    margin-top: 50px;
+    max-width: 400px;
+    del {
+      margin: 0 5px;
+      color: rgba(255,255,255,.3);
+      text-decoration-color: white;
+    }
+    p {
+      margin-top: 0;
+      text-indent: 2em;
+    }
+  }
+
+  .help-welcome-icons {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .help-welcome-icon {
+      font-size: 12px;
+      color: rgba(255,255,255,.54);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      .material-icons {
+        color: white;
+      }
+    }
   }
 }

@@ -12,8 +12,30 @@ const STEPS = [
     done: () => true,
     renderer: () => (
       <div className="help-welcome">
-        <div className="hint">Welcome to</div>
-        JieLabs
+        <div className="help-welcome-inner">
+          <div className="hint">Welcome to</div>
+          <div className="brand"><strong>Jie</strong>Labs</div>
+          <div className="help-welcome-desc">
+            <p>
+              欢迎来到<del>杰哥的掌握</del>数电在线实验平台。这是您首次使用 JieLabs，因此我们为您准备了一个交互式的指南，希望能帮助您尽快熟悉平台的使用方法。
+            </p>
+            <p>
+              指南的控制面板在页面右侧。您可以使用这些按钮来控制指南的进行。
+            </p>
+
+            <div className="help-welcome-icons">
+              <div className="help-welcome-icon"><Icon>skip_previous</Icon> 上一步</div>
+              <div className="sep">/</div>
+              <div className="help-welcome-icon"><Icon>skip_next</Icon> 下一步</div>
+              <div className="sep">/</div>
+              <div className="help-welcome-icon"><Icon>tab_unselected</Icon> 暂时隐藏</div>
+              <div className="sep">/</div>
+              <div className="help-welcome-icon"><Icon>settings_backup_restore</Icon> 重置当前步骤</div>
+              <div className="sep">/</div>
+              <div className="help-welcome-icon"><Icon>stop</Icon> 结束指南</div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -81,7 +103,7 @@ export default React.memo(() => {
         classNames="fade"
         key={step}
       >
-        <div>
+        <div className={cn("help-content", { 'help-content-hidden': hidden })}>
           { renderer() }
         </div>
       </CSSTransition>
