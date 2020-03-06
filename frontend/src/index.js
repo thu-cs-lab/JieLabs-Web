@@ -25,11 +25,14 @@ if(!window.TextDecoder)
 
 initVhdl(store);
 
-const Render = () => <Provider store={store}>
+const build = App => () => <Provider store={store}>
   <BrowserRouter>
     <App />
   </BrowserRouter>
 </Provider>;
+
+
+const Render = build(App);
 
 ReactDOM.render(<Render />, document.getElementById('root'));
 
@@ -37,3 +40,12 @@ ReactDOM.render(<Render />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register();
+
+// Hot reloading
+if(module.hot) {
+  module.hot.accept('./App', () => {
+    const App = require('./App').default;
+    const Render = build(App);
+    ReactDOM.render(<Render />, document.getElementById('root'));
+  });
+}
