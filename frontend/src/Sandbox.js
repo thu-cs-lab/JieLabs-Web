@@ -599,13 +599,11 @@ const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, reques
     ev.preventDefault();
   }, [idx, spec, requestSettle, setMoving]);
 
-  // useLayoutEffect(requestRedraw, [moving]);
-
   const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
 
   const weakBlocker = useCallback(e => {
     e.stopPropagation();
-  });
+  }, [moving]);
 
   const Block = blocks[spec.type];
 
@@ -876,9 +874,10 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
   const [focused, setFocused] = useState(null);
 
   const handleMouseDown = useCallback(e => {
-    e.stopPropagation();
-    if(collided) setFocused(collided);
-    else setFocused(null);
+    if(collided) {
+      e.stopPropagation();
+      setFocused(collided);
+    } else setFocused(null);
   }, [collided]);
 
   // Unfocuse on layer switch
@@ -891,16 +890,9 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
-      if(!collided || cvs !== collided.canvas) {
-        ctx.globalAlpha = 0.7;
-        ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
-      }
 
     function drawWithShadow(spec, color, blur, mapper = null) {
       const { offset: { x, y }, dim: { w, h }, canvas: cvs } = spec;
-
-      ctx.globalAlpha = 1;
 
       ctx.shadowColor = color;
       ctx.shadowBlur = blur;
@@ -926,6 +918,13 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
       ctx.drawImage(canvas, 0, 0);
       return ncvs;
     }
+
+    ctx.globalAlpha = 0.7;
+    for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
+      if(!collided || cvs !== collided.canvas)
+        ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
+
+    ctx.globalAlpha = 1;
 
     // Draw shadow for focused object
     if(focused)
