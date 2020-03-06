@@ -64,6 +64,7 @@ class Handler {
       this.tryUpdateSet(group);
 
     this.tryUpdate(id);
+    this.fireListeners();
   }
 
   disassembleGroup(gid) {
@@ -74,6 +75,7 @@ class Handler {
     }
 
     delete this.groups[gid];
+    this.fireListeners();
   }
 
   unionGroup(aid, bid) {
@@ -87,6 +89,9 @@ class Handler {
 
     delete this.groups[bid];
     this.tryUpdateSet(ag);
+    this.fireListeners();
+
+    return true;
   }
 
   checkCompatible(aid, bid) {
@@ -131,8 +136,7 @@ class Handler {
     if(gaid && gbid) {
       if(gaid === gbid) return true;
 
-      this.unionGroup(gaid, gbid);
-      return true;
+      return this.unionGroup(gaid, gbid);
     }
 
     let gid = gaid || gbid;
@@ -150,6 +154,7 @@ class Handler {
     this.connectors[bid].group = gid;
 
     this.tryUpdateSet(group);
+    this.fireListeners();
 
     return true;
   }
