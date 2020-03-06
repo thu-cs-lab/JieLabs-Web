@@ -291,11 +291,11 @@ export default React.memo(() => {
 
   // Update lines & connectors when updating field
   useLayoutEffect(() => {
-    ctx.updateLines();
     setTimeout(() => {
+      ctx.updateLines();
       refreshConnectors();
     });
-  }, [ctx, field]);
+  }, [ctx, field, refreshConnectors]);
 
   useEffect(() => {
     return ctx.onChange(() => {
