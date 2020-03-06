@@ -759,7 +759,7 @@ export default React.memo(() => {
       <span className="tool tool-last" onClick={showPalette}>
         <div className="palette-stub" style={{ backgroundColor: color }}></div>
       </span>
-      <div className="sandbox-toolbar-hint tool-activated">Color Palette <small>[C-c]</small></div>
+      <div className="sandbox-toolbar-hint tool-activated">Color Palette <small>[C-c] / Swap [TAB]</small></div>
 
       <div className="sandbox-toolbar-hint">
         <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>
@@ -779,7 +779,7 @@ export default React.memo(() => {
           </div>
         )) }
         <div className="palette-hint">
-          HK: [Tab]
+          Now: {color}
         </div>
       </div>
     </div>
