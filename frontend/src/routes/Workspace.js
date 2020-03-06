@@ -434,7 +434,7 @@ export default React.memo(() => {
         >
           <div className="backdrop centering" onMouseDown={dismissAssigning}>
             <div className="dialog" onMouseDown={blocker}>
-              <div className="hint">Pin Assignment</div>
+              <div className="hint">PIN ASSIGNMENT</div>
               <div className="dialog-title monospace">
                 <span className="dimmed">
                   { top }
