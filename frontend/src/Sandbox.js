@@ -759,7 +759,7 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
       }
       const arg = new lib.Points(points);
 
-      const rawChangeset = maze.mikami_tabuchi_multi(arg);
+      const rawChangeset = maze.multi_terminal(arg);
       arg.free();
 
       // TODO: properly handles this, maybe enlarge grid?

@@ -263,7 +263,7 @@ dependencies = [
 [[package]]
 name = "maze-routing"
 version = "0.1.0"
-source = "git+https://github.com/jiegec/maze-routing#1df9610e385addf976d8839981fc8465cfa14081"
+source = "git+https://github.com/jiegec/maze-routing#2ec339f275f049758d307e3ef1587a9e84f74625"
 dependencies = [
  "serde",
  "serde_derive",
