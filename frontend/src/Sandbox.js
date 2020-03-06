@@ -132,7 +132,7 @@ class Handler {
 
   click(id) {
     let updated = false;
-    if(this.connectors[id].group) {
+    if(this.selecting === null && this.connectors[id].group) {
       this.removeFromGroup(id);
       updated = true;
     } else if(this.selecting === null) {
@@ -169,10 +169,9 @@ class Handler {
   }
 
   updateLines() {
-    console.log(this.groups);
     const result = [];
     for(const gid in this.groups) {
-      if(this.groups[gid].size) throw new Error(`Unexpected group size ${ids.length}`);
+      if(this.groups[gid].size <= 1) throw new Error(`Unexpected group size ${this.groups[gid].size}`);
       const ids = Array.from(this.groups[gid]);
 
       result.push(ids.map(id => ({
@@ -752,9 +751,6 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
         x: Math.floor((x - minX) / FACTOR),
         y: Math.floor((y - minY) / FACTOR),
       }));
-
-      // TODO: multi-terminal
-      console.assert(mazeCoords.length === 2);
 
       let points = [];
       for (const { x, y } of mazeCoords) {
