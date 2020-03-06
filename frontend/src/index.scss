@@ -686,10 +686,6 @@ main {
   &.clocking {
     border-color: mix($primary-color, #333);
   }
-
-  &.selected {
-    border-color: mix($selected-color, #333);
-  }
 }
 
 .switch4 {
@@ -1007,8 +1003,29 @@ main {
     transition-duration: .1s;
   }
 
-  &.wires-collided {
+  &.wires-hover {
     cursor: pointer;
+  }
+}
+
+.hover-connectors {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+
+  z-index: 5;
+  pointer-events: none;
+
+  opacity: 0;
+  transition: opacity .5s ease;
+
+  &.hover-connectors-shown {
+    opacity: 1;
   }
 }
 
@@ -1258,7 +1275,7 @@ main {
   display: inline-flex;
   align-items: flex-start;
 
-  z-index: 5; // 4 is for wire-layer
+  z-index: 6; // 4-5 is for wire-layer
 
   background-image: linear-gradient(90deg, change-color($primary-color, $alpha: .3) 0px (48px+10px*2), transparent (48px+10px*2) 100%);
 

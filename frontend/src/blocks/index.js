@@ -47,11 +47,6 @@ export const Connector = React.memo(({
   const cb = useRef(onChange);
   const dataref = useRef(data);
 
-  const [selected, setSelected] = useState(false);
-
-  const selcb = useRef(null);
-  useEffect(() => selcb.current = setSelected, [setSelected]);
-
   useEffect(() => {
     cb.current = onChange;
   }, [onChange]);
@@ -61,7 +56,7 @@ export const Connector = React.memo(({
   }, [data]);
 
   useEffect(() => {
-    const { id: nid, ref: nref } = snd.register(_id, cb, mode, dataref, selcb);
+    const { id: nid, ref: nref } = snd.register(_id, cb, mode, dataref);
     setId(nid);
     setRef(nref);
 
@@ -91,10 +86,7 @@ export const Connector = React.memo(({
     className={cn(
       "connector",
       className,
-      {
-        clocking: mode === MODE.CLOCK_DEST || mode === MODE.CLOCK_SRC,
-        selected,
-      }
+      { clocking: mode === MODE.CLOCK_DEST || mode === MODE.CLOCK_SRC }
     )}
     onClick={onClick}
     onMouseDown={e => e.stopPropagation()}

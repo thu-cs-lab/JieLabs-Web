@@ -23,8 +23,8 @@ function negotiateSignal(...signals) {
 }
 
 class Handler {
-  constructor(onLineChange) {
-    this.onLineChange = onLineChange;
+  constructor(onConnectorClicked) {
+    this.onConnectorClicked = onConnectorClicked;
   }
 
   connectors = {};
@@ -124,38 +124,9 @@ class Handler {
     }
   }
 
-  tryUpdateSel(id) {
-    const ref = this.connectors[id].selcb.current;
-    if(!ref) return;
-    ref(id === this.selecting);
-  }
-
   click(id) {
-    let updated = false;
-    if(this.selecting === null && this.connectors[id].group) {
-      this.removeFromGroup(id);
-      updated = true;
-    } else if(this.selecting === null) {
-      this.selecting = id;
-      this.tryUpdateSel(id);
-    } else if(this.selecting === id) {
-      this.selecting = null;
-      this.tryUpdateSel(id);
-    } else {
-      if(this.checkConnectable(id, this.selecting)) {
-        this.connectPin(id, this.selecting);
-        updated = true;
-      }
-
-      const original = this.selecting;
-      this.selecting = null;
-      this.tryUpdateSel(original);
-    }
-
-    if(updated) {
-      this.fireListeners();
-      this.updateLines();
-    }
+    if(this.onConnectorClicked)
+      this.onConnectorClicked(id);
   }
 
   checkConnectable(aid, bid) {
@@ -168,7 +139,7 @@ class Handler {
     return true;
   }
 
-  updateLines() {
+  getLines() {
     const result = [];
     for(const gid in this.groups) {
       if(this.groups[gid].size <= 1) throw new Error(`Unexpected group size ${this.groups[gid].size}`);
@@ -180,7 +151,7 @@ class Handler {
       })));
     }
 
-    this.onLineChange(result);
+    return result;
   }
 
   getConnected(id) {
@@ -274,11 +245,24 @@ export default React.memo(() => {
   ));
 
   const [scroll, setScroll] = useState({ x: 20, y: 20 });
+  const scrollRef = useRef(scroll);
   // TODO: impl scaling
   // const [scale, setScale] = useState(1);
 
   const [lines, setLines] = useState(List());
-  const ctx = useMemo(() => new Handler(setLines), []);
+  const [linking, setLinking] = useState(null);
+
+  const handler = useMemo(() => new Handler(setLinking), []);
+
+  const link = useCallback(id => {
+    handler.connectPin(linking, id);
+    setLines(handler.getLines());
+    setLinking(null);
+  }, [handler, linking]);
+
+  const linkCancel = useCallback(() => {
+    setLinking(null);
+  });
 
   const container = useRef();
 
@@ -294,20 +278,20 @@ export default React.memo(() => {
         const { x, y } = center(bounding, container.current.getBoundingClientRect());
 
         return {
-          x: x - scroll.x,
-          y: y - scroll.y,
+          x: x - scrollRef.current.x,
+          y: y - scrollRef.current.y,
           id,
         };
       }).filter(e => e !== null),
     }));
-  }, [lines]); // Intentionally leaves scroll out
+  }, [lines]);
 
   // Keep track of all connectors
   const [connectors, setConnectors] = useState([]);
   const refreshConnectors = useCallback(() => {
     if(!container.current) return;
 
-    const all = ctx.getAllConnectors();
+    const all = handler.getAllConnectors();
 
     setConnectors(all.map(({ id, ref }) => {
       const bounding = ref.current.getBoundingClientRect();
@@ -315,25 +299,25 @@ export default React.memo(() => {
 
       return {
         id,
-        x: x - scroll.x,
-        y: y - scroll.y,
+      x: x - scrollRef.current.x,
+      y: y - scrollRef.current.y,
       };
     }));
-  }, [ctx]);
+  }, [handler]);
 
   // Update lines & connectors when updating field
   useLayoutEffect(() => {
     setTimeout(() => {
-      ctx.updateLines();
+      setLines(handler.getLines());
       refreshConnectors();
     });
-  }, [ctx, field, refreshConnectors]);
+  }, [handler, field, refreshConnectors]);
 
   useEffect(() => {
-    return ctx.onChange(() => {
+    return handler.onChange(() => {
       setTimeout(() => refreshConnectors());
     });
-  }, [ctx, refreshConnectors]);
+  }, [handler, refreshConnectors]);
 
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
@@ -380,7 +364,7 @@ export default React.memo(() => {
     setField(field.delete(idx));
   }, [setField, field]);
 
-  const requestRedraw = useCallback(() => ctx.updateLines());
+  const requestRedraw = useCallback(() => setLines(handler.getLines()), []);
 
   // FPGA Context related stuff
 
@@ -393,9 +377,9 @@ export default React.memo(() => {
       regClocking: id => {
         cpid.current = id;
 
-        const other = ctx.getConnected(id);
+        const other = handler.getConnected(id);
         if(other !== null)
-          return dispatch(updateClock(ctx.getData(other)));
+          return dispatch(updateClock(handler.getData(other)));
         else
           return dispatch(updateClock(null));
       },
@@ -404,19 +388,19 @@ export default React.memo(() => {
         dispatch(updateClock(null));
       }
     };
-  }, [ctx, dispatch]);
+  }, [handler, dispatch]);
 
   useEffect(() => {
-    return ctx.onChange(() => {
+    return handler.onChange(() => {
       if(!cpid.current) return;
 
-      const other = ctx.getConnected(cpid.current);
+      const other = handler.getConnected(cpid.current);
       if(other !== null)
-        return dispatch(updateClock(ctx.getData(other)));
+        return dispatch(updateClock(handler.getData(other)));
       else
         return dispatch(updateClock(null));
     });
-  }, [ctx, cpid, dispatch]);
+  }, [handler, cpid, dispatch]);
 
   const [layer, setLayer] = useState(LAYERS.BLOCK);
   const switchLayer = useCallback(() => {
@@ -447,7 +431,8 @@ export default React.memo(() => {
         const move = ev => {
           curScroll.x += ev.movementX;
           curScroll.y += ev.movementY;
-          setScroll({ ...curScroll });
+          scrollRef.current = { ...curScroll };
+          setScroll(scrollRef.current);
         };
 
         const up = ev => {
@@ -460,7 +445,7 @@ export default React.memo(() => {
       }}
     >
       <FPGAEnvContext.Provider value={fpgaCtx}>
-        <SandboxContext.Provider value={ctx}>
+        <SandboxContext.Provider value={handler}>
           <div
             className="sandbox-scroll"
             style={{
@@ -489,7 +474,10 @@ export default React.memo(() => {
             scroll={scroll}
             width={canvasWidth}
             height={canvasHeight}
-            active={layer === LAYERS.WIRE}
+            active={layer === LAYERS.WIRE || linking !== null}
+            linking={linking}
+            link={link}
+            linkCancel={linkCancel}
             className={cn({ 'wires-off': moving })}
           />
         </SandboxContext.Provider>
@@ -655,7 +643,21 @@ const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, reques
  *   ... (other groups)
  * ]
  */
-const WireLayer = React.memo(({ className, groups, scroll, width, height, connectors, active }) => {
+const WireLayer = React.memo(({
+  className,
+  width,
+  height,
+  scroll,
+
+  connectors,
+  groups,
+
+  active,
+
+  linking,
+  link,
+  linkCancel,
+}) => {
   const FACTOR = 3;
   const MASK_RADIUS = 2;
 
@@ -873,17 +875,72 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
 
   const [focused, setFocused] = useState(null);
 
-  const handleMouseDown = useCallback(e => {
-    if(collided) {
-      e.stopPropagation();
-      setFocused(collided);
-    } else setFocused(null);
-  }, [collided]);
-
   // Unfocuse on layer switch
   useEffect(() => {
     if(!active) setFocused(null);
   }, [active])
+
+  // Connector stuff
+  const connectorRadius = 15 / 2;
+
+  // Get hovered connector
+  const hovered = useMemo(() => {
+    const { x: mx, y: my } = mouse;
+    const smx = mx - scroll.x;
+    const smy = my - scroll.y;
+    for(const connector of connectors) {
+      const { x: cx, y: cy } = connector;
+
+      const distSq = (smx - cx) * (smx - cx) + (smy - cy) * (smy - cy);
+      if(distSq <= connectorRadius * connectorRadius)
+        return connector;
+    }
+
+    return null;
+  }, [mouse, connectors, scroll]);
+
+  // Draw connectors
+  const renderConnectors = useCallback(canvas => {
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = 'rgba(0,0,0,.3)';
+    ctx.strokeStyle = 'rgba(0,0,0,.7)';
+    for(const { id, x, y } of connectors) 
+      if(id !== hovered?.id && id !== linking) {
+        ctx.beginPath();
+        ctx.arc(x + scroll.x, y + scroll.y, connectorRadius, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+    if(hovered !== null && hovered.id !== linking) {
+      ctx.shadowColor = 'rgba(255, 199, 56, .8)'
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      ctx.beginPath();
+      ctx.arc(hovered.x + scroll.x, hovered.y + scroll.y, connectorRadius, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowColor = 'transparent';
+    }
+
+    const linkingComp = connectors.find(e => e.id === linking);
+
+    if(linkingComp) {
+      ctx.fillStyle = 'rgba(255, 199, 56, .5)'
+      ctx.strokeStyle = 'rgba(255, 199, 56, 1)'
+      ctx.beginPath();
+      ctx.arc(linkingComp.x + scroll.x, linkingComp.y + scroll.y, connectorRadius, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowColor = 'transparent';
+    }
+  }, [connectors, scroll, width, height, hovered, linking]);
 
   // Composite all canvases
   const renderer = useCallback(canvas => {
@@ -921,7 +978,7 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
 
     ctx.globalAlpha = 0.7;
     for(const { offset: { x, y }, dim: { w, h }, canvas: cvs } of canvases)
-      if(!collided || cvs !== collided.canvas)
+      if(hovered || !collided || cvs !== collided.canvas)
         ctx.drawImage(cvs, 0, 0, w, h, x + scroll.x, y + scroll.y, w, h);
 
     ctx.globalAlpha = 1;
@@ -931,19 +988,45 @@ const WireLayer = React.memo(({ className, groups, scroll, width, height, connec
       drawWithShadow(focused, 'rgba(255, 199, 56, 1)', 12, cvs => recolor(cvs, 'rgb(255,199,56)'));
 
     // Draw shadow for hovered object
-    if(collided && collided !== focused)
+    if(!hovered && collided && collided !== focused)
       drawWithShadow(collided, 'rgba(255, 199, 56, .8)', 4);
-  }, [canvases, scroll, width, height, collided, focused]);
+  }, [canvases, scroll, width, height, collided, focused, hovered]);
+
+  const handleMouseDown = useCallback(e => {
+    if(linking) {
+      if(hovered && hovered.id === linking) {
+        if(linkCancel) linkCancel();
+      } else if(hovered) {
+        if(link) link(hovered.id);
+      } else if(collided) {
+        // Asserts group have more than 0 member
+        if(link) link(collided.group.members[0].id);
+      }
+    } else {
+      if(collided) {
+        e.stopPropagation();
+        setFocused(collided);
+      } else setFocused(null);
+    }
+  }, [collided, hovered, linking, link]);
 
   return (
-    <canvas
-      ref={renderer}
-      width={width}
-      height={height}
-      className={cn('wires', { 'wires-shown': active, 'wires-collided': collided !== null }, className)}
-      onMouseMove={handleMouse}
-      onMouseDown={handleMouseDown}
-    />
+    <>
+      <canvas
+        ref={renderer}
+        width={width}
+        height={height}
+        className={cn('wires', { 'wires-shown': active, 'wires-hover': hovered !== null || collided !== null }, className)}
+        onMouseMove={handleMouse}
+        onMouseDown={handleMouseDown}
+      />
+      <canvas
+        ref={renderConnectors}
+        width={width}
+        height={height}
+        className={cn('hover-connectors', { 'hover-connectors-shown': active })}
+      />
+    </>
   );
 });
 
