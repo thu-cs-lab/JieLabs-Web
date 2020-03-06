@@ -1489,6 +1489,8 @@ main {
     background: $bg linear-gradient(45deg, $bg-overlay 0% 25%, transparent 25% 50%, $bg-overlay 50% 75%, transparent 75% 100%);
     background-size: 20px 20px;
 
+    display: flex;
+
     .palette-slot {
       width: 25px;
       height: 25px;
@@ -1513,6 +1515,18 @@ main {
       &:hover .palette-slot-mask {
         opacity: 1;
       }
+    }
+
+    .palette-hint {
+      line-height: 25px;
+      color: white;
+      opacity: .3;
+      display: inline;
+      flex: 1;
+      font-size: 12px;
+      @extend .monospace;
+      text-align: right;
+      padding-right: 10px;
     }
   }
 

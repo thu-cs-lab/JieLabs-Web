@@ -558,6 +558,13 @@ export default React.memo(() => {
     setLines(handler.getLines());
   }, [focus, handler]);
 
+  const shiftColor = useCallback(() => {
+    const idx = COLORS.findIndex(e => e === color);
+    if(idx === -1) throw new Error(`Unexpected color ${color}`);
+    const next = (idx + 1) % COLORS.length;
+    setColor(COLORS[next]);
+  }, [color]);
+
   /* Hotkeys */
 
   const hotkeys = useRef();
@@ -570,8 +577,9 @@ export default React.memo(() => {
       layer: switchLayer,
       dye: doDye,
       palette: showPalette,
+      shiftColor,
     };
-  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking, doDye, showPalette]);
+  }, [doStartLinking, doDisconnect, switchLayer, doCancelLinking, doDye, showPalette, shiftColor]);
 
   useEffect(() => {
     function invoke(action, e) {
@@ -583,8 +591,9 @@ export default React.memo(() => {
 
     const listener = e => {
       if(e.ctrlKey && e.key === 'f') invoke('layer', e);
-      if(e.ctrlKey && e.key === 'd') invoke('dye', e);
-      if(e.ctrlKey && e.key === 'c') invoke('palette', e);
+      else if(e.ctrlKey && e.key === 'd') invoke('dye', e);
+      else if(e.ctrlKey && e.key === 'c') invoke('palette', e);
+      else if(e.key === 'Tab') invoke('shiftColor', e);
       else if(e.key === 'Backspace' || e.key === 'Delete') invoke('disconnect', e);
       else if(e.key === 'Shift') invoke('connect', e);
     };
@@ -769,6 +778,9 @@ export default React.memo(() => {
             <Icon className="palette-slot-mask">done</Icon>
           </div>
         )) }
+        <div className="palette-hint">
+          HK: [Tab]
+        </div>
       </div>
     </div>
   </>;
