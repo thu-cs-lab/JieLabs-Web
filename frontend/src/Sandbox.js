@@ -601,7 +601,7 @@ export default React.memo(() => {
     const listener = e => {
       if(e.ctrlKey && e.key === 'f') invoke('layer', e);
       else if(e.ctrlKey && e.key === 'd') invoke('dye', e);
-      else if(e.ctrlKey && e.key === 'c') invoke('palette', e);
+      else if(e.ctrlKey && e.key === 'e') invoke('palette', e);
       else if(e.shiftKey && e.key === 'Tab') invoke('shiftBackColor', e);
       else if(e.key === 'Tab') invoke('shiftColor', e);
       else if(e.key === 'Backspace' || e.key === 'Delete') invoke('disconnect', e);
@@ -769,7 +769,7 @@ export default React.memo(() => {
       <span className="tool tool-last" onClick={showPalette}>
         <div className="palette-stub" style={{ backgroundColor: color }}></div>
       </span>
-      <div className="sandbox-toolbar-hint tool-activated">Palette <small>[C-c] / Swap [(S-)TAB]</small></div>
+      <div className="sandbox-toolbar-hint tool-activated">Palette <small>[C-e] / Swap [(S-)TAB]</small></div>
 
       <div className="sandbox-toolbar-hint">
         <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>
