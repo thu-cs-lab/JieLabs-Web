@@ -91,6 +91,16 @@
   }
 }
 
+.help del {
+  margin: 0 5px;
+  color: rgba(255,255,255,.3);
+  text-decoration-color: white;
+}
+
+.help p {
+  margin-bottom: 0;
+}
+
 .help-welcome {
   position: absolute;
   left: 0;
@@ -115,17 +125,8 @@
   }
 
   .help-welcome-desc {
-    margin-top: 50px;
+    margin-top: 40px;
     max-width: 400px;
-    del {
-      margin: 0 5px;
-      color: rgba(255,255,255,.3);
-      text-decoration-color: white;
-    }
-    p {
-      margin-top: 0;
-      text-indent: 2em;
-    }
   }
 
   .help-welcome-icons {
@@ -172,7 +173,7 @@
 
   .help-layout-box {
     max-width: 400px;
-    padding: 20px;
+    padding: 30px 40px;
 
     background: rgba(0,0,0,.7);
 
@@ -180,7 +181,6 @@
       display: block;
       font-size: 32px;
       line-height: 32px;
-      margin-bottom: 10px;
     }
   }
 
@@ -188,5 +188,29 @@
     position: absolute;
     top: 60px;
     left: calc(50vw - 60px);
+
+    .help-layout-row {
+      height: 60px;
+      display: flex;
+
+      .material-icons {
+        width: 60px;
+        height: 60px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border: white 1px dashed;
+      }
+
+      .help-layout-desc {
+        display: inline-flex;
+        height: 60px;
+        align-items: center;
+        padding: 0 20px;
+        background: rgba(0,0,0,.7);
+      }
+    }
   }
 }

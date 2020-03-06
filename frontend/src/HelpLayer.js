@@ -45,15 +45,47 @@ const STEPS = [
           <div className="help-layout-half">
             <div className="help-layout-box">
               <strong>沙盒</strong>
-              你可以在这里增删、移动模块，修改连线，修改按钮、开关等输入部件的状态，并得到反馈。
+              <p>你可以在这里增删、移动模块，修改连线，修改按钮、开关等输入部件的状态，并得到反馈。</p>
             </div>
           </div>
           <div className="help-layout-half">
             <div className="help-layout-box">
               <strong>编辑器</strong>
-              你可以在这里修改 RTL 代码，修改引脚映射等综合设定，并可以实时得到语法检查报告。
+              <p>你可以在这里修改 RTL 代码，修改引脚映射等综合设定，并可以实时得到语法检查报告。</p>
             </div>
           </div>
+        </div>
+      </div>
+    )
+  }, {
+    done: () => true,
+    renderer: () => (
+      <div className="help-layout">
+        <div className="help-layout-toolbar">
+          <div className="help-layout-row">
+            <Icon>build</Icon>
+            <div className="help-layout-desc">提交编译任务</div>
+          </div>
+          <div className="help-layout-row">
+            <Icon>cloud_download</Icon>
+            <div className="help-layout-desc">将最近一次编译任务生成的 Bitstream 上传至 FPGA</div>
+          </div>
+          <div className="help-layout-row">
+            <Icon>help_outline</Icon>
+            <div className="help-layout-desc">帮助 / 快捷键说明</div>
+          </div>
+        </div>
+
+        <div className="help-layout-box" style={{
+          position: 'absolute',
+          top: 60*4 + 100,
+          left: '50vw',
+          transform: 'translateX(-50%)',
+        }}>
+          <strong>中央工具栏</strong>
+          <p>用于放置非常重要的按钮<del>和我们想不出来放到哪里的按钮</del>。</p>
+          <p>灰色的按钮表示当前因为特定条件无法完成的工作，例如如果最近一次编译失败，此时上传 Bitstream 的按钮将会展示为灰色。</p>
+          <p>部分禁用按钮在鼠标移过的时候会显示不能点击的原因。</p>
         </div>
       </div>
     )
