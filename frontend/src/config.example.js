@@ -14,11 +14,17 @@ export const TAR_FILENAMES = {
   constraints: 'src/mod_top.qsf',
 };
 
+// From material.io color tool
 export const COLORS = [
-  'red',
-  'blue',
-  'green',
-  'yellow',
+  '#333333', // GREY 800 ~ 900
+  '#f44336', // RED 500
+  '#2196f3', // BLUE 500
+  '#00acc1', // CYAN 600
+  '#388e3c', // GREEN 700
+  '#ffeb3b', // YELLOW 500
+  '#f57c00', // ORANGE 700
+  '#5d4037', // BROWN 700
+  '#37474f', // BLUE GREY 800
 ];
 
 export const DEFAULT_BOARD = 'default';

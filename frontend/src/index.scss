@@ -1485,7 +1485,7 @@ main {
     left: 0;
     right: 0;
     font-size: 0; // To avoid whitespaces
-    $bg-overlay: rgba(255,255,255,.1);
+    $bg-overlay: rgba(255,255,255,.05);
     background: $bg linear-gradient(45deg, $bg-overlay 0% 25%, transparent 25% 50%, $bg-overlay 50% 75%, transparent 75% 100%);
     background-size: 20px 20px;
 
@@ -1494,12 +1494,23 @@ main {
       height: 25px;
       display: inline-block;
 
-      opacity: .54;
       cursor: pointer;
 
-      transition: opacity .2s ease;
+      .palette-slot-mask {
+        width: 100%;
+        height: 100%;
+        display: block;
+        text-align: center;
+        line-height: 25px;
+        font-size: 12px;
+        background: rgba(0,0,0,.3);
+        color: white;
 
-      &:hover {
+        opacity: 0;
+        transition: opacity .2s ease;
+      }
+
+      &:hover .palette-slot-mask {
         opacity: 1;
       }
     }

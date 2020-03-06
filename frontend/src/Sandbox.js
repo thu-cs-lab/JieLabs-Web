@@ -765,7 +765,9 @@ export default React.memo(() => {
             className="palette-slot"
             style={{ backgroundColor: c }}
             onMouseDown={() => setColor(c)}
-          ></div>
+          >
+            <Icon className="palette-slot-mask">done</Icon>
+          </div>
         )) }
       </div>
     </div>
