@@ -13,10 +13,12 @@ import Icon from './comps/Icon';
 export const SandboxContext = React.createContext(null);
 export const FPGAEnvContext = React.createContext(null);
 
-function negotiateSignal(a, b) {
-  if(a === SIGNAL.X) return b;
-  if(b === SIGNAL.X) return a;
-  if(a === b) return a;
+function negotiateSignal(...signals) {
+  // Filter X
+  const meaningful = signals.filter(e => e !== SIGNAL.X);
+  if(meaningful.length === 0) return SIGNAL.X;
+  if(meaningful.every(e => e === SIGNAL.H)) return SIGNAL.H;
+  if(meaningful.every(e => e === SIGNAL.L)) return SIGNAL.L;
   return SIGNAL.X;
 }
 
@@ -28,24 +30,75 @@ class Handler {
   connectors = {};
   selecting = null;
   listeners = new Set();
+  groups = {};
 
+  // TODO: move groups into outer component
   register(id, cbref, mode, data, selcbref) {
     if(!id) throw new Error('Connector registered without ID');
     const ref = React.createRef();
-    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, connected: null, mode, data, selcb: selcbref };
+    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, group: null, mode, data, selcb: selcbref };
     this.fireListeners();
     return { ref, id };
   }
 
-  tryUpdate(id) {
-    if(this.connectors[id].connected === null)
-      this.tryNotify(id, this.connectors[id].input);
-    else {
-      const other = this.connectors[id].connected;
-      const handshaked = negotiateSignal(this.connectors[id].input, this.connectors[other].input);
-      this.tryNotify(id, handshaked);
-      this.tryNotify(other, handshaked);
+  connSet(id) {
+    const gid = this.connectors[id].group;
+    if(!gid) return new Set([id]);
+    // TODO: asserts that it's in the group
+    return this.groups[gid];
+  }
+
+  removeFromGroup(id) {
+    const gid = this.connectors[id].group;
+    if(!gid) return;
+    this.connectors[id].group = null;
+
+    const group = this.groups[gid];
+    console.assert(group.delete(id));
+
+    if(group.size === 0)
+      delete this.groups[gid];
+    else if(group.size === 1)
+      this.removeFromGroup(group.values().next().value);
+    else
+      this.tryUpdateSet(group);
+
+    this.tryUpdate(id);
+  }
+
+  connectPin(aid, bid) {
+    const gaid = this.connectors[aid].group;
+    const gbid = this.connectors[bid].group;
+
+    if(gaid && gbid)
+      throw new Error('Union group');
+
+    let gid = gaid || gbid;
+
+    if(!gid) {
+      gid = uuidv4();
+      this.groups[gid] = new Set();
     }
+
+    const group = this.groups[gid];
+    group.add(aid);
+    group.add(bid);
+
+    this.connectors[aid].group = gid;
+    this.connectors[bid].group = gid;
+
+    this.tryUpdateSet(group);
+  }
+
+  tryUpdateSet(set) {
+    const sigs = Array.from(set).map(id => this.connectors[id].input);
+    const sig = negotiateSignal(...sigs);
+    for(const id of set)
+      this.tryNotify(id, sig);
+  }
+
+  tryUpdate(id) {
+    this.tryUpdateSet(this.connSet(id));
   }
 
   tryNotify(id, signal) {
@@ -57,13 +110,7 @@ class Handler {
   }
 
   unregister(id) {
-    if(this.selecting === id) this.selecting = false;
-    const other = this.connectors[id].connected;
-
-    if(other !== null) {
-      this.connectors[other].connected = null;
-      this.tryUpdate(other);
-    }
+    this.removeFromGroup(id);
     this.connectors[id] = null;
     this.fireListeners();
   }
@@ -85,17 +132,10 @@ class Handler {
 
   click(id) {
     let updated = false;
-    const original = this.connectors[id].connected;
-    if(original !== null) {
-      this.connectors[original].connected = null;
-      this.connectors[id].connected = null;
-
-      this.tryUpdate(id);
-      this.tryUpdate(original);
+    if(this.connectors[id].group) {
+      this.removeFromGroup(id);
       updated = true;
-    }
-
-    if(this.selecting === null) {
+    } else if(this.selecting === null) {
       this.selecting = id;
       this.tryUpdateSel(id);
     } else if(this.selecting === id) {
@@ -103,11 +143,7 @@ class Handler {
       this.tryUpdateSel(id);
     } else {
       if(this.checkConnectable(id, this.selecting)) {
-        this.connectors[this.selecting].connected = id;
-        this.connectors[id].connected = this.selecting;
-
-        this.tryUpdate(this.selecting);
-        this.tryUpdate(id);
+        this.connectPin(id, this.selecting);
         updated = true;
       }
 
@@ -123,6 +159,7 @@ class Handler {
   }
 
   checkConnectable(aid, bid) {
+    // TODO: check if clock is connected to multiple clock source, this is forbidden
     const { mode: am } = this.connectors[aid];
     const { mode: bm } = this.connectors[bid];
 
@@ -132,30 +169,26 @@ class Handler {
   }
 
   updateLines() {
+    console.log(this.groups);
     const result = [];
+    for(const gid in this.groups) {
+      const ids = Array.from(this.groups[gid]);
+      console.assert(ids.length > 1);
 
-    const ignored = new Set();
-    for(const id in this.connectors) {
-      if(this.connectors[id] === null) continue;
-
-      if(ignored.has(id)) continue;
-      const other = this.connectors[id].connected;
-      if(other === null) continue;
-
-      result.push([
-        { ref: this.connectors[id].ref, id },
-        { ref: this.connectors[other].ref, id: other },
-      ]);
-
-      ignored.add(other);
-      ignored.add(id);
+      result.push(ids.map(id => ({
+        ref: this.connectors[id].ref,
+        id
+      })));
     }
 
     this.onLineChange(result);
   }
 
   getConnected(id) {
-    return this.connectors[id]?.connected;
+    const cs = this.connSet(id);
+    if(cs.size === 1) return null;
+    if(cs.size !== 2) throw new Error(`Getting connected pin in a conset with size ${cs.size}`);
+    return Array.from(cs).filter(e => e !== id)[0];
   }
 
   getData(id) {
