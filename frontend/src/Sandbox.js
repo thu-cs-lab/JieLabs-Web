@@ -32,6 +32,8 @@ class Handler {
   selecting = null;
   listeners = new Set();
   groups = {};
+  colors = {};
+  color = null;
 
   // TODO: move groups into outer component
   register(id, cbref, mode, data, selcbref) {
@@ -57,9 +59,10 @@ class Handler {
     const group = this.groups[gid];
     if(!group.delete(id)) throw new Error(`Unexpected: removing ${id} from ${group}, but not in conn set`);
 
-    if(group.size === 0)
+    if(group.size === 0) {
       delete this.groups[gid];
-    else if(group.size === 1)
+      delete this.colors[gid];
+    } else if(group.size === 1)
       this.removeFromGroup(group.values().next().value);
     else
       this.tryUpdateSet(group);
@@ -76,6 +79,7 @@ class Handler {
     }
 
     delete this.groups[gid];
+    delete this.colors[gid];
     this.fireListeners();
   }
 
@@ -89,6 +93,7 @@ class Handler {
     }
 
     delete this.groups[bid];
+    delete this.colors[bid];
     this.tryUpdateSet(ag);
     this.fireListeners();
 
@@ -145,6 +150,8 @@ class Handler {
     if(!gid) {
       gid = uuidv4();
       this.groups[gid] = new Set();
+      if(this.color === null) throw new Error('Active color not set!');
+      this.colors[gid] = this.color;
     }
 
     const group = this.groups[gid];
@@ -207,7 +214,7 @@ class Handler {
 
       result.push({
         id: gid,
-        color: 'black',
+        color: this.colors[gid],
         members: ids.map(id => ({
           ref: this.connectors[id].ref,
           id
@@ -253,6 +260,17 @@ class Handler {
 
   getLeaderId(gid) {
     return this.groups[gid]?.values()?.next().value || null;
+  }
+
+  setActiveColor(color) {
+    this.color = color;
+  }
+
+  dyeGroup(gid, color = null) {
+    const to = color || this.color;
+    if(to === null) throw new Error('Active color not set!');
+    if(!this.colors[gid]) throw new Error(`Dying unknown group ${gid}`);
+    this.colors[gid] = to;
   }
 }
 
@@ -554,6 +572,8 @@ export default React.memo(() => {
     }
   }, []);
 
+  /* Color stuff */
+
   const [paletteShown, setPaletteShown] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
   const showPalette = useCallback(() => setPaletteShown(true), []);
@@ -563,6 +583,10 @@ export default React.memo(() => {
     document.addEventListener('mousedown', listener);
     return () => document.removeEventListener('mousedown', listener);
   }, []);
+
+  useLayoutEffect(() => {
+    if(handler) handler.setActiveColor(color);
+  }, [color, handler]);
 
   return <>
     <div
