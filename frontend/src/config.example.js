@@ -14,6 +14,13 @@ export const TAR_FILENAMES = {
   constraints: 'src/mod_top.qsf',
 };
 
+export const COLORS = [
+  'red',
+  'blue',
+  'green',
+  'yellow',
+];
+
 export const DEFAULT_BOARD = 'default';
 
 export const BOARDS = {

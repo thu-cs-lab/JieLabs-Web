@@ -7,6 +7,7 @@ import cn from 'classnames';
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
 import { updateClock } from './store/actions';
+import { COLORS } from './config';
 
 import Icon from './comps/Icon';
 
@@ -553,6 +554,15 @@ export default React.memo(() => {
     }
   }, []);
 
+  const [paletteShown, setPaletteShown] = useState(false);
+  const showPalette = useCallback(() => setPaletteShown(true), []);
+
+  useEffect(() => {
+    const listener = e => setPaletteShown(false);
+    document.addEventListener('mousedown', listener);
+    return () => document.removeEventListener('mousedown', listener);
+  }, []);
+
   return <>
     <div
       ref={container}
@@ -652,7 +662,11 @@ export default React.memo(() => {
       }
     </div>
 
-    <div className={cn("sandbox-toolbar", { 'block-mode': layer === LAYERS.BLOCK, 'wire-mode': layer === LAYERS.WIRE })}>
+    <div className={cn("sandbox-toolbar", {
+      'block-mode': layer === LAYERS.BLOCK,
+      'wire-mode': layer === LAYERS.WIRE,
+      'palette-shown': paletteShown,
+    })}>
       <div className="layer-switcher" onClick={switchLayer}>
         <Icon
           className={cn("layer-icon", { 'layer-icon-active': layer === LAYERS.BLOCK })}
@@ -691,8 +705,8 @@ export default React.memo(() => {
 
       <div className="sep">/</div>
 
-      <span className="tool tool-last">
-        <div className="palette"></div>
+      <span className="tool tool-last" onClick={showPalette}>
+        <div className="palette-stub"></div>
       </span>
       <div className="sandbox-toolbar-hint tool-activated">Color Palette <small>[C-c]</small></div>
 
@@ -700,6 +714,12 @@ export default React.memo(() => {
         <div data-iter="1" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.BLOCK })}>Block</div>
         <div data-iter="2" className={cn("layer-hint", { 'layer-hint-active': layer === LAYERS.WIRE })}>Wire</div>
         <div className={cn('layer-hint-tail', `layer-hint-tail-${layer === LAYERS.WIRE ? 'wire' : 'block'}`)}>layer [C-f]</div>
+      </div>
+
+      <div className="palette">
+        { COLORS.map((c, idx) => (
+          <div className="palette-slot" data-color={c} style={{ backgroundColor: c }}></div>
+        )) }
       </div>
     </div>
   </>;

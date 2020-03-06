@@ -1260,10 +1260,12 @@ main {
 }
 
 .sandbox-toolbar {
+  $palette-height: 25px;
+
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 48px + 20px;
+  height: 48px + 20px + $palette-height;
   width: 350px;
   padding: 10px;
   background: #121212;
@@ -1402,9 +1404,8 @@ main {
 
   .sandbox-toolbar-hint {
     position: absolute;
-    bottom: 0;
+    bottom: $palette-height;
     left: 48px + 20px;
-    bottom: 0px;
     right: 0;
 
     height: 24px;
@@ -1461,7 +1462,7 @@ main {
     }
   }
 
-  .palette {
+  .palette-stub {
     $margin: 2px;
     box-sizing: border-box;
     width: 24px - $margin * 2;
@@ -1473,6 +1474,40 @@ main {
     cursor: pointer;
 
     pointer-events: all;
+  }
+
+  // Palette holds at most 7 colors
+  .palette {
+    height: 25px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 0; // To avoid whitespaces
+    $bg-overlay: rgba(255,255,255,.1);
+    background: $bg linear-gradient(45deg, $bg-overlay 0% 25%, transparent 25% 50%, $bg-overlay 50% 75%, transparent 75% 100%);
+    background-size: 20px 20px;
+
+    .palette-slot {
+      width: 25px;
+      height: 25px;
+      display: inline-block;
+
+      opacity: .54;
+      cursor: pointer;
+
+      transition: opacity .2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  transition: transform .2s ease;
+  transform: translateY(25px);
+  &.palette-shown {
+    transform: none;
   }
 }
 
