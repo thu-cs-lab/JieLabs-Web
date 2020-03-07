@@ -16,7 +16,7 @@ export const TAR_FILENAMES = {
 
 // From material.io color tool
 export const COLORS = [
-  '#333333', // GREY 800 ~ 900
+  '#000000', // BLACK
   '#f44336', // RED 500
   '#2196f3', // BLUE 500
   '#00acc1', // CYAN 600

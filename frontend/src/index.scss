@@ -1471,7 +1471,7 @@ main {
     height: 24px - $margin * 2;
     margin: $margin;
 
-    border: rgba(255,255,255,.1) 1px solid;
+    border: rgba(255,255,255,.3) 2px solid;
     cursor: pointer;
 
     transition: background-color .2s ease; // This is a small region, so repaint shouldn't be that too expensive
