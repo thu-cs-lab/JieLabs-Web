@@ -480,7 +480,7 @@ export default React.memo(() => {
 
         const other = handler.getConnected(id);
         if(other !== null)
-          return dispatch(updateClock(handler.getData(other)));
+          return dispatch(updateClock(handler.getData(other) || null));
         else
           return dispatch(updateClock(null));
       },
@@ -497,7 +497,7 @@ export default React.memo(() => {
 
       const other = handler.getConnected(cpid.current);
       if(other !== null)
-        return dispatch(updateClock(handler.getData(other)));
+        return dispatch(updateClock(handler.getData(other) || null));
       else
         return dispatch(updateClock(null));
     });
