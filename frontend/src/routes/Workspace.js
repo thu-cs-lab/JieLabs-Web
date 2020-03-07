@@ -10,7 +10,7 @@ import { BOARDS } from '../config';
 
 import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp, setLang } from '../store/actions';
 
-import { registerCodeLens } from '../vhdl';
+import { registerCodeLens } from '../lang';
 
 import Monaco from 'react-monaco-editor';
 import { Range } from 'monaco-editor/esm/vs/editor/editor.api';
@@ -455,7 +455,7 @@ export default React.memo(() => {
       <Monaco
         options={{
           theme: 'vs-dark',
-          language: 'vhdl',
+          language: lang,
           glyphMargin: true,
           automaticLayout: true,
         }}

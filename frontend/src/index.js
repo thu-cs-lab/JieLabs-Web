@@ -4,7 +4,7 @@ import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-import initVhdl from './vhdl';
+import initLang from './lang';
 
 import store from './store';
 import { setUpdateAvailable } from './store/actions';
@@ -24,7 +24,7 @@ if(!window.TextEncoder)
 if(!window.TextDecoder)
   window.TextDecoder = TextDecoder;
 
-initVhdl(store);
+initLang(store);
 
 const build = App => () => <Provider store={store}>
   <BrowserRouter>
