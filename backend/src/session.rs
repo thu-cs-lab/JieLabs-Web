@@ -75,7 +75,7 @@ async fn login(
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
     let hashed = hash_password(&body.password);
-    if let Ok(user) = dsl::users
+    if let Ok(mut user) = dsl::users
         .filter(
             dsl::user_name
                 .eq(&body.user_name)
@@ -84,6 +84,11 @@ async fn login(
         .first::<User>(&conn)
     {
         info!("User {} logged in", user.user_name);
+        user.last_login = Some(Utc::now());
+        diesel::update(&user)
+            .set(&user)
+            .execute(&conn)
+            .map_err(err)?;
         id.remember(user.user_name.clone());
         Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
