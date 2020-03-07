@@ -228,14 +228,7 @@ export function initLib() {
     const lib = await import('jielabs_lib');
     dispatch(loadLib(lib));
 
-    const { code, constraints: { top }, lang} = getState();
-
-    let langEnum = lib.Language.VHDL;
-    if (lang === 'verilog') {
-      langEnum = lib.Language.Verilog;
-    }
-    const analysis = lib.parse(code, top, langEnum);
-    dispatch(setAnalysis(analysis));
+    dispatch(analyze());
   }
 }
 
@@ -597,7 +590,7 @@ export function updateCode(code) {
     debouncer = setTimeout(() => {
       debouncer = null;
 
-      let { lib, code: curCode, constraints, lang } = getState();
+      let { lib, code: curCode, } = getState();
       if (!lib) return;
 
       if (curCode !== code) {
@@ -605,12 +598,7 @@ export function updateCode(code) {
         return;
       }
 
-      let langEnum = lib.Language.VHDL;
-      if (lang === 'verilog') {
-        langEnum = lib.Language.Verilog;
-      }
-      const analysis = lib.parse(code, constraints.top, langEnum);
-      dispatch(setAnalysis(analysis));
+      dispatch(analyze());
     }, CODE_ANALYSE_DEBOUNCE);
   }
 }
@@ -621,17 +609,12 @@ export function updateTop(top) {
     clearTimeout(debouncer);
     debouncer = null;
 
-    const { code, lib, lang } = getState();
+    const { lib } = getState();
 
     dispatch(assignTop(top));
     if (!lib) return;
 
-    let langEnum = lib.Language.VHDL;
-    if (lang === 'verilog') {
-      langEnum = lib.Language.Verilog;
-    }
-    const analysis = lib.parse(code, top, langEnum);
-    dispatch(setAnalysis(analysis));
+    dispatch(analyze());
   }
 }
 
@@ -674,5 +657,18 @@ export function setLang(lang) {
   return {
     type: TYPES.SET_LANG,
     lang,
+  };
+}
+
+export function analyze() {
+  return async (dispatch, getState) => {
+    const { code, constraints: { top }, lang, lib } = getState();
+
+    let langEnum = lib.Language.VHDL;
+    if (lang === 'verilog') {
+      langEnum = lib.Language.Verilog;
+    }
+    const analysis = lib.parse(code, top, langEnum);
+    dispatch(setAnalysis(analysis));
   };
 }

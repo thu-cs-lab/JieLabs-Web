@@ -8,7 +8,7 @@ import Tooltip from '../comps/Tooltip';
 
 import { BOARDS } from '../config';
 
-import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp, setLang } from '../store/actions';
+import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp, setLang, analyze } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
 
@@ -414,7 +414,7 @@ export default React.memo(() => {
     }
     editor.setModelLanguage(model, newLang);
     dispatch(setLang(newLang));
-    // TODO: run analysis
+    dispatch(analyze());
   });
 
   return <main className="workspace">
