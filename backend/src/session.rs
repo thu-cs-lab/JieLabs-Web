@@ -6,6 +6,7 @@ use crate::DbConnection;
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use log::*;
@@ -63,6 +64,7 @@ struct UserInfoResponse {
     real_name: Option<String>,
     class: Option<String>,
     student_id: Option<String>,
+    last_login: Option<DateTime<Utc>>,
 }
 
 #[post("/session")]
@@ -89,6 +91,7 @@ async fn login(
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
+            last_login: user.last_login,
         }))
     } else {
         Ok(HttpResponse::Ok().json(UserInfoResponse::default()))
@@ -105,6 +108,7 @@ async fn info(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
+            last_login: user.last_login,
         }));
     }
     Ok(HttpResponse::Ok().json(UserInfoResponse::default()))
