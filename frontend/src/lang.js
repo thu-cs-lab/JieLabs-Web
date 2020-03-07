@@ -308,7 +308,8 @@ export function registerCodeLens(cmds) {
     }
   };
 
-  const disposable = monaco.languages.registerCodeLensProvider(store.getState().lang, codeLensProvider);
+  const disposableVHDL = monaco.languages.registerCodeLensProvider('vhdl', codeLensProvider);
+  const disposableVerilog = monaco.languages.registerCodeLensProvider('verilog', codeLensProvider);
 
-  return () => disposable.dispose();
+  return () => { disposableVHDL.dispose(); disposableVerilog.dispose(); };
 }
