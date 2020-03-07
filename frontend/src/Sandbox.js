@@ -6,8 +6,8 @@ import cn from 'classnames';
 
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
-import { updateClock } from './store/actions';
-import { COLORS } from './config';
+import { updateClock, settleBlock, pushBlock, deleteBlock } from './store/actions';
+import { COLORS, BLOCK_ALIGNMENT } from './config';
 
 import Icon from './comps/Icon';
 
@@ -281,8 +281,6 @@ function center(rect, ref) {
   }
 }
 
-const BLOCK_ALIGNMENT = 175;
-
 function alignToBlock(pos) {
   return Math.round(pos / BLOCK_ALIGNMENT) * BLOCK_ALIGNMENT;
 }
@@ -320,15 +318,7 @@ export default React.memo(() => {
    * id: id of the block
    * persistent: if the deletion of the block is forbidden
    */
-  const [field, setField] = useState(List(
-    [
-      { type: 'FPGA', x: 0, y: 0, id: 'fpga', persistent: true },
-      { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
-      { type: 'Digit4', x: 1 * BLOCK_ALIGNMENT, y: 0, id: 'digit4_1' },
-      { type: 'Digit7', x: 2 * BLOCK_ALIGNMENT, y: 0, id: 'digit7_1' },
-      { type: 'Clock', x: 1 * BLOCK_ALIGNMENT, y: 1 * BLOCK_ALIGNMENT, id: 'clock_1' },
-    ]
-  ));
+  const field = useSelector(state => state.field);
 
   const [scroll, setScroll] = useState({ x: 20, y: 20 });
   const scrollRef = useRef(scroll);
@@ -468,12 +458,12 @@ export default React.memo(() => {
       if(block.x === ax && block.y === ay)
         return;
 
-    setField(field.set(idx, { ...field.get(idx), x: ax, y: ay }));
-  }, [setField, field]);
+    dispatch(settleBlock(idx, ax, ay))
+  }, [field]);
   
   const requestDelete = useCallback(idx => {
-    setField(field.delete(idx));
-  }, [setField, field]);
+    dispatch(deleteBlock(idx))
+  }, []);
 
   const requestRedraw = useCallback(() => setLines(handler.getLines()), []);
 
@@ -704,9 +694,8 @@ export default React.memo(() => {
                 x: ctxMenu.x - scroll.x - cont.x,
                 y: ctxMenu.y - scroll.y - cont.y,
               }, null);
-              setField(field.push(
-                { type: t, id: uuidv4(), ...pos },
-              ))
+
+              dispatch(pushBlock({ type: t, id: uuidv4(), ...pos }));
             }}>Create {t}</div>
           ))}
         </div> : null

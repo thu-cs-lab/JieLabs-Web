@@ -29,6 +29,10 @@ export const TYPES = {
   UNSTEP_HELP: Symbol('UNSTEP_HELP'),
   START_HELP: Symbol('START_HELP'),
   END_HELP: Symbol('END_HELP'),
+
+  SETTLE_BLOCK: Symbol('SETTLE_BLOCK'),
+  DELETE_BLOCK: Symbol('DELETE_BLOCK'),
+  PUSH_BLOCK: Symbol('PUSH_BLOCK'),
 };
 
 export const BOARD_STATUS = Object.freeze({
@@ -143,6 +147,18 @@ export function stepHelp() {
 
 export function unstepHelp() {
   return { type: TYPES.UNSTEP_HELP };
+}
+
+export function settleBlock(idx, x, y) {
+  return { type: TYPES.SETTLE_BLOCK, idx, x, y };
+}
+
+export function deleteBlock(idx) {
+  return { type: TYPES.DELETE_BLOCK, idx };
+}
+
+export function pushBlock(block) {
+  return { type: TYPES.PUSH_BLOCK, block };
 }
 
 export function login(user, pass) {

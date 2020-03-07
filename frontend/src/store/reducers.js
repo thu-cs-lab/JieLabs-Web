@@ -1,6 +1,6 @@
 import { TYPES, BOARD_STATUS } from './actions';
 import { Map, List } from 'immutable';
-import { DEFAULT_BOARD, BOARDS } from '../config';
+import { DEFAULT_BOARD, BOARDS, DEFAULT_FIELD } from '../config';
 import { SIGNAL } from '../blocks';
 
 export function user(state = null, action) {
@@ -149,11 +149,21 @@ export function input(state = null, action) {
 export function help(state = null, action) {
   if(action.type === TYPES.STEP_HELP)
     return state + 1;
-  if(action.type === TYPES.UNSTEP_HELP)
+  else if(action.type === TYPES.UNSTEP_HELP)
     return state === 0 ? 0 : state - 1;
   else if(action.type === TYPES.END_HELP)
     return null;
   else if(action.type === TYPES.START_HELP)
     return 0;
+  return state;
+}
+
+export function field(state = List(DEFAULT_FIELD), action) {
+  if(action.type === TYPES.SETTLE_BLOCK)
+    return state.set(action.idx, { ...state.get(action.idx), x: action.x, y: action.y });
+  else if(action.type === TYPES.DELETE_BLOCK)
+    return state.delete(action.idx);
+  else if(action.type === TYPES.PUSH_BLOCK)
+    return state.push(action.block);
   return state;
 }
