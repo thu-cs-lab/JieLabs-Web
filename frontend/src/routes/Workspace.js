@@ -516,12 +516,12 @@ export default React.memo(() => {
               <div className="hint">STOP IT,</div>
               <div className="dialog-title monospace">Get some help</div>
               <div className="help-body">
-                You can restart the interactive tutorial by clicking the button below.<br/>
+                SAVE YOUR PROGRESS before starting the tutorial, as it will destroy BOTH YOUR CODE AND THE SANDBOX STATE.<br/>
                 <button
                   className="labeled-btn"
                   onClick={startIntHelp}
                 >
-                  <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>START</span>
+                  <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>START TUTORIAL</span>
                 </button>
               </div>
               <div className="help-spacer" />
