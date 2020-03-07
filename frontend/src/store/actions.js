@@ -476,8 +476,9 @@ export function programBitstream(id) {
         const parsed = Number.parseInt(pin, 10);
 
         if(parsed >= dirArr.length) {
-          dirArr.push(...Array(parsed - dirArr.length + 1).fill(0));
-          maskArr.push(...Array(parsed - dirArr.length + 1).fill(0));
+          let length = dirArr.length;
+          dirArr.push(...Array(parsed - length + 1).fill(0));
+          maskArr.push(...Array(parsed - length + 1).fill(0));
         }
 
         maskArr[parsed] = 1;
