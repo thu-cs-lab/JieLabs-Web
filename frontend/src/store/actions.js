@@ -29,6 +29,8 @@ export const TYPES = {
   UNSTEP_HELP: Symbol('UNSTEP_HELP'),
   START_HELP: Symbol('START_HELP'),
   END_HELP: Symbol('END_HELP'),
+
+  UPDATE_AVAILABLE: Symbol('UPDATE_AVAILABLE'),
 };
 
 export const BOARD_STATUS = Object.freeze({
@@ -627,4 +629,11 @@ export function updateClock(clock) {
         },
       }));
   }
+}
+
+export function setUpdateAvailable() {
+  return {
+    type: TYPES.UPDATE_AVAILABLE,
+    available: true,
+  };
 }

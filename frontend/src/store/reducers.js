@@ -157,3 +157,9 @@ export function help(state = null, action) {
     return 0;
   return state;
 }
+
+export function update(state = false, action) {
+  if(action.type === TYPES.UPDATE_AVAILABLE)
+    return action.available;
+  return state;
+}
