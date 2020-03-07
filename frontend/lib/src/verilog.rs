@@ -47,6 +47,34 @@ impl From<&verilog_lang::ast::PortDirection> for SignalDirection {
     }
 }
 
+fn arity_from_unpacked(dimension: &verilog_lang::ast::UnpackedDimension, parser: &Parser) -> Option<ArityInfo> {
+    if dimension.from.is_some() && dimension.to.is_some() {
+        let from_token = parser
+            .get_token(dimension.from.as_ref().unwrap().token);
+        let to_token =
+            parser.get_token(dimension.to.as_ref().unwrap().token);
+        let from = from_token.text.parse::<u64>().unwrap_or(0);
+        let to = to_token.text.parse::<u64>().unwrap_or(0);
+        Some(ArityInfo { from, to })
+    } else {
+        None
+    }
+}
+
+fn arity_from_packed(dimension: &verilog_lang::ast::PackedDimension, parser: &Parser) -> Option<ArityInfo> {
+    if dimension.from.is_some() && dimension.to.is_some() {
+        let from_token = parser
+            .get_token(dimension.from.as_ref().unwrap().token);
+        let to_token =
+            parser.get_token(dimension.to.as_ref().unwrap().token);
+        let from = from_token.text.parse::<u64>().unwrap_or(0);
+        let to = to_token.text.parse::<u64>().unwrap_or(0);
+        Some(ArityInfo { from, to })
+    } else {
+        None
+    }
+}
+
 pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
     let mut top = None;
     let mut entities = Vec::new();
@@ -67,16 +95,7 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
                     let token = parser.get_token(port.identifier.token);
                     // TODO: multi-dimension?
                     let arity = if let Some(dimension) = port.dimensions.first() {
-                        if dimension.from.is_some() && dimension.to.is_some() {
-                            let from_token =
-                                parser.get_token(dimension.from.as_ref().unwrap().token);
-                            let to_token = parser.get_token(dimension.to.as_ref().unwrap().token);
-                            let from = from_token.text.parse::<u64>().unwrap_or(0);
-                            let to = to_token.text.parse::<u64>().unwrap_or(0);
-                            Some(ArityInfo { from, to })
-                        } else {
-                            None
-                        }
+                        arity_from_unpacked(dimension, &parser)
                     } else {
                         None
                     };
@@ -86,6 +105,52 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
                         dir: port.direction.as_ref().unwrap().into(),
                         arity,
                     });
+                }
+            }
+
+            for item in &module.items {
+                match item {
+                    verilog_lang::ast::ModuleItem::Port(port) => {
+                        use verilog_lang::ast::PortDeclaration::*;
+                        let (dir, port_type, identifiers) = match port {
+                            Input(_attr, decl) => {
+                                (SignalDirection::Input, &decl.port_type, &decl.identifiers)
+                            }
+                            Output(_attr, decl) => {
+                                (SignalDirection::Output, &decl.port_type, &decl.identifiers)
+                            }
+                            InOut(_attr, decl) => (
+                                SignalDirection::Unsupported,
+                                &decl.port_type,
+                                &decl.identifiers,
+                            ),
+                        };
+                        let mut arity = None;
+                        match &port_type.data_type_or_implicit {
+                            verilog_lang::ast::DataTypeOrImplicit::Data(data) => {
+                                if let Some(dimension) = data.dimensions.first() {
+                                    arity = arity_from_packed(dimension, &parser);
+                                }
+                            }
+                            verilog_lang::ast::DataTypeOrImplicit::ImplicitData(implicit) => {
+                                if let Some(dimension) = implicit.dimensions.first() {
+                                    arity = arity_from_packed(dimension, &parser);
+                                }
+                            }
+                        }
+                        for (port, _dimension) in &identifiers.ports {
+                            let token = parser.get_token(port.token);
+                            // TODO: handle unpacked dimension
+
+                            signals.push(SignalInfo {
+                                name: String::from(token.text),
+                                pos: token.span.into(),
+                                dir: dir.clone(),
+                                arity: arity.clone(),
+                            });
+                        }
+                    }
+                    _ => {}
                 }
             }
 

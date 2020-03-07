@@ -26,7 +26,7 @@ struct Pos {
     to_char: u32,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "lowercase")]
 enum SignalDirection {
     Input,
@@ -34,7 +34,7 @@ enum SignalDirection {
     Unsupported,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct ArityInfo {
     from: u64,
     to: u64,

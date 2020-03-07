@@ -414,6 +414,7 @@ export default React.memo(() => {
     }
     editor.setModelLanguage(model, newLang);
     dispatch(setLang(newLang));
+    // TODO: run analysis
   });
 
   return <main className="workspace">
