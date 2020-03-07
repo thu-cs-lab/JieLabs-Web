@@ -106,7 +106,7 @@ $hl: #ffeb3b;
   transform: none;
 }
 
-.help-controller-action {
+.help-action {
   height: 60px;
   width: 60px;
   line-height: 60px;
@@ -122,9 +122,18 @@ $hl: #ffeb3b;
     opacity: 1;
   }
 
-  &.help-controller-action-disabled {
+  &.help-action-disabled {
     cursor: default;
     opacity: .18;
+  }
+}
+
+.help-action-primary {
+  background: $primary-color;
+  transition: filter .2s ease;
+
+  &.help-action-primary-disabled {
+    filter: grayscale(1) brightness(0.7);
   }
 }
 

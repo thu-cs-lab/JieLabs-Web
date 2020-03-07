@@ -385,20 +385,26 @@ export default React.memo(() => {
 
     <div className="help-controller-cont">
       <div className="help-controller">
-        <Tooltip tooltip="上一步">
-          <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !prev})} onClick={prev}>skip_previous</Icon>
-        </Tooltip>
-        <Tooltip tooltip={next ? "下一步" : "还有条件没有达成哦!"}>
-          <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !next })} onClick={next}>skip_next</Icon>
-        </Tooltip>
         <Tooltip tooltip="隐藏/显示指南页面">
-          <Icon className="help-controller-action" onClick={toggleHidden}>{ hidden ? 'tab' : 'tab_unselected' }</Icon>
+          <Icon className="help-action" onClick={toggleHidden}>{ hidden ? 'tab' : 'tab_unselected' }</Icon>
         </Tooltip>
+        <Tooltip tooltip="上一步">
+          <Icon className={cn("help-action", { 'help-action-disabled': !prev})} onClick={prev}>skip_previous</Icon>
+        </Tooltip>
+        <div className={cn("help-action-primary", {
+          'help-action-primary-disabled': !next,
+        })}>
+          <Tooltip tooltip={next ? "下一步" : "还有条件没有达成哦!"}>
+            <Icon className={cn("help-action", {
+              'help-action-disabled': !next
+            })} onClick={next}>skip_next</Icon>
+          </Tooltip>
+        </div>
         <Tooltip tooltip="重置当前步骤">
-          <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !reset })} onClick={reset}>settings_backup_restore</Icon>
+          <Icon className={cn("help-action", { 'help-action-disabled': !reset })} onClick={reset}>settings_backup_restore</Icon>
         </Tooltip>
         <Tooltip tooltip="结束指南">
-          <Icon className="help-controller-action" onClick={exit}>stop</Icon>
+          <Icon className="help-action" onClick={exit}>stop</Icon>
         </Tooltip>
       </div>
     </div>
