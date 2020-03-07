@@ -54,3 +54,6 @@ if(module.hot) {
     ReactDOM.render(<Render />, document.getElementById('root'));
   });
 }
+
+/* eslint-disable no-undef */
+console.log('Using version', __COMMIT_HASH__);

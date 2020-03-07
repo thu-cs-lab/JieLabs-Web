@@ -10,10 +10,18 @@ const MonacoPlugin = require('monaco-editor-webpack-plugin');
 const AnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const path = require('path');
+const webpack = require('webpack');
+
+const commitInfo = require('child_process')
+  .execSync('git describe --all --dirty --long')
+  .toString();
 
 module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
     languages: [],
+  })),
+  addWebpackPlugin(new webpack.DefinePlugin({
+    __COMMIT_HASH__: JSON.stringify(commitInfo),
   })),
   addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
