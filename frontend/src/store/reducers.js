@@ -173,3 +173,9 @@ export function update(state = false, action) {
     return action.available;
   return state;
 }
+
+export function lang(state = 'vhdl', action) {
+  if(action.type === TYPES.SET_LANG)
+    return action.lang;
+  return state;
+}

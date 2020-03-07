@@ -35,6 +35,8 @@ export const TYPES = {
   PUSH_BLOCK: Symbol('PUSH_BLOCK'),
 
   UPDATE_AVAILABLE: Symbol('UPDATE_AVAILABLE'),
+
+  SET_LANG: Symbol('SET_LANG'),
 };
 
 export const BOARD_STATUS = Object.freeze({
@@ -226,9 +228,13 @@ export function initLib() {
     const lib = await import('jielabs_lib');
     dispatch(loadLib(lib));
 
-    const { code, constraints: { top }} = getState();
+    const { code, constraints: { top }, lang} = getState();
 
-    const analysis = lib.parse(code, top, lib.Language.VHDL);
+    let langEnum = lib.Language.VHDL;
+    if (lang === 'verilog') {
+      langEnum = lib.Language.Verilog;
+    }
+    const analysis = lib.parse(code, top, langEnum);
     dispatch(setAnalysis(analysis));
   }
 }
@@ -591,7 +597,7 @@ export function updateCode(code) {
     debouncer = setTimeout(() => {
       debouncer = null;
 
-      let { lib, code: curCode, constraints } = getState();
+      let { lib, code: curCode, constraints, lang } = getState();
       if (!lib) return;
 
       if (curCode !== code) {
@@ -599,7 +605,11 @@ export function updateCode(code) {
         return;
       }
 
-      const analysis = lib.parse(code, constraints.top, lib.Language.VHDL);
+      let langEnum = lib.Language.VHDL;
+      if (lang === 'verilog') {
+        langEnum = lib.Language.Verilog;
+      }
+      const analysis = lib.parse(code, constraints.top, langEnum);
       dispatch(setAnalysis(analysis));
     }, CODE_ANALYSE_DEBOUNCE);
   }
@@ -611,12 +621,16 @@ export function updateTop(top) {
     clearTimeout(debouncer);
     debouncer = null;
 
-    const { code, lib } = getState();
+    const { code, lib, lang } = getState();
 
     dispatch(assignTop(top));
     if (!lib) return;
 
-    const analysis = lib.parse(code, top, lib.Language.VHDL);
+    let langEnum = lib.Language.VHDL;
+    if (lang === 'verilog') {
+      langEnum = lib.Language.Verilog;
+    }
+    const analysis = lib.parse(code, top, langEnum);
     dispatch(setAnalysis(analysis));
   }
 }
@@ -653,5 +667,12 @@ export function setUpdateAvailable() {
   return {
     type: TYPES.UPDATE_AVAILABLE,
     available: true,
+  };
+}
+
+export function setLang(lang) {
+  return {
+    type: TYPES.SET_LANG,
+    lang,
   };
 }
