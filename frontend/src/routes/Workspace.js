@@ -13,7 +13,7 @@ import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, ass
 import { registerCodeLens } from '../lang';
 
 import Monaco from 'react-monaco-editor';
-import { Range } from 'monaco-editor/esm/vs/editor/editor.api';
+import { Range, editor } from 'monaco-editor/esm/vs/editor/editor.api';
 
 import Sandbox from '../Sandbox';
 
@@ -407,11 +407,13 @@ export default React.memo(() => {
   else languangeTooltip = 'Switch from VHDL to Verilog(experimental)';
 
   const switchLanguage = useCallback(() => {
-    if (lang === 'verilog') {
-      dispatch(setLang('vhdl'));
-    } else {
-      dispatch(setLang('verilog'));
+    const model = editorRef.current.editor.getModel();
+    let newLang = 'vhdl';
+    if (lang === 'vhdl') {
+      newLang = 'verilog';
     }
+    editor.setModelLanguage(model, newLang);
+    dispatch(setLang(newLang));
   });
 
   return <main className="workspace">
@@ -455,7 +457,7 @@ export default React.memo(() => {
       <Monaco
         options={{
           theme: 'vs-dark',
-          language: lang,
+          language: 'vhdl',
           glyphMargin: true,
           automaticLayout: true,
         }}
