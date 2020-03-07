@@ -84,6 +84,7 @@ async fn login(
         .first::<User>(&conn)
     {
         info!("User {} logged in", user.user_name);
+        let orig_last_login = user.last_login;
         user.last_login = Some(Utc::now());
         diesel::update(&user)
             .set(&user)
@@ -96,7 +97,8 @@ async fn login(
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
-            last_login: user.last_login,
+            // return null on first login
+            last_login: orig_last_login,
         }))
     } else {
         Ok(HttpResponse::Ok().json(UserInfoResponse::default()))
