@@ -172,11 +172,13 @@ export function login(user, pass) {
         password: pass,
       });
 
-      if (!data.login) return false;
+      if(!data.login) return false;
 
       dispatch(setUser(data));
 
       dispatch(initBuilds());
+
+      if(!data.last_login) dispatch(startHelp());
 
       return true;
     } catch (e) {
