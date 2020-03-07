@@ -4,7 +4,10 @@ import cn from 'classnames';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import Icon from './comps/Icon';
-import { unstepHelp, stepHelp, endHelp } from './store/actions';
+import Tooltip from './comps/Tooltip';
+import { unstepHelp, stepHelp, endHelp, updateCode } from './store/actions';
+
+import src from './assets/tutorial.vhdl'; // eslint-disable-line
 
 const STEPS = [
   {
@@ -43,13 +46,13 @@ const STEPS = [
       <div className="help-layout">
         <div className="help-layout-base">
           <div className="help-layout-half">
-            <div className="help-layout-box">
+            <div className="help-box">
               <strong>沙盒</strong>
               <p>你可以在这里增删、移动模块，修改连线，修改按钮、开关等输入部件的状态，并得到反馈。</p>
             </div>
           </div>
           <div className="help-layout-half">
-            <div className="help-layout-box">
+            <div className="help-box">
               <strong>编辑器</strong>
               <p>你可以在这里修改 RTL 代码，修改引脚映射等综合设定，并可以实时得到语法检查报告。</p>
             </div>
@@ -76,7 +79,7 @@ const STEPS = [
           </div>
         </div>
 
-        <div className="help-layout-box" style={{
+        <div className="help-box" style={{
           position: 'absolute',
           top: 60*4 + 100,
           left: '50vw',
@@ -89,7 +92,57 @@ const STEPS = [
         </div>
       </div>
     )
-  }
+  }, {
+    region: 'editor-only',
+    done: state => {
+      if(!state.analysis) return false;
+      const errorCnt = state.analysis.diagnostics.filter(e => e.severity === 'error').length;
+      console.log(errorCnt);
+      return errorCnt === 0;
+    },
+    reset: (state, dispatch) => {
+      dispatch(updateCode(src));
+    },
+    renderer: (state) => {
+      const lines = state.analysis ? state.analysis.diagnostics.filter(e => e.severity === 'error').map(e => e.pos.from_line+1) : [];
+      const dedup = [];
+      const set = new Set();
+      for(const l of lines)
+        if(!set.has(l)) {
+          set.add(l);
+          dedup.push(l);
+        }
+
+      if(dedup.length === 0) return (
+        <div className="help-box" style={{
+          width: 'calc(50vw - 80px)',
+          maxWidth: 'unset',
+          position: 'fixed',
+          top: 40,
+          left: 40,
+        }}>
+          <strong>杰哥教你写代码</strong>
+          <p>所有的错误都已经被修复了！你可以继续前往指南的下一步了</p>
+        </div>
+      );
+
+      return (
+        <div className="help-box" style={{
+          width: 'calc(50vw - 80px)',
+          maxWidth: 'unset',
+          position: 'fixed',
+          top: 40,
+          left: 40,
+        }}>
+          <strong>杰哥教你写代码</strong>
+          <p>该康康怎么写代码了！</p>
+          <p>在右侧的编辑器内已经填入了一些<del>喵喵在键盘上随便打出的</del>代码，但是在第 { dedup.join(', ') } 行出现了一些语法错误。</p>
+          <p>鼠标经过语法错误标记的位置时，会显示语法错误的详细信息。请你尝试修复所有的语法错误，修复完成后可以进行下一步。</p>
+          <p>如果你一不小心弄丢了太多的代码，记得可以用右侧的按钮进行重置。</p>
+        </div>
+      );
+    }
+  },
 ];
 
 function useStep(step) {
@@ -97,14 +150,14 @@ function useStep(step) {
   const dispatch = useDispatch();
 
   const config = STEPS[step];
-  const done = config ? config.done(step) : false;
+  const done = config ? config.done(state) : false;
 
   const prev = useMemo(() => step === 0 ? null : () => dispatch(unstepHelp()), [step])
   const next = useMemo(() => {
     if(!done) return null;
     if(step === STEPS.length - 1) return () => dispatch(endHelp());
     return () => dispatch(stepHelp());
-  }, [step]);
+  }, [step, done]);
   const reset = useMemo(() => {
     if(!config?.reset) return null;
     return () => config.reset(state, dispatch);
@@ -115,12 +168,18 @@ function useStep(step) {
     if(reset) reset();
   }, [reset]);
 
+  const renderer = useCallback(() => {
+    if(!config?.renderer) return null;
+    return config.renderer(state);
+  }, [config?.renderer, state]);
+
   return {
     prev,
     next,
 
     reset,
-    renderer: config ? config.renderer : () => {},
+    region: config ? config.region : null,
+    renderer,
   };
 }
 
@@ -128,7 +187,7 @@ export default React.memo(() => {
   const dispatch = useDispatch();
   const step = useSelector(state => state.help);
 
-  const { prev, next, reset, renderer } = useStep(step);
+  const { prev, next, reset, renderer, region } = useStep(step);
 
   const open = step !== null;
 
@@ -145,12 +204,19 @@ export default React.memo(() => {
   }, [hidden]);
 
   return <div className={cn("help", { 'help-open': open })}>
-    <div className={cn("help-backdrop", { 'help-backdrop-shown': open && !hidden })}></div>
+    <div className={cn("help-backdrop", {
+      'help-backdrop-shown': open && !hidden,
+      'help-backdrop-editor-only': region === 'editor-only',
+    })}>
+      <div className="help-backdrop-stripe"></div>
+    </div>
 
     <div className="help-controller-cont">
       <div className="help-controller">
         <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !prev})} onClick={prev}>skip_previous</Icon>
-        <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !next })} onClick={next}>skip_next</Icon>
+        <Tooltip tooltip={next ? null : 'Unfinished task!'}>
+          <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !next })} onClick={next}>skip_next</Icon>
+        </Tooltip>
         <Icon className="help-controller-action" onClick={toggleHidden}>{ hidden ? 'tab' : 'tab_unselected' }</Icon>
         <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !reset })} onClick={reset}>settings_backup_restore</Icon>
         <Icon className="help-controller-action" onClick={exit}>stop</Icon>

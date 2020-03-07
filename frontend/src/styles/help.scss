@@ -21,13 +21,34 @@
   top: 0;
   z-index: 0;
 
-  background: black;
+  background: rgba(0,0,0,.5);
   opacity: 0;
-  transition: opacity .2s ease;
+  transition: opacity .2s ease, transform .2s ease;
+
+  .help-backdrop-stripe {
+    $overlay: rgba(0,0,0,.18);
+    background-image: linear-gradient(45deg, $overlay 0% 25%, transparent 25% 50%, $overlay 50% 75%, transparent 75% 100%);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-size: 100px 100px;
+
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
 
   &.help-backdrop-shown {
-    opacity: .3;
+    opacity: 1;
     pointer-events: all;
+  }
+
+  &.help-backdrop-editor-only {
+    transform: translateX(-50vw);
+    .help-backdrop-stripe {
+      opacity: 1;
+    }
   }
 }
 
@@ -150,6 +171,20 @@
   }
 }
 
+.help-box {
+  max-width: 400px;
+  padding: 30px 40px;
+
+  background: rgba(0,0,0,.7);
+  z-index: 1;
+
+  strong {
+    display: block;
+    font-size: 32px;
+    line-height: 32px;
+  }
+}
+
 .help-layout {
   .help-layout-base {
     display: flex;
@@ -168,19 +203,6 @@
       justify-content: center;
 
       padding: 20px;
-    }
-  }
-
-  .help-layout-box {
-    max-width: 400px;
-    padding: 30px 40px;
-
-    background: rgba(0,0,0,.7);
-
-    strong {
-      display: block;
-      font-size: 32px;
-      line-height: 32px;
     }
   }
 

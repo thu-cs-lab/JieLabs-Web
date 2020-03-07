@@ -24,21 +24,23 @@ $error: #CB4042;
 
 .diagnostic-error {
   text-decoration: underline;
-  text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  // text-decoration-style: wavy;
   text-decoration-color: $error;
   text-decoration-skip-ink: none;
+  background: fade-out($error, 0.8);
 }
 
 .diagnostic-warning {
   text-decoration: underline;
-  text-decoration-style: wavy;
+  // text-decoration-style: wavy;
   text-decoration-color: $warning;
   text-decoration-skip-ink: none;
 }
 
 .diagnostic-info {
   text-decoration: underline;
-  text-decoration-style: wavy;
+  // text-decoration-style: wavy;
   text-decoration-color: $confirm;
   text-decoration-skip-ink: none;
 }

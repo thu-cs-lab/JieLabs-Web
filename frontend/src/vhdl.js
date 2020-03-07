@@ -128,7 +128,6 @@ export default _store => {
         ),
         contents: msgs.map(e => ({ value: e, isTrusted: true })),
       };
-      console.log(result);
       return result;
     }
   });
