@@ -78,16 +78,16 @@ struct ParseResult {
     diagnostics: Vec<Diagnostic>,
 }
 
+#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
-enum Language {
+pub enum Language {
     VHDL,
     Verilog,
 }
 
 // TODO: fallback top srcpos
 #[wasm_bindgen]
-pub fn parse(s: &str, top_name: Option<String>) -> JsValue {
-    let lang = Language::VHDL;
+pub fn parse(s: &str, top_name: Option<String>, lang: Language) -> JsValue {
     let result = match lang {
         Language::VHDL => vhdl::parse(s, top_name),
         Language::Verilog => verilog::parse(s, top_name),

@@ -228,7 +228,7 @@ export function initLib() {
 
     const { code, constraints: { top }} = getState();
 
-    const analysis = lib.parse(code, top);
+    const analysis = lib.parse(code, top, lib.Language.VHDL);
     dispatch(setAnalysis(analysis));
   }
 }
@@ -599,7 +599,7 @@ export function updateCode(code) {
         return;
       }
 
-      const analysis = lib.parse(code, constraints.top);
+      const analysis = lib.parse(code, constraints.top, lib.Language.VHDL);
       dispatch(setAnalysis(analysis));
     }, CODE_ANALYSE_DEBOUNCE);
   }
@@ -616,7 +616,7 @@ export function updateTop(top) {
     dispatch(assignTop(top));
     if (!lib) return;
 
-    const analysis = lib.parse(code, top);
+    const analysis = lib.parse(code, top, lib.Language.VHDL);
     dispatch(setAnalysis(analysis));
   }
 }
