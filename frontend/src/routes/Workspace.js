@@ -505,7 +505,7 @@ export default React.memo(() => {
                   className="labeled-btn"
                   onClick={startIntHelp}
                 >
-                  <div className="labeled-btn-icon">🍓</div> <span>START</span>
+                  <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>START</span>
                 </button>
               </div>
               <div className="help-spacer" />
