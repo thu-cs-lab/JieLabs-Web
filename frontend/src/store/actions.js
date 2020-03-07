@@ -663,6 +663,7 @@ export function setLang(lang) {
 export function analyze() {
   return async (dispatch, getState) => {
     const { code, constraints: { top }, lang, lib } = getState();
+    if (!lib) return;
 
     let langEnum = lib.Language.VHDL;
     if (lang === 'verilog') {
