@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 /* eslint-disable no-useless-concat,no-useless-escape */
 
+// VHDL
 const INTEGER_RE = '\\d(_|\\d)*';
 const EXPONENT_RE = '[eE][-+]?' + INTEGER_RE;
 const DECIMAL_LITERAL_RE = INTEGER_RE + '(\\.' + INTEGER_RE + ')?' + '(' + EXPONENT_RE + ')?';
@@ -11,6 +12,15 @@ const BASED_LITERAL_RE = INTEGER_RE + '#' + BASED_INTEGER_RE + '(\\.' + BASED_IN
 const NUMBER_RE = '\\b(' + BASED_LITERAL_RE + '|' + DECIMAL_LITERAL_RE + ')';
 
 const LOGIC_RE = /'[UX01ZWLH-]'/;
+
+// Verilog
+const SIZE_RE = "([1-9][0-9_]*)?";
+const OCTAL_RE = `${SIZE_RE}'[sS]?[oO][0-7xXzZ][0-7xXzZ_]*`;
+const BINARY_RE = `${SIZE_RE}'[sS]?[bB][01xXzZ][01xXzZ_]*`;
+const HEX_RE = `${SIZE_RE}'[sS]?[hH][0-9a-fA-FxXzZ][0-9a-fA-FxXzZ_]*`;
+const REAL_RE = `[0-9][0-9_*](\\.[0-9][0-9_]*)?[eE][+-]?[0-9][0-9_]*|[0-9][0-9_]*\\.[0-9][0-9_]*`;
+const DECIMAL_RE = `${SIZE_RE}'[sS]?[dD]([0-9][0-9_]*|[xX]_*|[zZ?]_*)|[0-9][0-9_]*`;
+const NUMBER_RE_VERILOG = `(${OCTAL_RE})|(${BINARY_RE})|(${HEX_RE})|(${REAL_RE})|(${DECIMAL_RE})`;
 
 function posCmp(la, ca, lb, cb) {
   if (la !== lb) return la < lb;
@@ -129,10 +139,10 @@ function applyVerilogHighlight(lang) {
           },
         }],
 
-        [/--.*$/, 'comment'],
         [/\/\*/, 'comment', '@comment'],
+        [/\/\/.*$/, 'comment'],
 
-        [new RegExp(NUMBER_RE), 'number'],
+        [new RegExp(NUMBER_RE_VERILOG), 'number'],
 
         [LOGIC_RE, 'string'],
         [/([BOX])("[0-9A-F_]*")/, ['type.identifier', 'string']],
