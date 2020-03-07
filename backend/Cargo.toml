@@ -50,3 +50,4 @@ assets = [
 	["target/release/mock_board", "usr/bin/jielabs_mock_board", "755"],
 	["jielabs-backend.service", "lib/systemd/system/", "644"]
 ]
+section = "web"

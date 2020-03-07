@@ -10,6 +10,7 @@ pub struct User {
     pub class: Option<String>,
     pub student_id: Option<String>,
     pub role: String,
+    pub last_login: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Insertable)]

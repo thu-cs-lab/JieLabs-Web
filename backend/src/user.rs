@@ -5,6 +5,7 @@ use crate::session::{get_user, hash_password};
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{delete, get, post, put, web, HttpResponse, Result};
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -31,6 +32,7 @@ struct UserInfo {
     class: Option<String>,
     student_id: Option<String>,
     role: String,
+    last_login: Option<DateTime<Utc>>,
 }
 
 #[get("/list")]
@@ -62,6 +64,7 @@ async fn list(
                     class: user.class,
                     student_id: user.student_id,
                     role: user.role,
+                    last_login: user.last_login,
                 });
             }
             return Ok(HttpResponse::Ok().json(UserListResponse {
@@ -185,6 +188,7 @@ async fn get(
                     class: user.class,
                     student_id: user.student_id,
                     role: user.role,
+                    last_login: user.last_login,
                 }));
             } else {
                 return Ok(HttpResponse::Ok().json(false));

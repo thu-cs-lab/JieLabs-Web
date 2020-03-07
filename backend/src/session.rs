@@ -6,6 +6,7 @@ use crate::DbConnection;
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use log::*;
@@ -63,6 +64,7 @@ struct UserInfoResponse {
     real_name: Option<String>,
     class: Option<String>,
     student_id: Option<String>,
+    last_login: Option<DateTime<Utc>>,
 }
 
 #[post("/session")]
@@ -73,7 +75,7 @@ async fn login(
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
     let hashed = hash_password(&body.password);
-    if let Ok(user) = dsl::users
+    if let Ok(mut user) = dsl::users
         .filter(
             dsl::user_name
                 .eq(&body.user_name)
@@ -82,6 +84,12 @@ async fn login(
         .first::<User>(&conn)
     {
         info!("User {} logged in", user.user_name);
+        let orig_last_login = user.last_login;
+        user.last_login = Some(Utc::now());
+        diesel::update(&user)
+            .set(&user)
+            .execute(&conn)
+            .map_err(err)?;
         id.remember(user.user_name.clone());
         Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
@@ -89,6 +97,8 @@ async fn login(
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
+            // return null on first login
+            last_login: orig_last_login,
         }))
     } else {
         Ok(HttpResponse::Ok().json(UserInfoResponse::default()))
@@ -105,6 +115,7 @@ async fn info(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
             real_name: user.real_name,
             class: user.class,
             student_id: user.student_id,
+            last_login: user.last_login,
         }));
     }
     Ok(HttpResponse::Ok().json(UserInfoResponse::default()))

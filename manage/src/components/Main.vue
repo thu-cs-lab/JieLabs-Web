@@ -223,6 +223,12 @@ export default {
         value: "role"
       },
       {
+        text: "Last Login",
+        align: "left",
+        sortable: false,
+        value: "last_login"
+      },
+      {
         text: "Action",
         align: "left",
         sortable: false,

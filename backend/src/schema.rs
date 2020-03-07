@@ -31,6 +31,7 @@ table! {
         class -> Nullable<Text>,
         student_id -> Nullable<Text>,
         role -> Text,
+        last_login -> Nullable<Timestamptz>,
     }
 }
 
