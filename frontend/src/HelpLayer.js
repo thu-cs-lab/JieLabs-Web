@@ -28,11 +28,11 @@ const STEPS = [
             </p>
 
             <div className="help-welcome-icons">
+              <div className="help-welcome-icon"><Icon>tab_unselected</Icon> 暂时隐藏</div>
+              <div className="sep">/</div>
               <div className="help-welcome-icon"><Icon>skip_previous</Icon> 上一步</div>
               <div className="sep">/</div>
               <div className="help-welcome-icon"><Icon>skip_next</Icon> 下一步</div>
-              <div className="sep">/</div>
-              <div className="help-welcome-icon"><Icon>tab_unselected</Icon> 暂时隐藏</div>
               <div className="sep">/</div>
               <div className="help-welcome-icon"><Icon>settings_backup_restore</Icon> 重置当前步骤</div>
               <div className="sep">/</div>
@@ -202,7 +202,7 @@ const STEPS = [
           <strong>提交编译！</strong>
           <p>当顶级实体及其所有的信号都被映射之后，就可以提交编译了！</p>
           <p>点击中央工具栏中的<span className="help-hl">编译按钮</span>提交之后，编译状态会更新为新提交的状态。等待提交状态从代表进行中的蓝色方块变成代表成功的<span className="help-hl">绿色对钩</span>之后，就可以进入下一步了。</p>
-          <p>你可以通过右侧的控制区暂时隐藏指南页面。</p>
+          <p>你可以通过右侧的控制区<span className="help-hl">暂时隐藏指南页面</span>。</p>
           <hr />
           <p>在进入下一步前，可以试试将鼠标放置在编译状态上，JieLabs 将会展开一个列表，显示你的所有过往提交。在这个列表中你也可以上传过往提交生成的 Bitstream，以及查看编译信息和代码。</p>
         </div>
