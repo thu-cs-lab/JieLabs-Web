@@ -31,15 +31,13 @@ function toUTF8Array(str) {
 
 export class TextEncoder {
   constructor(encoding) {
-    console.log('Using custom encoder, expect some real slow motion');
+    console.log('Using custom encoder, expect some real slow motion, please upgrade your browser');
     if(encoding && encoding !== 'utf-8')
       throw new Error('Sorry, Meow\'s TextEncoder only supports UTF-8');
   }
 
   encode(str) {
-    console.log('Encoding: ', str);
     const plain = toUTF8Array(str);
-    console.log(plain);
     const buf = new ArrayBuffer(plain.length);
     const arr = new Uint8Array(buf);
     for(let i = 0; i<plain.length; ++i) arr[i] = plain[i];

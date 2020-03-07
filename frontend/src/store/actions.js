@@ -415,7 +415,6 @@ export function connectToBoard() {
 
         websocket.onmessage = (message) => {
           let msg = JSON.parse(message.data);
-          console.log(msg);
           if(msg["BoardAllocateResult"]) {
             // TODO: handles allocation fails, starts polling
             websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');

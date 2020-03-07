@@ -99,7 +99,6 @@ const STEPS = [
     done: state => {
       if(!state.analysis) return false;
       const errorCnt = state.analysis.diagnostics.filter(e => e.severity === 'error').length;
-      console.log(errorCnt);
       return errorCnt === 0;
     },
     reset: (state, dispatch) => {

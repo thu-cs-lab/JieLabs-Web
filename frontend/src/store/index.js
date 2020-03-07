@@ -54,6 +54,4 @@ store.subscribe(() => {
   }
 });
 
-console.log('Redux store built');
-
 export default store;
