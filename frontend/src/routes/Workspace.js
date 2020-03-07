@@ -8,7 +8,7 @@ import Tooltip from '../comps/Tooltip';
 
 import { BOARDS } from '../config';
 
-import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp } from '../store/actions';
+import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp, setLang } from '../store/actions';
 
 import { registerCodeLens } from '../vhdl';
 
@@ -401,6 +401,19 @@ export default React.memo(() => {
     window.location.reload();
   });
 
+  const lang = useSelector(store => store.lang);
+  let languangeTooltip = '';
+  if(lang === 'verilog') languangeTooltip = 'Switch from Verilog(experimental) to VHDL';
+  else languangeTooltip = 'Switch from VHDL to Verilog(experimental)';
+
+  const switchLanguage = useCallback(() => {
+    if (lang === 'verilog') {
+      dispatch(setLang('vhdl'));
+    } else {
+      dispatch(setLang('verilog'));
+    }
+  });
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
@@ -421,6 +434,12 @@ export default React.memo(() => {
       <button onClick={showHelp}>
         <Icon>help_outline</Icon>
       </button>
+
+      <Tooltip tooltip={languangeTooltip}>
+        <button onClick={switchLanguage}>
+          <Icon>language</Icon>
+        </button>
+      </Tooltip>
 
       {
         updateAvailable ? 
