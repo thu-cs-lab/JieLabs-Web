@@ -77,7 +77,7 @@ export const BOARDS = {
 
 export const BLOCK_ALIGNMENT = 175;
 
-const DEFAULT_FIELD = [
+export const DEFAULT_FIELD = [
   { type: 'FPGA', x: 0, y: 0, id: 'fpga', persistent: true },
   { type: 'Switch4', x: 0, y: 1 * BLOCK_ALIGNMENT, id: 'switch4_1' },
   { type: 'Digit4', x: 1 * BLOCK_ALIGNMENT, y: 0, id: 'digit4_1' },
