@@ -5,7 +5,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
-import { unstepHelp, stepHelp, endHelp, updateCode } from './store/actions';
+import { unstepHelp, stepHelp, endHelp, updateCode, assignTop } from './store/actions';
 
 import src from './assets/tutorial.vhdl'; // eslint-disable-line
 
@@ -142,7 +142,37 @@ const STEPS = [
         </div>
       );
     }
-  },
+  }, {
+    done: state => {
+      const rst = state.constraints.signals.get('rst');
+      const clk = state.constraints.signals.get('clk');
+      const toggle = state.constraints.signals.get('toggle');
+      return rst === 1 && clk === 37 && toggle === 0;
+    },
+    reset: (state, dispatch) => {
+      dispatch(assignTop(null));
+    },
+    renderer: (state) => {
+      return (
+        <div className="help-box" style={{
+          width: 'calc(50vw - 80px)',
+          maxWidth: 'unset',
+          position: 'fixed',
+          top: 40,
+          left: 40,
+        }}>
+          <strong>修改综合约束</strong>
+          <p>在修改代码的过程中，你可能注意到在 <code>entity top</code> 的上方忽然出现了 Set as top 字样。这是用于修改综合约束的操作。在编辑器中会出现两种这样的操作：</p>
+          <ul>
+            <li>Set as top: 设置顶级实体，出现在实体声明的上方</li>
+            <li>Assign to pin / Assigned to xxx: 设置引脚映射，出现在顶级实体接口中，信号声明的上方</li>
+          </ul>
+          <p>编辑器会高亮顶级实体和所有映射，如果某一信号未被映射，或对于向量信号而言，未被完全映射，将会以黄色标出。</p>
+          <p>请你将 <code>top</code> 设置为顶级实体，并将 rst, clk 和 toggle 分别映射到引脚 1, 37, 0 上。你可以通过右侧的控制区暂时隐藏指南页面。</p>
+        </div>
+      );
+    }
+  }
 ];
 
 function useStep(step) {
@@ -213,13 +243,21 @@ export default React.memo(() => {
 
     <div className="help-controller-cont">
       <div className="help-controller">
-        <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !prev})} onClick={prev}>skip_previous</Icon>
-        <Tooltip tooltip={next ? null : 'Unfinished task!'}>
+        <Tooltip tooltip="上一步">
+          <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !prev})} onClick={prev}>skip_previous</Icon>
+        </Tooltip>
+        <Tooltip tooltip={next ? "下一步" : "还有条件没有达成哦!"}>
           <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !next })} onClick={next}>skip_next</Icon>
         </Tooltip>
-        <Icon className="help-controller-action" onClick={toggleHidden}>{ hidden ? 'tab' : 'tab_unselected' }</Icon>
-        <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !reset })} onClick={reset}>settings_backup_restore</Icon>
-        <Icon className="help-controller-action" onClick={exit}>stop</Icon>
+        <Tooltip tooltip="隐藏/显示指南页面">
+          <Icon className="help-controller-action" onClick={toggleHidden}>{ hidden ? 'tab' : 'tab_unselected' }</Icon>
+        </Tooltip>
+        <Tooltip tooltip="重置当前步骤">
+          <Icon className={cn("help-controller-action", { 'help-controller-action-disabled': !reset })} onClick={reset}>settings_backup_restore</Icon>
+        </Tooltip>
+        <Tooltip tooltip="结束指南">
+          <Icon className="help-controller-action" onClick={exit}>stop</Icon>
+        </Tooltip>
       </div>
     </div>
 
