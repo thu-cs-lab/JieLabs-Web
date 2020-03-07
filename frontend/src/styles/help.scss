@@ -1,3 +1,5 @@
+$hl: #ffeb3b;
+
 .help {
   position: fixed;
   bottom: 0;
@@ -11,6 +13,7 @@
   z-index: 120;
 
   color: white;
+  letter-spacing: 0.05em;
 }
 
 .help .brand {
@@ -269,4 +272,8 @@
     border: white 1px dashed;
     background: rgba(0,0,0,1);
   }
+}
+
+.help .help-hl {
+  color: $hl;
 }

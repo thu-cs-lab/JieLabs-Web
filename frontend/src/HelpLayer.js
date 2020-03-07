@@ -24,7 +24,7 @@ const STEPS = [
               欢迎来到<del>杰哥的掌握</del>数电在线实验平台。这是你首次使用 JieLabs，因此我们为你准备了一个交互式的指南，希望能帮助你尽快熟悉平台的使用方法。
             </p>
             <p>
-              指南的控制面板在页面右侧。你可以使用这些按钮来控制指南的进行。
+              指南的<span className="help-hl">控制面板</span>在页面右侧。你可以使用这些按钮来控制指南的进行。
             </p>
 
             <div className="help-welcome-icons">
@@ -50,13 +50,13 @@ const STEPS = [
           <div className="help-layout-half">
             <div className="help-box">
               <strong>沙盒</strong>
-              <p>你可以在这里增删、移动模块，修改连线，修改按钮、开关等输入部件的状态，并得到反馈。</p>
+              <p>你可以在这里增删、移动<span className="help-hl">模块</span>，修改<span className="help-hl">连线</span>，修改按钮、开关等<span className="help-hl">输入部件的状态</span>，并得到<span className="help-hl">输出部件的反馈</span>。</p>
             </div>
           </div>
           <div className="help-layout-half">
             <div className="help-box">
               <strong>编辑器</strong>
-              <p>你可以在这里修改 RTL 代码，修改引脚映射等综合设定，并可以实时得到语法检查报告。</p>
+              <p>你可以在这里修改 <span className="help-hl">RTL 代码</span>，修改<span className="help-hl">引脚映射等综合设定</span>，并可以实时得到<span className="help-hl">语法检查报告</span>。</p>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ const STEPS = [
           left: 40,
         }}>
           <strong>杰哥教你写代码</strong>
-          <p>所有的错误都已经被修复了！你可以继续前往指南的下一步了</p>
+          <p>所有的错误都已经被修复了！你可以<span className="help-hl">继续前往指南的下一步</span>了</p>
         </div>
       );
 
@@ -138,8 +138,8 @@ const STEPS = [
         }}>
           <strong>杰哥教你写代码</strong>
           <p>该康康怎么写代码了！</p>
-          <p>在右侧的编辑器内已经填入了一些<del>喵喵在键盘上随便打出的</del>代码，但是在第 { dedup.join(', ') } 行出现了一些语法错误。</p>
-          <p>鼠标经过语法错误标记的位置时，会显示语法错误的详细信息。请你尝试修复所有的语法错误，修复完成后可以进行下一步。</p>
+          <p>在右侧的编辑器内已经填入了一些<del>喵喵在键盘上随便打出的</del>代码，但是在<span className="help-hl">第 { dedup.join(', ') } 行</span>出现了一些语法错误。</p>
+          <p>鼠标经过语法错误标记的位置时，会显示语法错误的详细信息。请你尝试<span className="help-hl">修复所有的语法错误</span>，修复完成后可以进行下一步。</p>
           <p>如果你一不小心弄丢了太多的代码，记得可以用右侧的按钮进行重置。</p>
         </div>
       );
@@ -171,7 +171,7 @@ const STEPS = [
             <li>Assign to pin / Assigned to xxx: 设置引脚映射，出现在顶级实体接口中，信号声明的上方</li>
           </ul>
           <p>编辑器会高亮顶级实体和所有映射，如果某一信号未被映射，或对于向量信号而言，未被完全映射，将会以黄色标出。</p>
-          <p>请你将 <code>top</code> 设置为顶级实体，并将 rst, clk 和 toggle 分别映射到引脚 1, 37, 0 上。你可以通过右侧的控制区暂时隐藏指南页面。</p>
+          <p>请你将 <span className="help-hl">top</span> 设置为顶级实体，并将 <span className="help-hl">rst</span>, <span className="help-hl">clk</span> 和 <span className="help-hl">toggle</span> 分别映射到引脚 <span className="help-hl">1</span>, <span className="help-hl">37</span>, <span className="help-hl">0</span> 上。你可以通过右侧的控制区暂时隐藏指南页面。</p>
         </div>
       );
     }
@@ -201,7 +201,7 @@ const STEPS = [
         }}>
           <strong>提交编译！</strong>
           <p>当顶级实体及其所有的信号都被映射之后，就可以提交编译了！</p>
-          <p>点击中央工具栏中的编译按钮提交之后，编译状态会更新为新提交的状态。等待提交状态从代表进行中的蓝色方块变成代表成功的绿色对钩之后，就可以进入下一步了。</p>
+          <p>点击中央工具栏中的<span className="help-hl">编译按钮</span>提交之后，编译状态会更新为新提交的状态。等待提交状态从代表进行中的蓝色方块变成代表成功的<span className="help-hl">绿色对钩</span>之后，就可以进入下一步了。</p>
           <hr />
           <p>在进入下一步前，可以试试将鼠标放置在编译状态上，JieLabs 将会展开一个列表，显示你的所有过往提交。在这个列表中你也可以上传过往提交生成的 Bitstream，以及查看编译信息和代码。</p>
         </div>
@@ -227,8 +227,8 @@ const STEPS = [
           <p>Bitstream 已经就绪，现在可以将注意放在沙盒上了。</p>
           <p>作为编程工作的收尾，我们可以通过以下流程将 Bitstream 烧写到 FPGA 上：</p>
           <ul>
-            <li>如果 FPGA 模块显示还没有分配 FPGA，可以通过点击 FPGA 模块进行申请。</li>
-            <li>分配完成后，位于编译按钮下方的上传 Bitstream 按钮激活，点击即可开始烧写。</li>
+            <li>如果 FPGA 模块显示还没有分配 FPGA，可以通过<span className="help-hl">点击 FPGA 模块</span>进行申请。</li>
+            <li>分配完成后，位于编译按钮下方的<span className="help-hl">上传 Bitstream 按钮</span>激活，点击即可开始烧写。</li>
           </ul>
           <p>完成烧写后可以进行下一步。</p>
         </div>
@@ -269,7 +269,7 @@ const STEPS = [
             <li>时钟模块，上方为时钟发生器引脚，下方为两个按钮，可以作为 Reset 或者手动时钟。</li>
           </ul>
 
-          <p>右键沙盒内的任意位置可以添加新模块，既有的模块的删除按钮也可以通过将鼠标放置于模块上展现。请将两个数码管模块删除，我们暂时用不到它们。</p>
+          <p>右键沙盒内的任意位置可以添加新模块，既有的模块的删除按钮也可以通过将鼠标放置于模块上展现。请<span className="help-hl">将两个数码管模块删除</span>，我们暂时用不到它们。</p>
         </div>
       );
     },
@@ -286,16 +286,16 @@ const STEPS = [
           right: 40,
         }}>
           <strong>亮，都可以亮 (续)</strong>
-          <p>点击接线柱可以开始连线，在连线的过程中，被连接的接线柱会被显示为蓝色，鼠标经过其他接线柱或者其他线时，将会将其高亮为黄色。点击被高亮为黄色的接线柱或线，可以尝试连线。如果没有发生以下错误，那么连线将会成功：</p>
+          <p>点击接线柱可以开始连线，在连线的过程中，被连接的接线柱会被显示为蓝色，鼠标经过其他接线柱或者其他线时，将会将其高亮为黄色。点击被高亮为黄色的接线柱或线，可以进行连线。</p>
+          <p>尝试将其中<span className="help-hl">一个 LED 连接至 FPGA 0 号引脚</span>，<span className="help-hl">4M 时钟发生器至 37 号引脚</span>，以及<span className="help-hl">一个按钮至 1 号引脚</span>。<span className="help-hl">点击复位按钮</span>，你应该能看到 LED 开始以 1s 为间隔开始闪烁。</p>
+          <p>点击蓝色接线柱或者沙盒中任意空地可以取消连线。我们没办法检查这一任务的完成与否，但是这就是指南的最后一步了！</p>
+          <p>通过左下角的沙箱工具栏或者 Ctrl-F 快捷键，你可以修改连线颜色，以及在模块和连线层之间切换。在连线层中你可以删除连线，或者断开特定的接线柱。尝试连接其他频率的时钟，或者将输出同时连接到多个 LED 上。当你认为自己对沙箱机制的理解已经够用了的话，可以前往下一步。</p>
+          <hr />
+          <p>你可能注意到 FPGA 的 37 号引脚和时钟发生器的接线柱颜色和其他接线柱不同。蓝色的接线柱是标记这里的信号和时钟信号有关。对于 FPGA 而言，只有 37 号引脚可以接入高频时钟，它和时钟发生器的区别在于，37 号引脚可以连接手动时钟，但是时钟发生器不能连接 LED、数码管等普通的显示器件。连线在以下情况中会失败</p>
           <ul>
             <li>如果时钟发生器连接至除了 FPGA 37 号引脚以外的地方，将会失败</li>
             <li>如果一个接线柱已经通过网络和即将连线的线或者接线柱相连。</li>
           </ul>
-          <p>点击蓝色接线柱或者沙盒中任意空地可以取消连线。尝试将其中一个 LED 连接至 FPGA 0 号引脚，4M 时钟发生器至 37 号引脚，以及一个按钮至 1 号引脚。点击按钮，你应该能看到 LED 开始以 1s 为间隔开始闪烁。</p>
-          <p>我们没办法检查这一任务的完成与否，但是这就是指南的最后一步了！</p>
-          <p>通过左下角的沙箱工具栏或者 Ctrl-F 快捷键，你可以修改连线颜色，以及在模块和连线层之间切换。在连线层中你可以删除连线，或者断开特定的接线柱。尝试连接其他频率的时钟，或者将输出同时连接到多个 LED 上。当你认为自己对沙箱机制的理解已经够用了的话，可以前往下一步。</p>
-          <hr />
-          <p>你可能注意到 FPGA 的 37 号引脚和时钟发生器的接线柱颜色和其他接线柱不同。蓝色的接线柱是标记这里的信号和时钟信号有关。对于 FPGA 而言，只有 37 号引脚可以接入高频时钟，它和时钟发生器的区别在于，37 号引脚可以连接手动时钟，但是时钟发生器不能连接 LED、数码管等普通的显示器件。</p>
         </div>
       );
     },
@@ -306,7 +306,7 @@ const STEPS = [
       <div className="help-welcome">
         <div className="help-box">
           <div className="brand"><strong>Jie</strong>Labs</div>
-          <p>指南到此结束了！在中央工具栏中有帮助按钮，你可以通过它找到快捷键 Cheatsheet，还能重新启动这一指南。</p>
+          <p>指南到此结束了！在中央工具栏中有<span className="help-hl">帮助按钮</span>，你可以通过它找到快捷键 Cheatsheet，还能重新启动这一指南。</p>
           <p>祝你在数字电路的海洋中能够一帆风顺，不会翻船！</p>
         </div>
       </div>
