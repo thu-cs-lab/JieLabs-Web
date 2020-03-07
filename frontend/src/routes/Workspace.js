@@ -395,6 +395,12 @@ export default React.memo(() => {
     dispatch(startHelp());
   });
 
+  const updateAvailable = useSelector(state => state.update);
+
+  const reloadPage = useCallback(() => {
+    window.location.reload();
+  });
+
   return <main className="workspace">
     <div className="left">
       <Sandbox />
@@ -415,6 +421,16 @@ export default React.memo(() => {
       <button onClick={showHelp}>
         <Icon>help_outline</Icon>
       </button>
+
+      {
+        updateAvailable ? 
+          <Tooltip tooltip="New version is available, click to update">
+            <button onClick={reloadPage}>
+              <Icon>update</Icon>
+            </button>
+          </Tooltip>
+         : null
+      }
     </div>
     <div className="right">
       <Monaco
@@ -505,7 +521,7 @@ export default React.memo(() => {
                   className="labeled-btn"
                   onClick={startIntHelp}
                 >
-                  <div className="labeled-btn-icon">🍓</div> <span>START</span>
+                  <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>START</span>
                 </button>
               </div>
               <div className="help-spacer" />
