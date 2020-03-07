@@ -17,8 +17,14 @@ async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
             .unwrap()
             .as_nanos();
         let conn = pool.get().map_err(err)?;
-        let user_count = users::dsl::users.count().execute(&conn).map_err(err)?;
-        let job_count = jobs::dsl::jobs.count().execute(&conn).map_err(err)?;
+        let user_count = users::dsl::users
+            .count()
+            .get_result::<i64>(&conn)
+            .map_err(err)?;
+        let job_count = jobs::dsl::jobs
+            .count()
+            .get_result::<i64>(&conn)
+            .map_err(err)?;
         let tasks: GetMetricResponse = get_task_manager().send(GetMetric).await?;
         let boards: BoardInfoList = get_board_manager().send(GetBoardList).await?;
         let board_count = boards.0.len();
