@@ -59,7 +59,7 @@ pub enum WSUserMessageU2S {
 #[derive(Serialize, Deserialize)]
 pub enum WSUserMessageS2U {
     ReportIOChange(IOSetting),
-    BoardAllocateResult(bool),
+    BoardAllocateResult(Option<String>),
     BoardDisconnected(String),
     ProgramBitstreamFinish(bool),
 }
@@ -106,16 +106,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSUser {
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct RequestForBoardResult(pub bool);
+pub struct RequestForBoardResult(pub Option<String>);
 
 impl Handler<RequestForBoardResult> for WSUser {
     type Result = ();
 
     fn handle(&mut self, req: RequestForBoardResult, ctx: &mut Self::Context) -> () {
-        self.has_board = req.0;
-        ctx.text(
-            serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(self.has_board)).unwrap(),
-        );
+        self.has_board = req.0.is_some();
+        ctx.text(serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(req.0)).unwrap());
     }
 }
 
@@ -296,7 +294,10 @@ mod test {
 
         println!(
             "{}",
-            serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(true)).unwrap()
+            serde_json::to_string(&WSUserMessageS2U::BoardAllocateResult(Some(String::from(
+                "id1234"
+            ))))
+            .unwrap()
         );
         println!(
             "{}",

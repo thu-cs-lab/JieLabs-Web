@@ -162,11 +162,12 @@ impl Handler<RequestForBoard> for BoardManagerActor {
                 "connect user {} to board {}",
                 user_stat.user_name, board.info.remote
             );
+            let remote = board.info.remote.clone();
             self.connections.insert(user_stat, board);
-            true
+            Some(remote)
         } else {
             info!("no idle boards, can't allocate");
-            false
+            None
         };
         addr.do_send(RequestForBoardResult(res));
     }

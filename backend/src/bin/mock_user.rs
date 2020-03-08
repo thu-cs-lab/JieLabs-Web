@@ -29,8 +29,8 @@ fn main(args: Args) {
                 if let Ok(msg) = serde_json::from_str::<ws_user::WSUserMessageS2U>(&text) {
                     match msg {
                         ws_user::WSUserMessageS2U::BoardAllocateResult(res) => {
-                            println!("Board allocation result: {}", res);
-                            if res {
+                            println!("Board allocation result: {:?}", res);
+                            if res.is_some() {
                                 out.send(r#"{"ToBoard":{"SetIOOutput":{"mask":"","data":""}}}"#)
                                     .unwrap();
                                 info!("SetIOOutput sent");

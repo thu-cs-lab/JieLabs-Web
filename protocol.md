@@ -155,10 +155,12 @@ bitstream.rbf
 
 后端 -> 前端
 
+如果成功了，返回板子的一个唯一标识；如果失败了，返回 null
+
 格式：
 
 ```json
-{"BoardAllocateResult":true}
+{"BoardAllocateResult":"1234"}
 ```
 
 ### 发给板子的消息
