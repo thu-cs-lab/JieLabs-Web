@@ -446,8 +446,8 @@ export default React.memo(() => {
 
       {
         updateAvailable ? 
-          <Tooltip tooltip="New version is available, click to update">
-            <button onClick={reloadPage}>
+          <Tooltip tooltip="New version is available, please force refresh to update">
+            <button disabled>
               <Icon>update</Icon>
             </button>
           </Tooltip>
