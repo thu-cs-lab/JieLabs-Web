@@ -327,7 +327,7 @@ export function submitBuild() {
     try {
       // TODO: force an analysis update immediately
 
-      let { build, code, constraints, analysis } = getState();
+      let { build, code, constraints, analysis, lang } = getState();
       if (build && build.intervalID) {
         clearInterval(build.intervalID);
       }
@@ -361,7 +361,7 @@ export function submitBuild() {
 
       let tar = createTarFile(
         [
-          { name: TAR_FILENAMES.source, body: code },
+          { name: TAR_FILENAMES.source[lang], body: code },
           { name: TAR_FILENAMES.constraints, body: assignments }
         ]
       );
@@ -371,6 +371,7 @@ export function submitBuild() {
         source: uuid,
         metadata: JSON.stringify({
           directions,
+          lang,
         }),
       });
 

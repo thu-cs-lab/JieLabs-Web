@@ -90,7 +90,7 @@ export default React.memo(() => {
       // Get source
       currentLoading.current = {
         ...currentLoading.current,
-        code: readFileStr(content, TAR_FILENAMES.source),
+        code: readFileStr(content, TAR_FILENAMES.source[e.lang || 'vhdl']),
         constraints: readFileStr(content, TAR_FILENAMES.constraints),
       };
       setDetail(currentLoading.current);
@@ -395,7 +395,7 @@ export default React.memo(() => {
                     <Monaco
                       options={{
                         theme: 'vs-dark',
-                        language: 'vhdl-ro',
+                        language: `${detail.lang || 'vhdl'}-ro`,
                         readonly: true,
                       }}
                       value={detail.code}

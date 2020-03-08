@@ -10,7 +10,10 @@ export const TAR_FILENAMES = {
   stdout: 'stdout',
   stderr: 'stderr',
 
-  source: 'src/mod_top.vhd',
+  source: {
+    'vhdl': 'src/mod_top.vhd',
+    'verilog': 'src/mod_top.sv',
+  },
   constraints: 'src/mod_top.qsf',
 };
 
