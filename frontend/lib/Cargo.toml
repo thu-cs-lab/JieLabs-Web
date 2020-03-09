@@ -13,3 +13,7 @@ vhdl_lang = "0.15.0"
 serde = { version="1.0.104", features=["derive"] }
 maze-routing = { git = "https://github.com/jiegec/maze-routing" }
 verilog-lang = { git = "https://github.com/jiegec/verilog-lang" }
+
+[profile.release]
+lto = true
+opt-level = 's'
