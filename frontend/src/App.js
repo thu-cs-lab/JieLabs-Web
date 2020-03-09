@@ -29,7 +29,9 @@ function useLoader(loader) {
     });
   }, []);
 
-  return params => Comp && <Comp {...params}></Comp>;
+  const Nullify = React.useMemo(() => null);
+
+  return Comp || Nullify;
 }
 
 export default React.memo(() => {
@@ -50,6 +52,8 @@ export default React.memo(() => {
   const Login = useLoader(LoginLoader);
   const Workspace = useLoader(WorkspaceLoader);
   const Monaco = useLoader(MonacoLoader);
+
+  console.log('REPAINT');
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
