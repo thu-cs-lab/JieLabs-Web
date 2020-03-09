@@ -4,6 +4,7 @@ const {
   addWebpackModuleRule,
   adjustWorkbox,
   useEslintRc,
+  setWebpackOptimizationSplitChunks,
 } = require('customize-cra');
 
 const MonacoPlugin = require('monaco-editor-webpack-plugin');
@@ -39,4 +40,15 @@ module.exports = override(
   useEslintRc(
     path.resolve(__dirname, './.eslintrc.json'),
   ),
+  setWebpackOptimizationSplitChunks({
+    chunks: 'all',
+    name: false,
+
+    cacheGroups: {
+      monaco: {
+        test: /[\\/]node_modules[\\/]monaco-editor/,
+        reuseExistingChunk: false,
+      },
+    },
+  }),
 );

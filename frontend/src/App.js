@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 import pako from 'pako';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import Monaco from 'react-monaco-editor';
 import { saveAs } from 'file-saver';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES, TIMEOUT, TIMEOUT_BUFFER } from './config';
@@ -18,16 +17,19 @@ import HelpLayer from './HelpLayer';
 
 const LoginLoader = import('./routes/Login');
 const WorkspaceLoader = import('./routes/Workspace');
+const MonacoLoader = import('./loaders/Monaco');
 
 export const TimeoutContext = React.createContext(null);
 
 function useLoader(loader) {
-  const [comp, setComp] = useState(null);
+  const [Comp, setComp] = useState(null);
   useEffect(() => {
-    loader.then(mod => setComp(mod.default));
+    loader.then(mod => {
+      setComp(() => mod.default);
+    });
   }, []);
 
-  return comp;
+  return params => Comp && <Comp {...params}></Comp>;
 }
 
 export default React.memo(() => {
@@ -47,7 +49,7 @@ export default React.memo(() => {
 
   const Login = useLoader(LoginLoader);
   const Workspace = useLoader(WorkspaceLoader);
-  console.log('Render, workspace: ', Workspace);
+  const Monaco = useLoader(MonacoLoader);
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
