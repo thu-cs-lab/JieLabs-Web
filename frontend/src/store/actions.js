@@ -431,9 +431,14 @@ export function connectToBoard() {
 
         websocket.onmessage = (message) => {
           let msg = JSON.parse(message.data);
-          if(msg["BoardAllocateResult"]) {
+          if("BoardAllocateResult" in msg) {
             const ident = msg['BoardAllocateResult'];
-            // TODO: handles allocation fails, starts polling
+
+            if(!ident) {
+              dispatch(showSnackbar('FPGA allocation failed, try again later!'));
+              return;
+            }
+
             websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');
             dispatch(setBoard({
               websocket,
