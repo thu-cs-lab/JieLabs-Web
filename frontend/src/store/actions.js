@@ -324,6 +324,9 @@ export async function kickoffPolling(dispatch, getState) {
       dst: info.dst_url,
     }));
 
+    // Show snackbar
+    dispatch(showSnackbar(`Build #${id}: ${info.status.toLowerCase()}`));
+
     // Immediately check for next pending build
     polling = false;
     return await kickoffPolling(dispatch, getState);
@@ -391,6 +394,9 @@ export function submitBuild() {
       const job = await get(`/api/task/get/${id}`);
 
       dispatch(putBuild(jobMapper(job)));
+
+      // Show snackbar
+      dispatch(showSnackbar(`Build #${id}: submitted`, 5000))
 
       // TODO: use another action instead
       kickoffPolling(dispatch, getState); // Fire-and-forget
