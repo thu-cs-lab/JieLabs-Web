@@ -36,8 +36,6 @@ export const TYPES = {
   DELETE_BLOCK: Symbol('DELETE_BLOCK'),
   PUSH_BLOCK: Symbol('PUSH_BLOCK'),
 
-  UPDATE_AVAILABLE: Symbol('UPDATE_AVAILABLE'),
-
   SET_LANG: Symbol('SET_LANG'),
 
   PUSH_SNACKBAR: Symbol('PUSH_SNACKBAR'),
@@ -664,13 +662,6 @@ export function updateClock(clock) {
         },
       }));
   }
-}
-
-export function setUpdateAvailable() {
-  return {
-    type: TYPES.UPDATE_AVAILABLE,
-    available: true,
-  };
 }
 
 export function setLang(lang) {

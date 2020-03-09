@@ -167,12 +167,6 @@ export function field(state = List(DEFAULT_FIELD), action) {
     return state.push(action.block);
   return state;
 }
-  
-export function update(state = false, action) {
-  if(action.type === TYPES.UPDATE_AVAILABLE)
-    return action.available;
-  return state;
-}
 
 export function lang(state = 'vhdl', action) {
   if(action.type === TYPES.SET_LANG)

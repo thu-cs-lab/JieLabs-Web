@@ -454,16 +454,6 @@ export default React.memo(() => {
           <Icon>language</Icon>
         </button>
       </Tooltip>
-
-      {
-        updateAvailable ? 
-          <Tooltip tooltip="New version is available, please force refresh to update">
-            <button disabled>
-              <Icon>update</Icon>
-            </button>
-          </Tooltip>
-         : null
-      }
     </div>
     <div className="right">
       <Monaco

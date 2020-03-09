@@ -9,7 +9,7 @@ import * as serviceWorker from './serviceWorker';
 import initLang from './lang';
 
 import store from './store';
-import { setUpdateAvailable } from './store/actions';
+import { showSnackbar } from './store/actions';
 
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
@@ -44,7 +44,12 @@ ReactDOM.render(<Render />, document.getElementById('root'));
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register({
   onUpdate() {
-    store.dispatch(setUpdateAvailable());
+    store.dispatch(showSnackbar(
+      'Update availabe!',
+      0,
+      () => window.location.reload(true),
+      'REFRESH',
+    ));
   }
 });
 
