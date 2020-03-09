@@ -5,7 +5,6 @@ import cn from 'classnames';
 
 import Icon from '../comps/Icon';
 import Tooltip from '../comps/Tooltip';
-import Input from '../comps/Input';
 
 import { BOARDS } from '../config';
 
@@ -17,20 +16,17 @@ import {
   updateTop,
   assignPin,
   startHelp,
-  setLang,
-  analyze,
-  showSnackbar
+  showSnackbar,
 } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
-import { post } from '../util';
 
 import Monaco from 'react-monaco-editor';
 import { Range, editor } from 'monaco-editor/esm/vs/editor/editor.api';
 
 import Sandbox from '../Sandbox';
 
-export default React.memo(() => {
+export default React.memo(({ showSettings }) => {
   const dispatch = useDispatch();
 
   const code = useSelector(store => store.code);
@@ -62,21 +58,6 @@ export default React.memo(() => {
     setHelp(true);
   }, []);
   const dismissHelp = useCallback(() => setHelp(false), []);
-
-  const [settings, setSettings] = useState(false);
-  const [newPass, setNewPass] = useState('');
-  const user = useSelector(state => state.user);
-  const showSettings = useCallback(() => {
-    setSettings(true);
-    setNewPass('');
-  }, []);
-  const dismissSettings = useCallback(() => setSettings(false), []);
-  const submitPass = useCallback(async () => {
-    await post(`/api/user/manage/${user.user_name}`, {
-      password: newPass,
-    });
-    dispatch(showSnackbar('Password updated!', 5000));
-  }, [newPass, user?.user_name]);
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
@@ -448,12 +429,17 @@ export default React.memo(() => {
   });
 
   const lang = useSelector(store => store.lang);
-  const setLanguage = useCallback(lang => {
+  useEffect(() => {
     const model = editorRef.current.editor.getModel();
     editor.setModelLanguage(model, lang);
-    dispatch(setLang(lang));
-    dispatch(analyze());
-  });
+  }, [lang]);
+
+  const helpStep = useSelector(state => state.help);
+  useEffect(() => {
+    if(helpStep === null) {
+      // Help just closed
+    }
+  }, []);
 
   return <main className="workspace">
     <div className="left">
@@ -587,42 +573,6 @@ export default React.memo(() => {
                 <div className="help-shortcut"><strong>Delete</strong> Disconnect</div>
                 <div className="help-shortcut"><strong>Backspace</strong> Disconnect</div>
                 <div className="help-shortcut"><strong>Ctrl-D</strong> Dye current color</div>
-              </div>
-            </div>
-          </div>
-        </CSSTransition>
-      }
-      {settings !== false &&
-        <CSSTransition
-          timeout={500}
-          classNames="fade"
-        >
-          <div className="backdrop centering" onMouseDown={dismissSettings}>
-            <div className="dialog settings-dialog" onMouseDown={weakBlocker}>
-              <div className="hint">
-                Logged in as <strong>{ user.user_name }</strong>
-              </div>
-              <div className="user-realname">
-                { user.real_name }
-              </div>
-              <div className="user-pass">
-                <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
-                <button onClick={submitPass}>
-                  <Icon>arrow_forward</Icon>
-                </button>
-              </div>
-
-              <div className="hint">Language</div>
-              <div className="languages">
-                <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
-                  <div className="language-ind"><Icon>done</Icon></div>
-                  <div className="language-name">Verilog</div>
-                </div>
-
-                <div className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
-                  <div className="language-ind"><Icon>done</Icon></div>
-                  <div className="language-name">VHDL</div>
-                </div>
               </div>
             </div>
           </div>

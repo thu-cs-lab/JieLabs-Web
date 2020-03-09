@@ -7,12 +7,23 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { saveAs } from 'file-saver';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES, TIMEOUT, TIMEOUT_BUFFER } from './config';
-import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds, showSnackbar, popSnackbar, disconnectBoard } from './store/actions';
-import { untar, readFileStr, formatSize, formatDuration, formatDate } from './util';
+import {
+  BOARD_STATUS,
+  init,
+  logout,
+  programBitstream,
+  loadMoreBuilds,
+  showSnackbar,
+  popSnackbar,
+  disconnectBoard,
+  updateLang,
+} from './store/actions';
+import { untar, readFileStr, formatSize, formatDuration, formatDate, post } from './util';
 
 import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
 import Highlighter from './comps/Highlighter';
+import Input from './comps/Input';
 import HelpLayer from './HelpLayer';
 
 const LoginLoader = import('./routes/Login');
@@ -230,6 +241,25 @@ export default React.memo(() => {
     start: () => resetTimeout(true),
   }), [resetTimeout]);
 
+  const [settings, setSettings] = useState(false);
+  const [newPass, setNewPass] = useState('');
+  const user = useSelector(state => state.user);
+  const showSettings = useCallback(() => {
+    console.log('INVOKE');
+    setSettings(true);
+    setNewPass('');
+  }, []);
+  const dismissSettings = useCallback(() => setSettings(false), []);
+  const submitPass = useCallback(async () => {
+    await post(`/api/user/manage/${user.user_name}`, {
+      password: newPass,
+    });
+    dispatch(showSnackbar('Password updated!', 5000));
+  }, [newPass, user?.user_name]);
+
+  const lang = useSelector(store => store.lang);
+  const setLanguage = useCallback(lang => dispatch(updateLang(lang)));
+
   if(loading) 
     return <div className="container pending"></div>;
 
@@ -323,7 +353,7 @@ export default React.memo(() => {
 
       <Switch>
         <Route path="/login" exact component={Login} />
-        <Route path="/" exact component={Workspace} />
+        <Route path="/" exact><Workspace showSettings={showSettings} /></Route>
       </Switch>
 
       <TransitionGroup>
@@ -497,6 +527,42 @@ export default React.memo(() => {
             </div>
           </CSSTransition>
         )) }
+        {settings !== false &&
+          <CSSTransition
+            timeout={500}
+            classNames="fade"
+          >
+            <div className="backdrop centering" onMouseDown={dismissSettings}>
+              <div className="dialog settings-dialog" onMouseDown={weakBlocker}>
+                <div className="hint">
+                  Logged in as <strong>{ user.user_name }</strong>
+                </div>
+                <div className="user-realname">
+                  { user.real_name }
+                </div>
+                <div className="user-pass">
+                  <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
+                  <button onClick={submitPass}>
+                    <Icon>arrow_forward</Icon>
+                  </button>
+                </div>
+
+                <div className="hint">Language</div>
+                <div className="languages">
+                  <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
+                    <div className="language-ind"><Icon>done</Icon></div>
+                    <div className="language-name">Verilog</div>
+                  </div>
+
+                  <div className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
+                    <div className="language-ind"><Icon>done</Icon></div>
+                    <div className="language-name">VHDL</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CSSTransition>
+        }
       </TransitionGroup>
 
       <HelpLayer />

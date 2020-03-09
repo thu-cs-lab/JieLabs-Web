@@ -728,3 +728,12 @@ export function disconnectBoard() {
     }));
   };
 }
+
+export function updateLang(lang) {
+  return (dispatch, getState) => {
+    const { lang: cur } = getState();
+    if(cur === lang) return;
+    dispatch(setLang(lang));
+    dispatch(analyze());
+  };
+}
