@@ -1,5 +1,4 @@
 import './index.scss';
-import '!!style-loader?insert=head&injectType=styleTag!css-loader!sass-loader!./prelude.scss'; //eslint-disable-line
 
 import React from 'react';
 import ReactDOM from 'react-dom';
