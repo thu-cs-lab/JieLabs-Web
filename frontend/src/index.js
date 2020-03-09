@@ -6,8 +6,6 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-import initLang from './lang';
-
 import store from './store';
 import { showSnackbar } from './store/actions';
 
@@ -26,7 +24,7 @@ if(!window.TextEncoder)
 if(!window.TextDecoder)
   window.TextDecoder = TextDecoder;
 
-initLang(store);
+import('./lang').then(mod => mod.default(store));
 
 const build = App => () => <Provider store={store}>
   <BrowserRouter basename={process.env.PUBLIC_URL}>
