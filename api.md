@@ -32,9 +32,9 @@ GET /api/user/count
 
 POST /api/user/manage/{user_name}
 
-可用字段：real_name class student_id role password
+admin 可用字段：real_name class student_id role password
 
-仅 admin 可用
+所有人可更新自己的，可用字段：real_name class student_id role password
 
 ### 创建用户
 

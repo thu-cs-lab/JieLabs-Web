@@ -108,7 +108,9 @@ async fn update(
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
     if let (Some(user), conn) = get_user(&id, conn).await? {
-        if user.role == "admin" {
+        if user.role == "admin" || (user.user_name == *path) {
+            // admin: edit anyone
+            // other: edit himself
             if let Ok(mut user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
                 .first::<User>(&conn)
@@ -123,6 +125,9 @@ async fn update(
                     user.student_id = Some(student_id.clone());
                 }
                 if let Some(role) = &body.role {
+                    if user.role != "admin" {
+                        return Ok(HttpResponse::Forbidden().finish());
+                    }
                     user.role = role.clone();
                 }
                 if let Some(password) = &body.password {
