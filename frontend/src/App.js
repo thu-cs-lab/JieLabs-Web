@@ -35,7 +35,7 @@ export default React.memo(() => {
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
-      if(!restored) history.push('/login');
+      if(!restored) history.push(process.env.PUBLIC_URL + 'login');
       setLoading(false);
     });
   }, [dispatch, history]);
@@ -45,10 +45,10 @@ export default React.memo(() => {
     await dispatch(logout())
 
     if(HARD_LOGOUT) {
-      window.location.href = '/login';
+      window.location.href = process.env.PUBLIC_URL + '/login';
     } else {
       // FIXME: routing guard
-      history.push('/login');
+      history.push(process.env.PUBLIC_URL + '/login');
     }
   }, [dispatch, history]);
 
