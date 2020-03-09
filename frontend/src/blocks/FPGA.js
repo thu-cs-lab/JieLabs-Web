@@ -37,6 +37,8 @@ export default React.memo(({ id, ...rest }) => {
   const timeoutCtx = useContext(TimeoutContext);
   const doConnect = useCallback(async () => {
     await dispatch(connectToBoard());
+
+    // TODO: don't start timeout if board allocation fails
     timeoutCtx.start();
   }, [timeoutCtx]);
 

@@ -8,7 +8,7 @@ import Monaco from 'react-monaco-editor';
 import { saveAs } from 'file-saver';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES, TIMEOUT, TIMEOUT_BUFFER } from './config';
-import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds, showSnackbar, popSnackbar } from './store/actions';
+import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds, showSnackbar, popSnackbar, disconnectBoard } from './store/actions';
 import { untar, readFileStr, formatSize, formatDuration, formatDate } from './util';
 
 import Login from './routes/Login';
@@ -194,7 +194,7 @@ export default React.memo(() => {
 
       if(timeoutWarningRef.current) timeoutWarningRef.current();
       timeoutWarningRef.current = dispatch(showSnackbar('FPGA timed out!'));
-      // TODO: do timeout
+      dispatch(disconnectBoard());
     }, TIMEOUT);
 
     const b = setTimeout(() => {

@@ -706,3 +706,16 @@ export function showSnackbar(msg, timeout = 0, action = null, actionText = null)
     return hide;
   };
 }
+
+export function disconnectBoard() {
+  return (dispatch, getState) => {
+    const { board } = getState();
+    const { websocket } = board;
+
+    if(websocket) try { websocket.close() } catch(e) { console.error(e) };
+    dispatch(setBoard({
+      websocket: null,
+      status: BOARD_STATUS.DISCONNECTED,
+    }));
+  };
+}
