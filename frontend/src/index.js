@@ -45,7 +45,7 @@ ReactDOM.render(<Render />, document.getElementById('root'));
 serviceWorker.register({
   onUpdate() {
     store.dispatch(showSnackbar(
-      'Update availabe!',
+      'Update available!',
       0,
       () => window.location.reload(true),
       'REFRESH',
