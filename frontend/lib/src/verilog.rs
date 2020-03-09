@@ -31,7 +31,7 @@ impl From<verilog_lang::lexer::Span> for Pos {
             from_char: span.from.col as u32,
 
             to_line: span.to.row as u32,
-            to_char: span.to.col as u32,
+            to_char: span.to.col as u32 + 1,
         }
     }
 }
