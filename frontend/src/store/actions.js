@@ -702,5 +702,7 @@ export function showSnackbar(msg, timeout = 0, action = null, actionText = null)
     if(timeout !== 0) setTimeout(() => hide(), timeout);
 
     dispatch(pushSnackbar(id, spec));
+
+    return hide;
   };
 }

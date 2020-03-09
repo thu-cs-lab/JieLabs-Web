@@ -87,3 +87,6 @@ export const DEFAULT_FIELD = [
   { type: 'Digit7', x: 2 * BLOCK_ALIGNMENT, y: 0, id: 'digit7_1' },
   { type: 'Clock', x: 1 * BLOCK_ALIGNMENT, y: 1 * BLOCK_ALIGNMENT, id: 'clock_1' },
 ];
+
+export const TIMEOUT = 1000 * 60 * 30;
+export const TIMEOUT_BUFFER = 1000 * 60;

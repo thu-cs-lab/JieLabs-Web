@@ -4,6 +4,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { Connector, SIGNAL, MODE } from './index.js';
 import { FPGAEnvContext } from '../Sandbox';
+import { TimeoutContext } from '../App';
 import Icon from '../comps/Icon';
 
 import { BOARD_STATUS, setOutput, connectToBoard } from '../store/actions';
@@ -33,9 +34,11 @@ export default React.memo(({ id, ...rest }) => {
     return head.concat(tail);
   }, [input, directions]);
 
-  const doConnect = useCallback(() => {
-    dispatch(connectToBoard());
-  });
+  const timeoutCtx = useContext(TimeoutContext);
+  const doConnect = useCallback(async () => {
+    await dispatch(connectToBoard());
+    timeoutCtx.start();
+  }, [timeoutCtx]);
 
   const ctx = useContext(FPGAEnvContext);
 

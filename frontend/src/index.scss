@@ -1878,7 +1878,7 @@ main {
   position: fixed;
   bottom: 0;
   right: $snackbar-margin;
-  width: 300px;
+  width: 350px;
 
   .snackbar-entry {
     height: $snackbar-height;
@@ -1910,6 +1910,7 @@ main {
       color: white;
       line-height: $snackbar-height - 20px;
 
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
 
