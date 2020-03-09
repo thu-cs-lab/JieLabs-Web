@@ -26,14 +26,17 @@ module.exports = override(
   addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
   addWebpackModuleRule({ test: /\.vhdl/, use: 'raw-loader' }),
-  adjustWorkbox(wb => Object.assign(wb, {
-    importWorkboxFrom: 'local',
-    navigateFallbackBlacklist: [
-      /^\/api\/.*/,
-      new RegExp('/[^/?]+\\.[^/]+$'),
-    ],
-    importsDirectory: process.env.PUBLIC_URL
-  })),
+  adjustWorkbox(wb => {
+    const changeset = {
+      importWorkboxFrom: 'local',
+      navigateFallbackBlacklist: [
+        /^\/api\/.*/,
+        new RegExp('/[^/?]+\\.[^/]+$'),
+      ],
+    };
+    if(process.env.PUBLIC_URL) changeset.importsDirectory = process.env.PUBLIC_URL;
+    return Object.assign(wb, changeset);
+  }),
   useEslintRc(
     path.resolve(__dirname, './.eslintrc.json'),
   ),
