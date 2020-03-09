@@ -35,7 +35,7 @@ export default React.memo(() => {
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
-      if(!restored) history.push(process.env.PUBLIC_URL + '/login');
+      if(!restored) history.push('/login');
       setLoading(false);
     });
   }, [dispatch, history]);
@@ -48,7 +48,7 @@ export default React.memo(() => {
       window.location.href = process.env.PUBLIC_URL + '/login';
     } else {
       // FIXME: routing guard
-      history.push(process.env.PUBLIC_URL + '/login');
+      history.push('/login');
     }
   }, [dispatch, history]);
 
