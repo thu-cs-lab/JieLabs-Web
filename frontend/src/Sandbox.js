@@ -969,6 +969,7 @@ const WireLayer = React.memo(({
    */
   const canvases = useMemo(() => {
     if(!groups) return [];
+    if(!lib) return [];
 
     // We have to do this check, because if group.length === 0,
     // then the maze size will be -Infinity * -Infinity
@@ -1105,7 +1106,7 @@ const WireLayer = React.memo(({
     }
 
     throw new Error('No solution!');
-  }, [groups, maxX, minX, maxY, minY, lib.Maze, lib.Points, connectors]);
+  }, [groups, maxX, minX, maxY, minY, lib, connectors]);
 
   const collide = useCallback((x, y) => {
     const dx = x - scroll.x;

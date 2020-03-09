@@ -315,6 +315,7 @@ export default React.memo(() => {
   const subscriptStep = useCallback(step => {
     // Asserts step \in {1, -1}
     if(assigning.subscript === -1 || assigning.subscript === null) return;
+    if(!analysis) return;
 
     const target = analysis.entities[analysis.top].signals.find(e => e.name === assigning.name);
     if(!target || target.arity === null) return;
@@ -335,7 +336,7 @@ export default React.memo(() => {
       ...assigning,
       subscript: next,
     });
-  }, [analysis.entities, analysis.top, assigning]);
+  }, [analysis, assigning]);
 
   const subscriptInc = useCallback(() => subscriptStep(1), [subscriptStep]);
   const subscriptDec = useCallback(() => subscriptStep(-1), [subscriptStep]);
@@ -364,6 +365,7 @@ export default React.memo(() => {
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
 
   const canUpload = useMemo(() => {
+    if(!analysis) return false;
     if(analysis.top === null) return false;
     const entity = analysis.entities[analysis.top];
 

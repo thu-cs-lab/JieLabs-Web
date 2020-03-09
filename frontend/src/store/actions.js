@@ -238,7 +238,6 @@ export function initLib() {
   return async (dispatch, getState) => {
     const lib = await import('jielabs_lib');
     dispatch(loadLib(lib));
-
     dispatch(analyze());
   }
 }
@@ -291,10 +290,9 @@ export function loadMoreBuilds() {
 export function init() {
   return async (dispatch) => {
     const restored = dispatch(restore());
-    const libLoaded = dispatch(initLib());
+    dispatch(initLib()); // Fire-and-forget
 
-    const [logined,] = await Promise.all([restored, libLoaded]);
-    return logined;
+    return restored;
   }
 }
 
