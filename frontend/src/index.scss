@@ -1870,6 +1870,15 @@ main {
   }
 }
 
+.snackbar {
+  z-index: 1500; // Dialog is at 1000
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 150px;
+
+}
+
 .monospace {
   font-family: 'Roboto Mono', monospace;
 }

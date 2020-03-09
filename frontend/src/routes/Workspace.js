@@ -8,7 +8,18 @@ import Tooltip from '../comps/Tooltip';
 
 import { BOARDS } from '../config';
 
-import { BOARD_STATUS, updateCode, submitBuild, programBitstream, updateTop, assignPin, startHelp, setLang, analyze } from '../store/actions';
+import {
+  BOARD_STATUS,
+  updateCode,
+  submitBuild,
+  programBitstream,
+  updateTop,
+  assignPin,
+  startHelp,
+  setLang,
+  analyze,
+  showSnackbar,
+} from '../store/actions';
 
 import { registerCodeLens } from '../lang';
 
@@ -453,6 +464,10 @@ export default React.memo(() => {
           </Tooltip>
          : null
       }
+
+      <button onClick={() => dispatch(showSnackbar("ABC"))}>
+        <Icon>done</Icon>
+      </button>
     </div>
     <div className="right">
       <Monaco

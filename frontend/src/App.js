@@ -169,6 +169,8 @@ export default React.memo(() => {
     saveAs(blob, `bitstream-${detail.basic.id}.bit`);
   }, [detail?.bit]);
 
+  const snackbar = useSelector(state => state.snackbar.map(e => e.spec));
+
   if(loading)
     return <div className="container pending"></div>;
 
@@ -407,6 +409,19 @@ export default React.memo(() => {
           </div>
         </CSSTransition>
       )}
+    </TransitionGroup>
+
+    <TransitionGroup className="snackbar">
+      { snackbar.map(e => (
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+        >
+          <div className="snackbar-entry">
+            { e.msg }
+          </div>
+        </CSSTransition>
+      )) }
     </TransitionGroup>
 
     <HelpLayer />

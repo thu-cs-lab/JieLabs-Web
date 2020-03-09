@@ -1,4 +1,5 @@
 import { Map as IMap, List as IList } from 'immutable';
+import uuidv4 from 'uuid/v4';
 
 import { get, post, putS3, createTarFile } from '../util';
 import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL, BUILD_LIST_FETCH_LENGTH, TAR_FILENAMES } from '../config';
@@ -37,6 +38,9 @@ export const TYPES = {
   UPDATE_AVAILABLE: Symbol('UPDATE_AVAILABLE'),
 
   SET_LANG: Symbol('SET_LANG'),
+
+  PUSH_SNACKBAR: Symbol('PUSH_SNACKBAR'),
+  POP_SNACKBAR: Symbol('POP_SNACKBAR'),
 };
 
 export const BOARD_STATUS = Object.freeze({
@@ -163,6 +167,14 @@ export function deleteBlock(idx) {
 
 export function pushBlock(block) {
   return { type: TYPES.PUSH_BLOCK, block };
+}
+
+export function pushSnackbar(id, spec) {
+  return { type: TYPES.PUSH_SNACKBAR, id, spec };
+}
+
+export function popSnackbar(id) {
+  return { type: TYPES.POP_SNACKBAR, id };
 }
 
 export function login(user, pass) {
@@ -672,5 +684,25 @@ export function analyze() {
     }
     const analysis = lib.parse(code, top, langEnum);
     dispatch(setAnalysis(analysis));
+  };
+}
+
+export function showSnackbar(msg, timeout = 0, actionText = null, action = null) {
+  return dispatch => {
+    const id = uuidv4();
+    const spec = {
+      msg,
+    };
+
+    const hide = () => dispatch(popSnackbar(id));
+
+    if(action) {
+      spec.actionText = action.text;
+      spec.action = () => action.cb(hide);
+    }
+
+    if(timeout !== 0) setTimeout(() => hide(), timeout);
+
+    dispatch(pushSnackbar(id, spec));
   };
 }

@@ -179,3 +179,11 @@ export function lang(state = 'vhdl', action) {
     return action.lang;
   return state;
 }
+
+export function snackbar(state = List(), action) {
+  if(action.type === TYPES.PUSH_SNACKBAR)
+    return state.push({ id: action.id, spec: action.spec });
+  else if(action.type === TYPES.POP_SNACKBAR)
+    return state.delete(state.fine(e => e.id === action.id));
+  return state;
+}
