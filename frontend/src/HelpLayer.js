@@ -315,7 +315,7 @@ const STEPS = [
   }
 ];
 
-function useStep(step) {
+function useStep(step, onDone = null) {
   const state = useSelector(state => state);
   const dispatch = useDispatch();
 
@@ -325,7 +325,10 @@ function useStep(step) {
   const prev = useMemo(() => step === 0 ? null : () => dispatch(unstepHelp()), [step])
   const next = useMemo(() => {
     if(!done) return null;
-    if(step === STEPS.length - 1) return () => dispatch(endHelp());
+    if(step === STEPS.length - 1) return () => {
+      dispatch(endHelp());
+      if(onDone) onDone();
+    }
     return () => dispatch(stepHelp());
   }, [step, done]);
   const reset = useMemo(() => {
@@ -353,11 +356,11 @@ function useStep(step) {
   };
 }
 
-export default React.memo(() => {
+export default React.memo(({ onDone }) => {
   const dispatch = useDispatch();
   const step = useSelector(state => state.help);
 
-  const { prev, next, reset, renderer, region } = useStep(step);
+  const { prev, next, reset, renderer, region } = useStep(step, onDone);
 
   const open = step !== null;
 

@@ -40,7 +40,7 @@ function useLoader(loader) {
     });
   }, []);
 
-  const Nullify = React.useMemo(() => null);
+  const Nullify = useCallback(() => null, []);
 
   return Comp || Nullify;
 }
@@ -245,7 +245,6 @@ export default React.memo(() => {
   const [newPass, setNewPass] = useState('');
   const user = useSelector(state => state.user);
   const showSettings = useCallback(() => {
-    console.log('INVOKE');
     setSettings(true);
     setNewPass('');
   }, []);
@@ -353,7 +352,10 @@ export default React.memo(() => {
 
       <Switch>
         <Route path="/login" exact component={Login} />
-        <Route path="/" exact><Workspace showSettings={showSettings} /></Route>
+        <Route path="/" exact render={() => {
+          console.log(Workspace);
+          return <Workspace showSettings={showSettings} />;
+        }} />
       </Switch>
 
       <TransitionGroup>
@@ -565,7 +567,7 @@ export default React.memo(() => {
         }
       </TransitionGroup>
 
-      <HelpLayer />
+      <HelpLayer onDone={showSettings} />
     </TimeoutContext.Provider>
   </div>;
 })
