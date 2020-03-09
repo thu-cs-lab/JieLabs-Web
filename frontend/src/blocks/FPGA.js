@@ -47,7 +47,7 @@ export default React.memo(({ id, ...rest }) => {
 
   function formatIdent(ident) {
     const segs = ident.split('.');
-    const prev = segs.slice(0, segs.length-1).join('.') + '.';
+    // const prev = segs.slice(0, segs.length-1).join('.') + '.';
     const last = segs[segs.length-1];
     return <>
       { last }

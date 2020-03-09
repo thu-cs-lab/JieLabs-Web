@@ -18,7 +18,6 @@ import {
   startHelp,
   setLang,
   analyze,
-  showSnackbar,
 } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
@@ -428,12 +427,6 @@ export default React.memo(() => {
     dispatch(startHelp());
   });
 
-  const updateAvailable = useSelector(state => state.update);
-
-  const reloadPage = useCallback(() => {
-    window.location.reload();
-  });
-
   const lang = useSelector(store => store.lang);
   let languangeTooltip = '';
   if(lang === 'verilog') languangeTooltip = 'Switch from Verilog(experimental) to VHDL';
@@ -456,7 +449,7 @@ export default React.memo(() => {
     </div>
     <div className="toolbar">
       <Tooltip tooltip={buildTooltip}>
-        <button className="primary" onClick={doUpload} disabled={!canUpload || lastBuildBlocker !== null && !altHeld}>
+        <button className="primary" onClick={doUpload} disabled={!canUpload || (lastBuildBlocker !== null && !altHeld)}>
           <Icon>build</Icon>
         </button>
       </Tooltip>

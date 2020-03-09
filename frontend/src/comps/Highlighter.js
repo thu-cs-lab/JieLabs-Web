@@ -7,7 +7,6 @@ function getClass(row, type) {
     if(isComment) return 'highlighter-comment';
     else return null;
   } else {
-    const isComment = row.match(/^\s*#/);
     if(row.match(/^\s*Error/)) return 'highlighter-error';
     if(row.match(/^\s*Warning/)) return 'highlighter-warning';
     return null;
