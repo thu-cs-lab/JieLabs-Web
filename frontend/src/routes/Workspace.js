@@ -393,15 +393,35 @@ export default React.memo(() => {
   if(!hasBoard) downloadTooltip = 'FPGA disconnected';
   else if(readyLatestId === null) downloadTooltip = 'Latest build not ready';
 
-  const lastBuildFinished = useSelector(store => {
+  const lastBuildBlocker = useSelector(store => {
     const { builds } = store;
     const latest = builds.list.get(0);
-    if(!latest) return true;
-    return latest.status !== null;
+    if(!latest) return null;
+    return latest.status === null ? latest.id : null;
   });
   let buildTooltip = '';
   if(!canUpload) buildTooltip = 'Top entity or signal not assigned';
-  else if (!lastBuildFinished) buildTooltip = 'Latest build not finished, please wait';
+  else if(lastBuildBlocker !== null) buildTooltip = `#${lastBuildBlocker} running. Hold Alt to submit again`;
+
+  const [altHeld, setAltHeld] = useState(false);
+  useEffect(() => {
+    const down = e => {
+      e.preventDefault();
+      if(e.key === 'Alt') setAltHeld(true);
+    }
+
+    const up = e => {
+      if(e.key === 'Alt') setAltHeld(false);
+    }
+
+    document.addEventListener('keydown', down);
+    document.addEventListener('keyup', up);
+
+    return () => {
+      document.removeEventListener('keydown', down);
+      document.removeEventListener('keyup', up);
+    };
+  }, []);
 
   const startIntHelp = useCallback(() => {
     setHelp(false);
@@ -436,7 +456,7 @@ export default React.memo(() => {
     </div>
     <div className="toolbar">
       <Tooltip tooltip={buildTooltip}>
-        <button className="primary" onClick={doUpload} disabled={!canUpload}>
+        <button className="primary" onClick={doUpload} disabled={!canUpload || lastBuildBlocker !== null && !altHeld}>
           <Icon>build</Icon>
         </button>
       </Tooltip>
