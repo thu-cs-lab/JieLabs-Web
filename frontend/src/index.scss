@@ -1897,13 +1897,13 @@ main {
     cursor: pointer;
 
     background: $bg;
+    border-left: #FFC738 5px solid;
 
     @for $i from 1 through 10 {
       &[data-iter="#{$i}"] {
         transform: translateY(-($snackbar-height * ($i - 1) + $snackbar-margin * $i));
       }
     }
-
     display: flex;
 
     .snackbar-msg {
