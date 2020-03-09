@@ -53,8 +53,6 @@ export default React.memo(() => {
   const Workspace = useLoader(WorkspaceLoader);
   const Monaco = useLoader(MonacoLoader);
 
-  console.log('REPAINT');
-
   useEffect(() => {
     dispatch(init()).then(restored => {;
       if(!restored) history.push('/login');

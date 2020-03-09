@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import Icon from '../comps/Icon';
 import Tooltip from '../comps/Tooltip';
+import Input from '../comps/Input';
 
 import { BOARDS } from '../config';
 
@@ -18,9 +19,11 @@ import {
   startHelp,
   setLang,
   analyze,
+  showSnackbar
 } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
+import { post } from '../util';
 
 import Monaco from 'react-monaco-editor';
 import { Range, editor } from 'monaco-editor/esm/vs/editor/editor.api';
@@ -59,6 +62,21 @@ export default React.memo(() => {
     setHelp(true);
   }, []);
   const dismissHelp = useCallback(() => setHelp(false), []);
+
+  const [settings, setSettings] = useState(false);
+  const [newPass, setNewPass] = useState('');
+  const user = useSelector(state => state.user);
+  const showSettings = useCallback(() => {
+    setSettings(true);
+    setNewPass('');
+  }, []);
+  const dismissSettings = useCallback(() => setSettings(false), []);
+  const submitPass = useCallback(async () => {
+    await post(`/user/manage/${user.user_name}`, {
+      password: newPass,
+    });
+    dispatch(showSnackbar('Password updated!'));
+  }, [newPass, user?.user_name]);
 
   const [assigning, setAssigning] = useState(null);
   const dismissAssigning = useCallback(() => setAssigning(null), []);
@@ -405,8 +423,10 @@ export default React.memo(() => {
   const [altHeld, setAltHeld] = useState(false);
   useEffect(() => {
     const down = e => {
-      e.preventDefault();
-      if(e.key === 'Alt') setAltHeld(true);
+      if(e.key === 'Alt') {
+        e.preventDefault();
+        setAltHeld(true);
+      }
     }
 
     const up = e => {
@@ -462,6 +482,10 @@ export default React.memo(() => {
 
       <button onClick={showHelp}>
         <Icon>help_outline</Icon>
+      </button>
+
+      <button onClick={showSettings}>
+        <Icon>settings</Icon>
       </button>
 
       <Tooltip tooltip={languangeTooltip}>
@@ -577,6 +601,29 @@ export default React.memo(() => {
                 <div className="help-shortcut"><strong>Delete</strong> Disconnect</div>
                 <div className="help-shortcut"><strong>Backspace</strong> Disconnect</div>
                 <div className="help-shortcut"><strong>Ctrl-D</strong> Dye current color</div>
+              </div>
+            </div>
+          </div>
+        </CSSTransition>
+      }
+      {settings !== false &&
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+        >
+          <div className="backdrop centering" onMouseDown={dismissSettings}>
+            <div className="dialog user-dialog" onMouseDown={weakBlocker}>
+              <div className="user-id">
+                Logged in as <strong>{ user.user_name }</strong>
+              </div>
+              <div className="user-realname">
+                { user.real_name }
+              </div>
+              <div className="user-pass">
+                <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
+                <button onClick={submitPass}>
+                  <Icon>arrow_forward</Icon>
+                </button>
               </div>
             </div>
           </div>

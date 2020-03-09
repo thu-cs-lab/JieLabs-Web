@@ -1945,6 +1945,65 @@ main {
   }
 }
 
+.user-dialog {
+  color: white;
+
+  .user-id {
+    @extend .monospace;
+    font-size: 16px;
+    color: rgba(255,255,255,.38);
+
+    strong {
+      color: white;
+    }
+  }
+
+  .user-realname {
+    font-weight: bold;
+    font-size: 28px;
+  }
+
+  .user-pass {
+    display: flex;
+    margin-top: 20px;
+
+    .user-pass-input {
+      flex: 1;
+    }
+
+    button {
+      @include rst-input;
+      width: 54px;
+      height: 54px;
+      background: $primary-color;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      transition: filter .2s ease;
+
+      .material-icons {
+        opacity: .7;
+        transition: opacity .2s ease;
+      }
+
+      &:hover .material-icons {
+        opacity: 1;
+      }
+
+      &:disabled {
+        filter: grayscale(1);
+        .material-icons {
+          opacity: .38;
+        }
+      }
+    }
+  }
+}
+
 .monospace {
   font-family: 'Roboto Mono', monospace;
 }
