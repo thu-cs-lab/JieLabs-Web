@@ -170,7 +170,7 @@ export default React.memo(() => {
   }, [detail?.bit]);
 
   if(loading)
-    return <div className="container loading"></div>;
+    return <div className="container pending"></div>;
 
   return <div className="container">
     <header>

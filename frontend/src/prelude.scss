@@ -1,0 +1,58 @@
+.global-loading {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 0;
+}
+
+.loading {
+  width: 40px;
+  height: 40px;
+  position: relative;
+
+  border: #121212 5px solid;
+  box-sizing: border-box;
+  border-radius: 100%;
+
+  &:before, &:after {
+    content: '';
+    position: absolute;
+
+    left: -5px;
+    right: -5px;
+    top: -5px;
+    bottom: -5px;
+
+    border-radius: 100%;
+    border: transparent 5px solid;
+  }
+
+  &:before {
+    border-top-color: #FFC738;
+    animation: rotate infinite ease 3.5s;
+  }
+
+  &:after {
+    border-bottom-color: #57FFF2;
+
+    animation: rotate infinite linear 3s;
+
+    mix-blend-mode: exclusion;
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(720deg);
+    }
+  }
+}
