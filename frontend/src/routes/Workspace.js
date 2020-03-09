@@ -72,10 +72,10 @@ export default React.memo(() => {
   }, []);
   const dismissSettings = useCallback(() => setSettings(false), []);
   const submitPass = useCallback(async () => {
-    await post(`/user/manage/${user.user_name}`, {
+    await post(`/api/user/manage/${user.user_name}`, {
       password: newPass,
     });
-    dispatch(showSnackbar('Password updated!'));
+    dispatch(showSnackbar('Password updated!', 5000));
   }, [newPass, user?.user_name]);
 
   const [assigning, setAssigning] = useState(null);
