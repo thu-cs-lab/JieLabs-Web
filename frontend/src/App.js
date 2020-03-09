@@ -177,17 +177,21 @@ export default React.memo(() => {
   // TODO: cancel on server disconnect
   const timeoutRef = useRef(null);
   const timeoutWarningRef = useRef(null);
-  const resetTimeout = useCallback(() => {
-    if(timeoutRef.current !== null) {
+  const resetTimeout = useCallback(start => {
+    let started = timeoutRef.current !== null;
+    if(started) {
       const [a, b] = timeoutRef.current;
       clearTimeout(a);
       clearTimeout(b);
+      timeoutRef.current = null;
     }
 
     if(timeoutWarningRef.current !== null) {
       timeoutWarningRef.current();
       timeoutWarningRef.current = null;
     }
+
+    if(!started && !start) return;
 
     const a = setTimeout(() => {
       timeoutRef.current = null;
@@ -204,8 +208,8 @@ export default React.memo(() => {
     timeoutRef.current = [a, b];
   }, []);
   const timeoutCtx = useMemo(() => ({
-    reset: resetTimeout,
-    start: resetTimeout,
+    reset: () => resetTimeout(false),
+    start: () => resetTimeout(true),
   }), [resetTimeout]);
 
   if(loading)
