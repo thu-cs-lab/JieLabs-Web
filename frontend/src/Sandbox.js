@@ -1,4 +1,13 @@
-import React, { useEffect, useLayoutEffect, useRef, useCallback, useState, useMemo } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
+
 import uuidv4 from 'uuid/v4'
 import { List } from 'immutable';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +17,7 @@ import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
 import { updateClock, settleBlock, pushBlock, deleteBlock } from './store/actions';
 import { COLORS, BLOCK_ALIGNMENT } from './config';
+import { TimeoutContext } from './App';
 
 import Icon from './comps/Icon';
 
@@ -309,6 +319,8 @@ const LAYERS = Object.freeze({
 });
 
 export default React.memo(() => {
+  const timeoutCtx = useContext(TimeoutContext);
+
   /**
    * Field configuration
    *
@@ -337,6 +349,8 @@ export default React.memo(() => {
   }), []);
 
   const link = useCallback(id => {
+    timeoutCtx.reset();
+
     let result;
     if(focus.type === 'connector')
       result = handler.connect(focus.id, id);
@@ -347,7 +361,7 @@ export default React.memo(() => {
     setLines(handler.getLines());
     setLinking(false);
     setFocus(null)
-  }, [handler, linking, focus]);
+  }, [handler, linking, focus, timeoutCtx]);
 
   const doStartLinking = useCallback(() => {
     if(layer !== LAYERS.WIRE) return;
@@ -518,12 +532,15 @@ export default React.memo(() => {
 
   const doDisconnect = useCallback(() => {
     if(!focus) return;
+
+    timeoutCtx.reset();
+
     if(focus.type === 'group') handler.disassembleGroup(focus.id);
     else handler.removeFromGroup(focus.id);
 
     setLines(handler.getLines());
     setFocus(null);
-  }, [focus, handler]);
+  }, [focus, handler, timeoutCtx]);
 
   /* Color stuff */
 
