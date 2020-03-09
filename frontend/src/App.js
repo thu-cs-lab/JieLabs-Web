@@ -35,7 +35,7 @@ export default React.memo(() => {
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
-      if(!restored) history.push(process.env.PUBLIC_URL + 'login');
+      if(!restored) history.push(process.env.PUBLIC_URL + '/login');
       setLoading(false);
     });
   }, [dispatch, history]);
