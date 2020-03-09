@@ -36,7 +36,7 @@
   }
   .slider-text1 {
     background: lightgreen;
-    animation: slide 15s linear infinite;
+    animation: slide 20s linear infinite;
   }
   .slider-text2 {
     background: skyblue;
@@ -50,17 +50,42 @@
   .slider-text5 {
     background: brown;
   }
+  .slider-text6 {
+    background: yellowgreen;
+  }
+  .slider-text7 {
+    background: plum;
+  }
+  .slider-text8 {
+    background: sandybrown;
+  }
+  .slider-text9 {
+    background: rosybrown;
+  }
+  .slider-text10 {
+    background: lawngreen;
+  }
   @keyframes slide {
-    0% {margin-top:-500px;}
-    3% {margin-top:-400px;}
-    20% {margin-top:-400px;}
-    23% {margin-top:-300px;}
-    40% {margin-top:-300px;}
-    43% {margin-top:-200px;}
-    60% {margin-top:-200px;}
-    63% {margin-top:-100px;}
-    80% {margin-top:-100px;}
-    83% {margin-top:0px;}
+    0% {margin-top:-1000px;}
+    3% {margin-top:-900px;}
+    10% {margin-top:-900px;}
+    13% {margin-top:-800px;}
+    20% {margin-top:-800px;}
+    23% {margin-top:-700px;}
+    30% {margin-top:-700px;}
+    33% {margin-top:-600px;}
+    40% {margin-top:-600px;}
+    43% {margin-top:-500px;}
+    50% {margin-top:-500px;}
+    53% {margin-top:-400px;}
+    60% {margin-top:-400px;}
+    63% {margin-top:-300px;}
+    70% {margin-top:-300px;}
+    73% {margin-top:-200px;}
+    80% {margin-top:-200px;}
+    83% {margin-top:-100px;}
+    90% {margin-top:-100px;}
+    93% {margin-top:0px;}
     100% {margin-top:0px;}
   }
 }
