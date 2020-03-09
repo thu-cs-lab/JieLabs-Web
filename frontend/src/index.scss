@@ -565,8 +565,11 @@ main {
       align-items: center;
       justify-content: center;
 
+      transition: filter .2s ease;
+
       &:disabled {
         cursor: default;
+        filter: grayscale(1);
         .material-icons {
           opacity: .38;
         }
