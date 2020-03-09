@@ -687,7 +687,7 @@ export function analyze() {
   };
 }
 
-export function showSnackbar(msg, timeout = 0, actionText = null, action = null) {
+export function showSnackbar(msg, timeout = 0, action = null, actionText = null) {
   return dispatch => {
     const id = uuidv4();
     const spec = {
@@ -697,8 +697,8 @@ export function showSnackbar(msg, timeout = 0, actionText = null, action = null)
     const hide = () => dispatch(popSnackbar(id));
 
     if(action) {
-      spec.actionText = action.text;
-      spec.action = () => action.cb(hide);
+      spec.actionText = actionText;
+      spec.action = () => action(hide);
     }
 
     if(timeout !== 0) setTimeout(() => hide(), timeout);

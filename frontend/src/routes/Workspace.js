@@ -464,10 +464,6 @@ export default React.memo(() => {
           </Tooltip>
          : null
       }
-
-      <button onClick={() => dispatch(showSnackbar("ABC"))}>
-        <Icon>done</Icon>
-      </button>
     </div>
     <div className="right">
       <Monaco

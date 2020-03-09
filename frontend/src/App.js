@@ -423,8 +423,20 @@ export default React.memo(() => {
               className="snackbar-entry"
               onClick={() => dispatch(popSnackbar(id))}
               data-iter={idx + 1}
+              title={spec.msg}
             >
-              { spec.msg }
+              <div className="snackbar-msg">
+                { spec.msg }
+              </div>
+
+              { spec.action && (
+                <button className="snackbar-action" onClick={e => {
+                  e.stopPropagation();
+                  spec.action();
+                }}>
+                  { spec.actionText || 'ACTION' }
+                </button>
+              ) }
             </div>
           </div>
         </CSSTransition>

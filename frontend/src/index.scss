@@ -1887,24 +1887,52 @@ main {
     left: 0;
     right: 0;
 
-    padding: 10px 20px;
+    box-shadow: rgba(0,0,0,.3) 0 2px 6px;
 
-    color: white;
-    line-height: $snackbar-height - 20px;
-
-    opacity: .7;
-    transition: opacity .2s ease, transform .2s ease;
-
-    &:hover {
-      opacity: 1;
-      cursor: pointer;
-    }
+    transition: transform .2s ease;
+    cursor: pointer;
 
     background: $bg;
 
-    @for $i from 1 through 5 {
+    @for $i from 1 through 10 {
       &[data-iter="#{$i}"] {
         transform: translateY(-($snackbar-height * ($i - 1) + $snackbar-margin * $i));
+      }
+    }
+
+    display: flex;
+
+    .snackbar-msg {
+      flex: 1;
+      padding: 10px 20px;
+      height: 100%;
+
+      color: white;
+      line-height: $snackbar-height - 20px;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      transition: opacity .2s ease;
+
+      &:hover {
+        opacity: .38;
+      }
+    }
+
+    .snackbar-action {
+      @include rst-input;
+      padding: 20px;
+      background: #222;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: .7;
+      transition: opacity .2s ease;
+      width: 100px;
+
+      &:hover {
+        opacity: 1;
       }
     }
   }
