@@ -79,6 +79,10 @@ const STEPS = [
             <Icon>help_outline</Icon>
             <div className="help-layout-desc">帮助 / 快捷键说明</div>
           </div>
+          <div className="help-layout-row">
+            <Icon>settings</Icon>
+            <div className="help-layout-desc">设置</div>
+          </div>
         </div>
 
         <div className="help-box" style={{
