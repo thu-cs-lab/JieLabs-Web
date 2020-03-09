@@ -423,7 +423,7 @@ export default React.memo(() => {
               className="snackbar-entry"
               onClick={() => dispatch(popSnackbar(id))}
               data-iter={idx + 1}
-              title={spec.msg}
+              title={typeof spec.msg === 'string' ? spec.msg : undefined}
             >
               <div className="snackbar-msg">
                 { spec.msg }

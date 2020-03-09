@@ -1,3 +1,4 @@
+import React from 'react';
 import { Map as IMap, List as IList } from 'immutable';
 import uuidv4 from 'uuid/v4';
 
@@ -325,7 +326,7 @@ export async function kickoffPolling(dispatch, getState) {
     }));
 
     // Show snackbar
-    dispatch(showSnackbar(`Build #${id}: ${info.status.toLowerCase()}`));
+    dispatch(showSnackbar(<>Build #{id}<span className="sep">/</span>{info.status.toLowerCase()}</>));
 
     // Immediately check for next pending build
     polling = false;
@@ -396,7 +397,7 @@ export function submitBuild() {
       dispatch(putBuild(jobMapper(job)));
 
       // Show snackbar
-      dispatch(showSnackbar(`Build #${id}: submitted`, 5000))
+      dispatch(showSnackbar(<>Build #{id}<span className="sep">/</span>submitted</>, 5000));
 
       // TODO: use another action instead
       kickoffPolling(dispatch, getState); // Fire-and-forget

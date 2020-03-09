@@ -1914,6 +1914,8 @@ main {
       text-overflow: ellipsis;
 
       transition: opacity .2s ease;
+      display: flex;
+      align-items: center;
 
       &:hover {
         opacity: .38;
