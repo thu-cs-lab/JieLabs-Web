@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import React, { Suspense, useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
@@ -11,14 +11,24 @@ import { HARD_LOGOUT, BOARDS, TAR_FILENAMES, TIMEOUT, TIMEOUT_BUFFER } from './c
 import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds, showSnackbar, popSnackbar, disconnectBoard } from './store/actions';
 import { untar, readFileStr, formatSize, formatDuration, formatDate } from './util';
 
-import Login from './routes/Login';
-import Workspace from './routes/Workspace';
 import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
 import Highlighter from './comps/Highlighter';
 import HelpLayer from './HelpLayer';
 
+const LoginLoader = import('./routes/Login');
+const WorkspaceLoader = import('./routes/Workspace');
+
 export const TimeoutContext = React.createContext(null);
+
+function useLoader(loader) {
+  const [comp, setComp] = useState(null);
+  useEffect(() => {
+    loader.then(mod => setComp(mod.default));
+  }, []);
+
+  return comp;
+}
 
 export default React.memo(() => {
   const dispatch = useDispatch();
@@ -34,6 +44,10 @@ export default React.memo(() => {
 
   const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED || store.board.status === BOARD_STATUS.PROGRAMMING);
   const idleBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
+
+  const Login = useLoader(LoginLoader);
+  const Workspace = useLoader(WorkspaceLoader);
+  console.log('Render, workspace: ', Workspace);
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
@@ -212,7 +226,7 @@ export default React.memo(() => {
     start: () => resetTimeout(true),
   }), [resetTimeout]);
 
-  if(loading)
+  if(loading) 
     return <div className="container pending"></div>;
 
   return <div className="container">
@@ -304,12 +318,8 @@ export default React.memo(() => {
       </header>
 
       <Switch>
-        <Route path="/login" exact>
-          <Login />
-        </Route>
-        <Route path="/" exact>
-          <Workspace />
-        </Route>
+        <Route path="/login" exact component={Login} />
+        <Route path="/" exact component={Workspace} />
       </Switch>
 
       <TransitionGroup>
