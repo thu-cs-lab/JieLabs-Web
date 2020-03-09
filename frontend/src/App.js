@@ -259,16 +259,16 @@ export default React.memo(() => {
       </div>
     </header>
 
-    <Switch>
-      <Route path={process.env.PUBLIC_URL}>
+    <Route path={process.env.PUBLIC_URL}>
+      <Switch>
         <Route path="/login" exact>
           <Login />
         </Route>
         <Route path="/" exact>
           <Workspace />
         </Route>
-      </Route>
-    </Switch>
+      </Switch>
+    </Route>
 
     <TransitionGroup>
       { detail !== null && (
