@@ -116,12 +116,21 @@ async fn update(
                 .first::<User>(&conn)
             {
                 if let Some(real_name) = &body.real_name {
+                    if user.role != "admin" {
+                        return Ok(HttpResponse::Forbidden().finish());
+                    }
                     user.real_name = Some(real_name.clone());
                 }
                 if let Some(class) = &body.class {
+                    if user.role != "admin" {
+                        return Ok(HttpResponse::Forbidden().finish());
+                    }
                     user.class = Some(class.clone());
                 }
                 if let Some(student_id) = &body.student_id {
+                    if user.role != "admin" {
+                        return Ok(HttpResponse::Forbidden().finish());
+                    }
                     user.student_id = Some(student_id.clone());
                 }
                 if let Some(role) = &body.role {
