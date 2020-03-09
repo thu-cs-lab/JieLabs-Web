@@ -448,18 +448,10 @@ export default React.memo(() => {
   });
 
   const lang = useSelector(store => store.lang);
-  let languangeTooltip = '';
-  if(lang === 'verilog') languangeTooltip = 'Switch from Verilog(experimental) to VHDL';
-  else languangeTooltip = 'Switch from VHDL to Verilog(experimental)';
-
-  const switchLanguage = useCallback(() => {
+  const setLanguage = useCallback(lang => {
     const model = editorRef.current.editor.getModel();
-    let newLang = 'vhdl';
-    if (lang === 'vhdl') {
-      newLang = 'verilog';
-    }
-    editor.setModelLanguage(model, newLang);
-    dispatch(setLang(newLang));
+    editor.setModelLanguage(model, lang);
+    dispatch(setLang(lang));
     dispatch(analyze());
   });
 
@@ -487,12 +479,6 @@ export default React.memo(() => {
       <button onClick={showSettings}>
         <Icon>settings</Icon>
       </button>
-
-      <Tooltip tooltip={languangeTooltip}>
-        <button onClick={switchLanguage}>
-          <Icon>language</Icon>
-        </button>
-      </Tooltip>
     </div>
     <div className="right">
       <Monaco
@@ -612,8 +598,8 @@ export default React.memo(() => {
           classNames="fade"
         >
           <div className="backdrop centering" onMouseDown={dismissSettings}>
-            <div className="dialog user-dialog" onMouseDown={weakBlocker}>
-              <div className="user-id">
+            <div className="dialog settings-dialog" onMouseDown={weakBlocker}>
+              <div className="hint">
                 Logged in as <strong>{ user.user_name }</strong>
               </div>
               <div className="user-realname">
@@ -624,6 +610,19 @@ export default React.memo(() => {
                 <button onClick={submitPass}>
                   <Icon>arrow_forward</Icon>
                 </button>
+              </div>
+
+              <div className="hint">Language</div>
+              <div className="languages">
+                <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
+                  <div className="language-ind"><Icon>done</Icon></div>
+                  <div className="language-name">Verilog</div>
+                </div>
+
+                <div className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
+                  <div className="language-ind"><Icon>done</Icon></div>
+                  <div className="language-name">VHDL</div>
+                </div>
               </div>
             </div>
           </div>
