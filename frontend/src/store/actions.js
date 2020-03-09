@@ -434,15 +434,18 @@ export function connectToBoard() {
         websocket.onmessage = (message) => {
           let msg = JSON.parse(message.data);
           if(msg["BoardAllocateResult"]) {
+            const ident = msg['BoardAllocateResult'];
             // TODO: handles allocation fails, starts polling
             websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');
             dispatch(setBoard({
               websocket,
+              ident,
               status: BOARD_STATUS.CONNECTED,
             }));
           } else if (msg["BoardDisconnected"] !== undefined) {
             dispatch(setBoard({
               websocket,
+              ident: null,
               status: BOARD_STATUS.DISCONNECTED,
             }));
           } else if (msg["ReportIOChange"]) {
@@ -455,12 +458,14 @@ export function connectToBoard() {
         websocket.onclose = () => {
           dispatch(setBoard({
             websocket: null,
+            ident: null,
             status: BOARD_STATUS.DISCONNECTED,
           }));
         };
 
         dispatch(setBoard({
           websocket,
+          ident: null,
           status: BOARD_STATUS.DISCONNECTED,
         }));
       }
@@ -715,6 +720,7 @@ export function disconnectBoard() {
     if(websocket) try { websocket.close() } catch(e) { console.error(e) };
     dispatch(setBoard({
       websocket: null,
+      ident: null,
       status: BOARD_STATUS.DISCONNECTED,
     }));
   };

@@ -50,7 +50,7 @@ export function activeBuild(state = null, action) {
   return state;
 }
 
-export function board(state = { status: BOARD_STATUS.DISCONNECTED, websocket: null }, action) {
+export function board(state = { status: BOARD_STATUS.DISCONNECTED, ident: null, websocket: null }, action) {
   if(action.type === TYPES.SET_BOARD)
     return action.board;
   if(action.type === TYPES.UPDATE_BOARD)

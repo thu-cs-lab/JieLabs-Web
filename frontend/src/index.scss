@@ -807,6 +807,24 @@ main {
       opacity: .87;
     }
   }
+  
+  .fpga-ident {
+    @extend .monospace;
+    font-size: 12px;
+    transform: scale(.8);
+    position: absolute;
+    transform-origin: right bottom;
+    bottom: 0;
+    right: 0;
+    color: rgba(0,0,0,.38);
+    padding: 5px 10px;
+    background: rgba(0,0,0,.1);
+    line-height: 12px;
+    font-weight: 900;
+
+    display: flex;
+    align-items: center;
+  }
 }
 
 .digit4 {

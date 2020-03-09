@@ -18,6 +18,7 @@ export default React.memo(({ id, ...rest }) => {
   const dispatch = useDispatch();
 
   const status = useSelector(state => state.board.status);
+  const ident = useSelector(state => state.board.ident);
 
   const padded = useMemo(() => {
     const head = (input || []).map((e, idx) => {
@@ -44,6 +45,15 @@ export default React.memo(({ id, ...rest }) => {
 
   const ctx = useContext(FPGAEnvContext);
 
+  function formatIdent(ident) {
+    const segs = ident.split('.');
+    const prev = segs.slice(0, segs.length-1).join('.') + '.';
+    const last = segs[segs.length-1];
+    return <>
+      { last }
+    </>
+  }
+
   // TODO: change fpga layout based on chosen board tempalte
 
   return <div className="block fpga" {...rest}>
@@ -64,6 +74,18 @@ export default React.memo(({ id, ...rest }) => {
         <div className="label">{ idx }</div>
       </div>
     ))}
+
+    <TransitionGroup>
+      { ident && (
+        <CSSTransition
+          timeout={500}
+          classNames="fade"
+          key={ident}
+        >
+          <div className="fpga-ident">{ formatIdent(ident) }</div>
+        </CSSTransition>
+      )}
+    </TransitionGroup>
 
     <TransitionGroup className="fpga-mask-anchor">
       { status === BOARD_STATUS.DISCONNECTED && (
