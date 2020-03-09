@@ -226,6 +226,7 @@ export function logout() {
     try {
       await get('/api/session', 'DELETE');
       dispatch(setUser(null));
+      dispatch(loadBuilds(IList()));
       return true;
     } catch (e) {
       console.error(e);
@@ -256,7 +257,7 @@ const jobMapper = ({ id, metadata, status, src_url, dst_url, created_at, finishe
 export function initBuilds() {
   return async (dispatch, getState) => {
     try {
-      if (getState().user) {
+      if(getState().user) {
         const builds = await get(`/api/task/?limit=${BUILD_LIST_FETCH_LENGTH}`); // Why hurt me so much actix router?
         const mapped = builds.jobs.map(jobMapper);
         dispatch(loadBuilds(IList(mapped), mapped.length < BUILD_LIST_FETCH_LENGTH));
@@ -300,6 +301,10 @@ export function init() {
 let polling = false;
 export async function kickoffPolling(dispatch, getState) {
   if(polling) return;
+
+  const { user } = getState();
+  if(!user) return;
+
   polling = true;
 
   const builds = getState().builds.list;
