@@ -307,6 +307,7 @@ const STEPS = [
         <div className="help-box">
           <div className="brand"><strong>Jie</strong>Labs</div>
           <p>指南到此结束了！在中央工具栏中有<span className="help-hl">帮助按钮</span>，你可以通过它找到快捷键 Cheatsheet，还能重新启动这一指南。</p>
+          <p>继续点击下一步将会开启设置对话框，你可以在那里修改自己的密码和使用的语言。</p>
           <p>祝你在数字电路的海洋中能够一帆风顺，不会翻船！</p>
         </div>
       </div>
