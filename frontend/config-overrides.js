@@ -32,7 +32,7 @@ module.exports = override(
       /^\/api\/.*/,
       new RegExp('/[^/?]+\\.[^/]+$'),
     ],
-    importsDirectory: process.env.PUBLIC_URL
+    importsDirectory: '.'
   })),
   useEslintRc(
     path.resolve(__dirname, './.eslintrc.json'),
