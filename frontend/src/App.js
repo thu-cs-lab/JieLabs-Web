@@ -260,11 +260,13 @@ export default React.memo(() => {
     </header>
 
     <Switch>
-      <Route path="/login" exact>
-        <Login />
-      </Route>
-      <Route path="/" exact>
-        <Workspace />
+      <Route path={process.env.PUBLIC_URL}>
+        <Route path="/login" exact>
+          <Login />
+        </Route>
+        <Route path="/" exact>
+          <Workspace />
+        </Route>
       </Route>
     </Switch>
 
