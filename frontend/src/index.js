@@ -39,15 +39,21 @@ const Render = build(App);
 
 ReactDOM.render(<Render />, document.getElementById('root'));
 
+console.log('Hey!');
+
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register({
-  onUpdate() {
+  onUpdate(reg) {
     store.dispatch(showSnackbar(
       'Update available!',
       0,
-      () => window.location.reload(true),
+      () => {
+        const waiting = reg.waiting;
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+        setTimeout(() => window.location.reload(true), 50); // Wait for 50ms for the sw to activate
+      },
       'REFRESH',
     ));
   }
