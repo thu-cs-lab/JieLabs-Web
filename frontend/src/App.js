@@ -8,7 +8,7 @@ import Monaco from 'react-monaco-editor';
 import { saveAs } from 'file-saver';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES } from './config';
-import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds } from './store/actions';
+import { BOARD_STATUS, init, logout, programBitstream, loadMoreBuilds, popSnackbar } from './store/actions';
 import { untar, readFileStr, formatSize, formatDuration, formatDate } from './util';
 
 import Login from './routes/Login';
@@ -169,7 +169,7 @@ export default React.memo(() => {
     saveAs(blob, `bitstream-${detail.basic.id}.bit`);
   }, [detail?.bit]);
 
-  const snackbar = useSelector(state => state.snackbar.map(e => e.spec));
+  const snackbar = useSelector(state => state.snackbar);
 
   if(loading)
     return <div className="container pending"></div>;
@@ -412,13 +412,20 @@ export default React.memo(() => {
     </TransitionGroup>
 
     <TransitionGroup className="snackbar">
-      { snackbar.map(e => (
+      { snackbar.reverse().map(({ id, spec }, idx) => (
         <CSSTransition
+          key={id}
           timeout={500}
           classNames="fade"
         >
-          <div className="snackbar-entry">
-            { e.msg }
+          <div className="snackbar-entry-wrapper">
+            <div
+              className="snackbar-entry"
+              onClick={() => dispatch(popSnackbar(id))}
+              data-iter={idx + 1}
+            >
+              { spec.msg }
+            </div>
           </div>
         </CSSTransition>
       )) }

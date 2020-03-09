@@ -183,7 +183,10 @@ export function lang(state = 'vhdl', action) {
 export function snackbar(state = List(), action) {
   if(action.type === TYPES.PUSH_SNACKBAR)
     return state.push({ id: action.id, spec: action.spec });
-  else if(action.type === TYPES.POP_SNACKBAR)
-    return state.delete(state.fine(e => e.id === action.id));
+  else if(action.type === TYPES.POP_SNACKBAR) {
+    const idx = state.findIndex(e => e.id === action.id);
+    if(idx === -1) return state;
+    return state.delete(idx);
+  }
   return state;
 }

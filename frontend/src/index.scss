@@ -1871,12 +1871,43 @@ main {
 }
 
 .snackbar {
+  $snackbar-height: 60px;
+  $snackbar-margin: 20px;
+
   z-index: 1500; // Dialog is at 1000
   position: fixed;
   bottom: 0;
-  right: 0;
-  width: 150px;
+  right: $snackbar-margin;
+  width: 300px;
 
+  .snackbar-entry {
+    height: $snackbar-height;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    padding: 10px 20px;
+
+    color: white;
+    line-height: $snackbar-height - 20px;
+
+    opacity: .7;
+    transition: opacity .2s ease, transform .2s ease;
+
+    &:hover {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    background: $bg;
+
+    @for $i from 1 through 5 {
+      &[data-iter="#{$i}"] {
+        transform: translateY(-($snackbar-height * ($i - 1) + $snackbar-margin * $i));
+      }
+    }
+  }
 }
 
 .monospace {
