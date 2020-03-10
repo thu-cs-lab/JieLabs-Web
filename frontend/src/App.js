@@ -615,6 +615,12 @@ export default React.memo(() => {
         <a href="https://sass-lang.com/">SASS</a>
         <span className="sep">/</span>
         <a href="https://microsoft.github.io/monaco-editor/">Monaco</a>
+        <br />
+        <a href="https://www.docker.com/">Docker</a>
+        <span className="sep">/</span>
+        <a href="https://kubernetes.io/">Kubernetes</a>
+        <span className="sep">/</span>
+        <a href="https://www.intel.cn/content/www/cn/zh/software/programmable/quartus-prime/overview.html">Quartus</a>
 
         <div className="hint">RELEASED UNDER</div>
         Jiegec Public License
