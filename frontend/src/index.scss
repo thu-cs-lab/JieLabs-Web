@@ -684,7 +684,7 @@ main {
   border: rgba(0,0,0,.3) 5px solid;
   box-shadow: rgba(0,0,0,.1) 0 1px 3px;
 
-  transition: border-color .2s ease; // TODO: optimize, use filter
+  // transition: border-color .2s ease;
 
   &.clocking {
     border-color: mix($primary-color, #333);
@@ -2006,6 +2006,7 @@ main {
 
   .languages {
     margin-top: 10px;
+    margin-bottom: 20px;
 
     display: flex;
     align-items: center;
@@ -2086,6 +2087,32 @@ main {
         }
       }
     }
+  }
+}
+
+.about-dialog {
+  color: white;
+
+  .brand {
+    font-size: 36px;
+    text-align: center;
+    color: rgba(255,255,255,.5);
+
+    strong {
+      color: rgba(255,255,255,.7);
+    }
+  }
+
+  .ref {
+    font-size: 12px;
+    font-weight: 100;
+    @extend .monospace;
+    text-align: center;
+    color: rgba(255,255,255,.38);
+  }
+
+  .hint {
+    margin-top: 20px;
   }
 }
 

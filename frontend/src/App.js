@@ -259,6 +259,13 @@ export default React.memo(() => {
   const lang = useSelector(store => store.lang);
   const setLanguage = useCallback(lang => dispatch(updateLang(lang)));
 
+  const [about, setAbout] = useState(false);
+  const showAbout = useCallback(() => {
+    setSettings(false);
+    setAbout(true);
+  }, []);
+  const dismissAbout = useCallback(() => setAbout(false), []);
+
   if(loading) 
     return <div className="container pending"></div>;
 
@@ -537,7 +544,7 @@ export default React.memo(() => {
             <div className="backdrop centering" onMouseDown={dismissSettings}>
               <div className="dialog settings-dialog" onMouseDown={weakBlocker}>
                 <div className="hint">
-                  Logged in as <strong>{ user.user_name }</strong>
+                  LOGGED IN AS <strong>{ user.user_name }</strong>
                 </div>
                 <div className="user-realname">
                   { user.real_name }
@@ -549,7 +556,7 @@ export default React.memo(() => {
                   </button>
                 </div>
 
-                <div className="hint">Language</div>
+                <div className="hint">LANGUAGE</div>
                 <div className="languages">
                   <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
                     <div className="language-ind"><Icon>done</Icon></div>
@@ -561,6 +568,39 @@ export default React.memo(() => {
                     <div className="language-name">VHDL</div>
                   </div>
                 </div>
+
+                <div className="hint">MISC</div>
+                <button
+                  className="labeled-btn"
+                  onClick={showAbout}
+                >
+                  <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>ABOUT</span>
+                </button>
+              </div>
+            </div>
+          </CSSTransition>
+        }
+        {about !== false &&
+          <CSSTransition
+            timeout={500}
+            classNames="fade"
+          >
+            <div className="backdrop centering" onMouseDown={dismissAbout}>
+              <div className="dialog about-dialog" onMouseDown={weakBlocker}>
+                <div className="brand"><strong>Jie</strong>Labs</div>
+                <div className="ref">
+                  { __COMMIT_HASH__ /* eslint-disable-line */ }
+                </div>
+
+                <div className="hint">BY</div>
+                陈嘉杰 <span className="sep">/</span> 高一川 <span className="sep">/</span> 刘晓义
+
+                <div className="hint">USING</div>
+                Rust <span className="sep">/</span> actix-web <span className="sep">/</span> diesel<br />
+                React <span className="sep">/</span> SASS <span className="sep">/</span> Monaco
+
+                <div className="hint">RELEASED UNDER</div>
+                Jiegec Public License
               </div>
             </div>
           </CSSTransition>
