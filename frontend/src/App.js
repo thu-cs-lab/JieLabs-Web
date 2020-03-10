@@ -596,8 +596,17 @@ export default React.memo(() => {
                 陈嘉杰 <span className="sep">/</span> 高一川 <span className="sep">/</span> 刘晓义
 
                 <div className="hint">USING</div>
-                Rust <span className="sep">/</span> actix-web <span className="sep">/</span> diesel<br />
-                React <span className="sep">/</span> SASS <span className="sep">/</span> Monaco
+                <a href="https://www.rust-lang.org/">Rust</a>
+                <span className="sep">/</span>
+                <a href="https://actix.rs/">actix-web</a>
+                <span className="sep">/</span>
+                <a href="https://diesel.rs/">diesel</a>
+                <br />
+                <a href="https://reactjs.org/">React</a>
+                <span className="sep">/</span>
+                <a href="https://sass-lang.com/">SASS</a>
+                <span className="sep">/</span>
+                <a href="https://microsoft.github.io/monaco-editor/">Monaco</a>
 
                 <div className="hint">RELEASED UNDER</div>
                 Jiegec Public License
