@@ -18,6 +18,7 @@ import {
   popSnackbar,
   disconnectBoard,
   updateLang,
+  importWorkspace,
 } from './store/actions';
 import { untar, readFileStr, formatSize, formatDuration, formatDate, post } from './util';
 
@@ -286,12 +287,11 @@ export default React.memo(() => {
 
   const handleDragLeave = useCallback(e => {
     --dragCnt.current;
-    console.log(dragCnt.current);
     if(dragCnt.current === 0)
       setImporting(false);
   }, []);
 
-  const handleDrop = useCallback(e => {
+  const handleDrop = useCallback(async e => {
     e.preventDefault();
     if(!importing) return;
     setImporting(false);
@@ -302,6 +302,19 @@ export default React.memo(() => {
     if(type.indexOf('application/json') !== 0) {
       dispatch(showSnackbar(`Invalid file format: ${type}`));
       return;
+    }
+
+    try {
+      const text = await file.text();
+      console.log(text);
+      const parsed = JSON.parse(text);
+
+      // TODO: Check fields
+
+      dispatch(importWorkspace(parsed));
+    } catch(e) {
+      console.error(e);
+      dispatch(showSnackbar('Unable to parse save file'));
     }
   }, [importing]);
 

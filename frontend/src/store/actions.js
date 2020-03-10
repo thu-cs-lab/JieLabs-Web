@@ -158,7 +158,7 @@ export function unstepHelp() {
 }
 
 export function loadField(field) {
-  return { type: TYPES.SETTLE_BLOCK, field };
+  return { type: TYPES.LOAD_FIELD, field };
 }
 
 export function settleBlock(idx, x, y) {
@@ -760,7 +760,7 @@ export function exportWorkspace() {
   }
 }
 
-export function loadWorkspace({ top, signals, code, field }) {
+export function importWorkspace({ top, signals, code, field }) {
   return (dispatch, getState) => {
     dispatch(assignTop(top));
     for(const sig in signals)
