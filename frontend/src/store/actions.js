@@ -32,6 +32,7 @@ export const TYPES = {
   START_HELP: Symbol('START_HELP'),
   END_HELP: Symbol('END_HELP'),
 
+  LOAD_FIELD: Symbol('LOAD_FIELD'),
   SETTLE_BLOCK: Symbol('SETTLE_BLOCK'),
   DELETE_BLOCK: Symbol('DELETE_BLOCK'),
   PUSH_BLOCK: Symbol('PUSH_BLOCK'),
@@ -154,6 +155,10 @@ export function stepHelp() {
 
 export function unstepHelp() {
   return { type: TYPES.UNSTEP_HELP };
+}
+
+export function loadField(field) {
+  return { type: TYPES.SETTLE_BLOCK, field };
 }
 
 export function settleBlock(idx, x, y) {
@@ -752,5 +757,18 @@ export function exportWorkspace() {
       code,
       field,
     };
+  }
+}
+
+export function loadWorkspace({ top, signals, code, field }) {
+  return (dispatch, getState) => {
+    dispatch(assignTop(top));
+    for(const sig in signals)
+      dispatch(assignPin(sig, signals[sig]));
+
+    dispatch(setCode(code));
+    dispatch(loadField(IList(field)));
+
+    dispatch(analyze());
   }
 }

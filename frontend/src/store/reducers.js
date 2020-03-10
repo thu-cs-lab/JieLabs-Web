@@ -159,7 +159,9 @@ export function help(state = null, action) {
 }
 
 export function field(state = List(DEFAULT_FIELD), action) {
-  if(action.type === TYPES.SETTLE_BLOCK)
+  if(action.type === TYPES.LOAD_FIELD)
+    return action.field;
+  else if(action.type === TYPES.SETTLE_BLOCK)
     return state.set(action.idx, { ...state.get(action.idx), x: action.x, y: action.y });
   else if(action.type === TYPES.DELETE_BLOCK)
     return state.delete(action.idx);

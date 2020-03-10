@@ -18,6 +18,7 @@ import {
   assignPin,
   startHelp,
   exportWorkspace,
+  showSnackbar,
 } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
@@ -433,8 +434,10 @@ export default React.memo(({ showSettings }) => {
 
   const doExport = useCallback(() => {
     const data = dispatch(exportWorkspace());
-    const str = JSON.stringify(data, 2);
-    console.log(str);
+    const str = JSON.stringify(data, null, 2);
+    const blob = new Blob([str], { type: 'application/json;charset=utf-8' });
+    saveAs(blob, 'jielabs-export.json');
+    dispatch(showSnackbar('Exported! Drag-n-Drop to load', 5000));
   }, []);
 
   return <main className="workspace">
