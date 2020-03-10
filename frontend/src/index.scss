@@ -1224,11 +1224,15 @@ main {
         font-size: 32px;
         font-weight: bold;
         color: white;
+        opacity: .7;
+        transition: opacity .2s ease;
       }
 
       .pin-name {
         font-size: 12px;
-        color: rgba(255, 255, 255, .38);
+        color: white;
+        opacity: .38;
+        transition: opacity .2s ease;
       }
     }
 
@@ -1242,7 +1246,7 @@ main {
       .pin-assignment {
         flex: 1;
         font-size: 18px;
-        opacity: .54;
+        opacity: .38;
       }
 
       .pin-direction {
@@ -1274,6 +1278,16 @@ main {
 
       .pin-assignment {
         opacity: 1;
+      }
+    }
+
+    &:hover {
+      .pin-number {
+        opacity: 1;
+      }
+
+      .pin-name {
+        opacity: .7;
       }
     }
   }
