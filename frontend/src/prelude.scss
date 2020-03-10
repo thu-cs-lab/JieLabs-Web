@@ -28,82 +28,90 @@ body {
 
   z-index: 0;
 
+  $items: 10;
+  $step: 4s;
+  $interleaving: .5s;
+  $height: 30px;
+
   .slider-wrapper {
-    font-size: 30px;
-    color:#aaa;
-    font-weight: bold;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-top: 30px;
+    font-family: 'Roboto Mono', monospace;
+    position: relative;
+    height: $height;
+    width: 300px;
+    margin-top: 20px;
   }
-  .slider{
-    height: 50px;
-    padding-left:15px;
-    overflow: hidden;
-  }
-  .slider div {
-    color:#fff;
-    height: 50px;
-    margin-bottom: 50px;
-    padding: 2px 15px;
+
+  .slider {
+    font-size: 12px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    line-height: $height;
     text-align: center;
-    box-sizing: border-box;
+    background: rgba(0,0,0,.18);
+    color: rgba(255,255,255,.7);
+
+    animation: slider-animation (($step - $interleaving) * $items) ease infinite;
+
+    clip-path: inset(0 100% 0 0);
+
+    &:after {
+      content: '...';
+      animation: slider-tail-animation (($step - $interleaving) * $items) ease infinite;
+    }
+
+    @for $i from 1 through $items {
+      &:nth-child(#{$i}) {
+        animation-delay: ($step - $interleaving) * ($i - 1);
+
+        &:after {
+          animation-delay: ($step - $interleaving) * ($i - 1);
+        }
+      }
+    }
   }
-  .slider-text1 {
-    background: lightgreen;
-    animation: slide 20s linear infinite;
+
+  $factor: $step / ($step - $interleaving) / $items;
+
+  @keyframes slider-animation {
+    0% {
+      clip-path: inset(0 100% 0 0);
+      transform: translateX(-10px);
+    }
+
+    #{(20% * $factor)}, #{(80% * $factor)} {
+      clip-path: inset(0);
+      transform: translateX(0);
+    }
+
+    #{(100% * $factor)} {
+      clip-path: inset(0 0 0 100%);
+      transform: translateX(10px);
+    }
   }
-  .slider-text2 {
-    background: skyblue;
-  }
-  .slider-text3 {
-    background: lightcoral;
-  }
-  .slider-text4 {
-    background: royalblue;
-  }
-  .slider-text5 {
-    background: brown;
-  }
-  .slider-text6 {
-    background: yellowgreen;
-  }
-  .slider-text7 {
-    background: plum;
-  }
-  .slider-text8 {
-    background: sandybrown;
-  }
-  .slider-text9 {
-    background: rosybrown;
-  }
-  .slider-text10 {
-    background: lawngreen;
-  }
-  @keyframes slide {
-    0% {margin-top:-1000px;}
-    3% {margin-top:-900px;}
-    10% {margin-top:-900px;}
-    13% {margin-top:-800px;}
-    20% {margin-top:-800px;}
-    23% {margin-top:-700px;}
-    30% {margin-top:-700px;}
-    33% {margin-top:-600px;}
-    40% {margin-top:-600px;}
-    43% {margin-top:-500px;}
-    50% {margin-top:-500px;}
-    53% {margin-top:-400px;}
-    60% {margin-top:-400px;}
-    63% {margin-top:-300px;}
-    70% {margin-top:-300px;}
-    73% {margin-top:-200px;}
-    80% {margin-top:-200px;}
-    83% {margin-top:-100px;}
-    90% {margin-top:-100px;}
-    93% {margin-top:0px;}
-    100% {margin-top:0px;}
+
+  @keyframes slider-tail-animation {
+    0%, #{(25% * $factor)} {
+      opacity: 1;
+    }
+
+    #{(30.1% * $factor)}, #{(35% * $factor)} {
+      opacity: 0;
+    }
+
+    #{(35.1% * $factor)}, #{(40% * $factor)} {
+      opacity: 1;
+    }
+
+    #{(40.1% * $factor)}, #{(45% * $factor)} {
+      opacity: 0;
+    }
+
+    #{(45.1% * $factor)}, 100% {
+      opacity: 1;
+    }
   }
 }
 
@@ -151,5 +159,4 @@ body {
       transform: rotate(720deg);
     }
   }
-
 }
