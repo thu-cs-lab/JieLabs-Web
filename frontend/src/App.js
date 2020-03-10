@@ -265,6 +265,8 @@ export default React.memo(() => {
   }, []);
   const dismissAbout = useCallback(() => setAbout(false), []);
 
+  const sandboxHandlerRef = useRef(null);
+
   const [importing, setImporting] = useState(false);
   const dragCnt = useRef(0);
   const containerRef = useRef(null);
@@ -309,9 +311,11 @@ export default React.memo(() => {
       console.log(text);
       const parsed = JSON.parse(text);
 
+      const { redux, sandbox } = parsed;
       // TODO: Check fields
 
-      dispatch(importWorkspace(parsed));
+      dispatch(importWorkspace(redux));
+      sandboxHandlerRef.current.import(sandbox);
     } catch(e) {
       console.error(e);
       dispatch(showSnackbar('Unable to parse save file'));
@@ -418,7 +422,7 @@ export default React.memo(() => {
 
       <Switch>
         <Route path="/login" exact component={Login} />
-        <Route path="/" exact render={() => <Workspace showSettings={showSettings} />} />
+        <Route path="/" exact render={() => <Workspace showSettings={showSettings} sandboxHandlerRef={sandboxHandlerRef} />} />
       </Switch>
 
       <Dialog className="build-detail-dialog" open={detail} onClose={dismissDetail}

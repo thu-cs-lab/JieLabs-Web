@@ -28,7 +28,7 @@ import { Range, editor } from 'monaco-editor/esm/vs/editor/editor.api';
 
 import Sandbox from '../Sandbox';
 
-export default React.memo(({ showSettings }) => {
+export default React.memo(({ showSettings, sandboxHandlerRef }) => {
   const dispatch = useDispatch();
 
   const code = useSelector(store => store.code);
@@ -433,16 +433,18 @@ export default React.memo(({ showSettings }) => {
   }, [lang]);
 
   const doExport = useCallback(() => {
-    const data = dispatch(exportWorkspace());
-    const str = JSON.stringify(data, null, 2);
+    const redux = dispatch(exportWorkspace());
+    const sandbox = sandboxHandlerRef.current.export();
+
+    const str = JSON.stringify({ redux, sandbox }, null, 2);
     const blob = new Blob([str], { type: 'application/json;charset=utf-8' });
     saveAs(blob, 'jielabs-export.json');
     dispatch(showSnackbar('Exported! Drag-n-Drop to load', 5000));
-  }, []);
+  }, [sandboxHandlerRef]);
 
   return <main className="workspace">
     <div className="left">
-      <Sandbox />
+      <Sandbox handlerRef={sandboxHandlerRef} />
     </div>
     <div className="toolbar">
       <Tooltip tooltip={buildTooltip}>

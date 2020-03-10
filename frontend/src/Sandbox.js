@@ -34,8 +34,9 @@ function negotiateSignal(...signals) {
 }
 
 class Handler {
-  constructor(onConnectorClicked) {
+  constructor(onConnectorClicked, onImported) {
     this.onConnectorClicked = onConnectorClicked;
+    this.onImported = onImported;
   }
 
   connectors = {};
@@ -276,11 +277,39 @@ class Handler {
     this.color = color;
   }
 
+  getActiveColor() {
+    return this.color;
+  }
+
   dyeGroup(gid, color = null) {
     const to = color || this.color;
     if(to === null) throw new Error('Active color not set!');
     if(!this.colors[gid]) throw new Error(`Dying unknown group ${gid}`);
     this.colors[gid] = to;
+  }
+
+  export() {
+    const groups = {};
+    for(const k in this.groups)
+      groups[k] = Array.from(this.groups[k]);
+
+    return {
+      groups,
+      colors: this.colors,
+      color: this.color,
+    };
+  }
+
+  import({ groups: _groups, colors, color }) {
+    const groups = {};
+    for(const k in _groups)
+      groups[k] = new Set(_groups[k]);
+
+    this.groups = groups;
+    this.colors = colors;
+    this.color = color;
+
+    if(this.onImported) this.onImported();
   }
 }
 
@@ -318,7 +347,7 @@ const LAYERS = Object.freeze({
   BLOCK: Symbol('Block'),
 });
 
-export default React.memo(() => {
+export default React.memo(({ handlerRef }) => {
   const timeoutCtx = useContext(TimeoutContext);
 
   /**
@@ -343,10 +372,21 @@ export default React.memo(() => {
 
   const [layer, setLayer] = useState(LAYERS.BLOCK);
 
+  const [color, setColor] = useState(COLORS[0]);
+
   const handler = useMemo(() => new Handler(id => {
     setLinking(true);
     setFocus({ type: 'connector', id });
+  }, () => {
+    console.log(handler.getLines());
+    setLines(handler.getLines());
+    setColor(handler.getActiveColor());
   }), []);
+
+  useEffect(() => {
+    if(handlerRef)
+      handlerRef.current = handler;
+  }, [handlerRef, handler]);
 
   const link = useCallback(id => {
     timeoutCtx.reset();
@@ -545,7 +585,6 @@ export default React.memo(() => {
   /* Color stuff */
 
   const [paletteShown, setPaletteShown] = useState(false);
-  const [color, setColor] = useState(COLORS[0]);
   const togglePalette = useCallback(() => setPaletteShown(!paletteShown), [paletteShown]);
 
   useEffect(() => {
