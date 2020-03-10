@@ -24,11 +24,11 @@ diesel = { version = "1.0.0", features = ["postgres", "r2d2", "chrono"] }
 diesel_migrations = "1.4"
 dotenv = "0.9.0"
 env_logger = "0.6"
+failure = "0.1"
 futures = "0.3"
 log = "0.4"
 lazy_static = "1.4"
 paw = "1.0.0"
-quote = "=1.0.2" # temporary fix for failure_derive
 rand = "0.7"
 redis = "0.15"
 ring = "0.16"
