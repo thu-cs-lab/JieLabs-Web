@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
+import { saveAs } from 'file-saver';
 
 import Icon from '../comps/Icon';
 import Tooltip from '../comps/Tooltip';
@@ -16,6 +17,7 @@ import {
   updateTop,
   assignPin,
   startHelp,
+  exportWorkspace,
 } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
@@ -429,11 +431,10 @@ export default React.memo(({ showSettings }) => {
     editor.setModelLanguage(model, lang);
   }, [lang]);
 
-  const helpStep = useSelector(state => state.help);
-  useEffect(() => {
-    if(helpStep === null) {
-      // Help just closed
-    }
+  const doExport = useCallback(() => {
+    const data = dispatch(exportWorkspace());
+    const str = JSON.stringify(data, 2);
+    console.log(str);
   }, []);
 
   return <main className="workspace">
@@ -453,12 +454,16 @@ export default React.memo(({ showSettings }) => {
         </button>
       </Tooltip>
 
-      <button onClick={showHelp}>
-        <Icon>help_outline</Icon>
+      <button onClick={doExport}>
+        <Icon>save</Icon>
       </button>
 
       <button onClick={showSettings}>
         <Icon>settings</Icon>
+      </button>
+
+      <button onClick={showHelp}>
+        <Icon>help_outline</Icon>
       </button>
     </div>
     <div className="right">

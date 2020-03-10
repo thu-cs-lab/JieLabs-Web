@@ -742,3 +742,15 @@ export function updateLang(lang) {
     dispatch(analyze());
   };
 }
+
+export function exportWorkspace() {
+  return (dispatch, getState) => {
+    const { constraints: { top, signals }, code, field } = getState();
+    return {
+      top,
+      signals: signals.toJS(),
+      code,
+      field,
+    };
+  }
+}

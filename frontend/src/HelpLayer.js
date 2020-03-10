@@ -76,18 +76,22 @@ const STEPS = [
             <div className="help-layout-desc">将最近一次编译任务生成的 Bitstream 上传至 FPGA</div>
           </div>
           <div className="help-layout-row">
-            <Icon>help_outline</Icon>
-            <div className="help-layout-desc">帮助 / 快捷键说明</div>
+            <Icon>save</Icon>
+            <div className="help-layout-desc">导出代码、连线、约束</div>
           </div>
           <div className="help-layout-row">
             <Icon>settings</Icon>
             <div className="help-layout-desc">设置</div>
           </div>
+          <div className="help-layout-row">
+            <Icon>help_outline</Icon>
+            <div className="help-layout-desc">帮助 / 快捷键说明</div>
+          </div>
         </div>
 
         <div className="help-box" style={{
           position: 'absolute',
-          top: 60*4 + 100,
+          top: 60*6 + 100,
           left: '50vw',
           transform: 'translateX(-50%)',
         }}>

@@ -753,13 +753,7 @@ export default React.memo(() => {
 
       <div className="sep">/</div>
 
-      <span className="tool" data-tool="block 1"><Icon>save</Icon></span>
-      <div className="sandbox-toolbar-hint tool-activated">Save sandbox <small>[C-s]</small></div>
-
-      <span className="tool" data-tool="block 2"><Icon>open_in_browser</Icon></span>
-      <div className="sandbox-toolbar-hint tool-activated">Load sandbox <small>[C-o]</small></div>
-
-      <span className={cn("tool", { 'tool-disabled': boardBusy })} data-tool="block 3" onClick={toggleBoard}>
+      <span className={cn("tool", { 'tool-disabled': boardBusy })} data-tool="block 1" onClick={toggleBoard}>
         <Icon>{ boardConnected ? 'close' : 'settings_ethernet' }</Icon>
       </span>
       <div className="sandbox-toolbar-hint tool-activated">{ boardConnected ? 'Disconnect' : 'Connect' } board</div>

@@ -1340,9 +1340,9 @@ main {
 
   $move: 10px;
   $stagger: .1s;
-  $interval: .1s;
+  $interval: .05s;
 
-  $block-tool-count: 3;
+  $block-tool-count: 1;
 
   .tool {
     color: white;
