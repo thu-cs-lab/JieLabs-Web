@@ -2128,6 +2128,40 @@ main {
   }
 }
 
+.drop-layer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  z-index: 1000;
+
+  background: black;
+  pointer-events: none;
+
+  opacity: 0;
+
+  transition: opacity .2s ease;
+
+  color: white;
+
+  font-size: 18px;
+
+  .material-icons {
+    font-size: 56px;
+  }
+
+  &.drop-layer-shown {
+    opacity: .3;
+  }
+}
+
 .monospace {
   font-family: 'Roboto Mono', monospace;
 }

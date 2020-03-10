@@ -634,6 +634,11 @@ export default React.memo(() => {
       </TransitionGroup>
 
       <HelpLayer onDone={showSettings} />
+
+      <div className={cn("drop-layer", { 'drop-layer-shown': importing })}>
+        <Icon>open_in_browser</Icon>
+        Load workspace
+      </div>
     </TimeoutContext.Provider>
   </div>;
 })
