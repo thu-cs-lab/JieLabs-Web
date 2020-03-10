@@ -124,6 +124,10 @@ impl SystemService for TaskManagerActor {
         ctx.run_interval(Duration::from_secs(10), |actor, ctx| {
             if let Err(err) = monitor(actor, ctx) {
                 warn!("Error occurred in task manager: {}", err);
+                sentry::capture_message(
+                    &format!("Error occurred in task manager : {}", err),
+                    sentry::Level::Error,
+                );
                 // close connection and try again
                 actor.conn = None;
             }
