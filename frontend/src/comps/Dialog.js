@@ -1,10 +1,22 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import cn from 'classnames';
 
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 export default React.memo(({ open, onClose, className, children, render, blocker, ...rest }) => {
   const weakBlocker = useCallback(e => e.stopPropagation());
+
+  useEffect(() => {
+    if(!open) return;
+
+    const listener = e => {
+      if(e.key === 'Escape')
+        onClose();
+    }
+
+    document.addEventListener('keydown', listener);
+    return () => document.removeEventListener('keydown', listener);
+  }, [open, onClose]);
 
   if(!open) return <TransitionGroup />;
 
