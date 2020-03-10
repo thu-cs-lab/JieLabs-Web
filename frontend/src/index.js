@@ -66,8 +66,3 @@ if(module.hot) {
 
 /* eslint-disable no-undef */
 console.log('Using version', __COMMIT_HASH__);
-
-let x = document.getElementById("global-loading-indicator");
-if (x && x.style) {
-  x.style.display = "none";
-}
