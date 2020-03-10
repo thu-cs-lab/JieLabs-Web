@@ -15,7 +15,7 @@ import cn from 'classnames';
 
 import * as blocks from './blocks';
 import { SIGNAL, MODE } from './blocks';
-import { updateClock, settleBlock, pushBlock, deleteBlock } from './store/actions';
+import { BOARD_STATUS, updateClock, settleBlock, pushBlock, deleteBlock, connectToBoard, disconnectBoard } from './store/actions';
 import { COLORS, BLOCK_ALIGNMENT } from './config';
 import { TimeoutContext } from './App';
 
@@ -618,6 +618,24 @@ export default React.memo(() => {
     if(e.key === 'Shift') invoke('cancelConnect', e);
   }, [hotkeys]);
 
+  const boardConnected = useSelector(state => {
+    const status = state.board.status;
+    return status === BOARD_STATUS.CONNECTED || status === BOARD_STATUS.PROGRAMMING;
+  });
+  const boardBusy = useSelector(state => {
+    const status = state.board.status;
+    return status === BOARD_STATUS.PROGRAMMING;
+  });
+
+  const toggleBoard = useCallback(() => {
+    console.log('CONN');
+    if(boardBusy) return;
+    if(boardConnected)
+      dispatch(disconnectBoard());
+    else
+      dispatch(connectToBoard());
+  }, [boardConnected, boardBusy]);
+
   return <>
     <div
       ref={container}
@@ -740,6 +758,11 @@ export default React.memo(() => {
 
       <span className="tool" data-tool="block 2"><Icon>open_in_browser</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Load sandbox <small>[C-o]</small></div>
+
+      <span className={cn("tool", { 'tool-disabled': boardBusy })} data-tool="block 3" onClick={toggleBoard}>
+        <Icon>{ boardConnected ? 'close' : 'settings_ethernet' }</Icon>
+      </span>
+      <div className="sandbox-toolbar-hint tool-activated">{ boardConnected ? 'Disconnect' : 'Connect' } board</div>
 
       <span
         className={cn("tool", { 'tool-disabled': linking || focus === null })}
