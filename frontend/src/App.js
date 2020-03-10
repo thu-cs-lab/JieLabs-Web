@@ -286,6 +286,7 @@ export default React.memo(() => {
 
   const handleDragLeave = useCallback(e => {
     --dragCnt.current;
+    console.log(dragCnt.current);
     if(dragCnt.current === 0)
       setImporting(false);
   }, []);
@@ -294,6 +295,7 @@ export default React.memo(() => {
     e.preventDefault();
     if(!importing) return;
     setImporting(false);
+    dragCnt.current = 0;
 
     const file = e.dataTransfer.files[0];
     const type = file?.type;
