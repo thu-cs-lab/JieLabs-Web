@@ -25,29 +25,26 @@ impl Actor for TaskManagerActor {
     fn started(&mut self, _ctx: &mut Context<Self>) {}
 }
 
-impl SystemService for TaskManagerActor {
-    fn service_started(&mut self, ctx: &mut Context<Self>) {
-        info!("task manager is up");
-        let client = redis::Client::open(ENV.redis_url.clone()).expect("redis client");
-        let conn = client.get_connection().expect("redis connection");
-        self.client = Some(client);
-        self.conn = Some(conn);
-        ctx.run_interval(Duration::from_secs(10), |actor, ctx| {
-            if actor.db.is_none() || actor.conn.is_none() {
-                return;
-            }
-            let conn = actor.conn.as_mut().unwrap();
-            let db = actor.db.as_mut().unwrap();
-            let db_conn = db.get().unwrap();
-
+fn monitor(
+    actor: &mut TaskManagerActor,
+    ctx: &mut Context<TaskManagerActor>,
+) -> Result<(), failure::Error> {
+    if let Some(db) = &actor.db {
+        if let Some(client) = &actor.client {
+            let conn = if let Some(conn) = &mut actor.conn {
+                conn
+            } else {
+                let conn = client.get_connection()?;
+                actor.conn = Some(conn);
+                actor.conn.as_mut().unwrap() // safe unwrap
+            };
+            let db_conn = db.get()?;
             let len_waiting: u64 = redis::cmd("LLEN")
                 .arg(&ENV.redis_waiting_queue)
-                .query(conn)
-                .unwrap();
+                .query(conn)?;
             let len_working: u64 = redis::cmd("LLEN")
                 .arg(&ENV.redis_working_queue)
-                .query(conn)
-                .unwrap();
+                .query(conn)?;
             if len_waiting > 0 || len_working > 0 {
                 info!(
                     "task queue: {} waiting, {} working",
@@ -56,8 +53,7 @@ impl SystemService for TaskManagerActor {
                 while let Some(last_working) = redis::cmd("LINDEX")
                     .arg(&ENV.redis_working_queue)
                     .arg("-1")
-                    .query::<Option<String>>(conn)
-                    .unwrap()
+                    .query::<Option<String>>(conn)?
                 {
                     if let Ok(task) = serde_json::from_str::<SubmitBuildTask>(&last_working) {
                         // find job by task
@@ -69,7 +65,7 @@ impl SystemService for TaskManagerActor {
                                 // done, remove it
                                 redis::cmd("RPOP")
                                     .arg(&ENV.redis_working_queue)
-                                    .execute(conn);
+                                    .query(conn)?;
                                 info!("task queue: removing finished task {}", task.id,);
                             } else {
                                 if get_timestamp() - task.timestamp > 5 * 60 {
@@ -80,7 +76,7 @@ impl SystemService for TaskManagerActor {
                                     job.destination = Some(new_dest.clone());
                                     let src_url = get_download_url(&job.source);
                                     let dst_url = get_upload_url(&new_dest);
-                                    diesel::update(&job).set(&job).execute(&db_conn).unwrap();
+                                    diesel::update(&job).set(&job).execute(&db_conn)?;
                                     ctx.address().do_send(SubmitBuildTask {
                                         id: new_task_id.clone(),
                                         src: src_url,
@@ -89,7 +85,7 @@ impl SystemService for TaskManagerActor {
                                     });
                                     redis::cmd("RPOP")
                                         .arg(&ENV.redis_working_queue)
-                                        .execute(conn);
+                                        .query(conn)?;
                                     info!(
                                         "task queue: restarting task {} -> {}",
                                         task.id, new_task_id
@@ -102,17 +98,34 @@ impl SystemService for TaskManagerActor {
                         } else {
                             redis::cmd("RPOP")
                                 .arg(&ENV.redis_working_queue)
-                                .execute(conn);
+                                .query(conn)?;
                             info!("task queue: removing stale task {}", task.id,);
                         }
                     } else {
                         // bad element, remove it
                         redis::cmd("RPOP")
                             .arg(&ENV.redis_working_queue)
-                            .execute(conn);
+                            .query(conn)?;
                         info!("task queue: removing unknown element from working queue");
                     }
                 }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+impl SystemService for TaskManagerActor {
+    fn service_started(&mut self, ctx: &mut Context<Self>) {
+        info!("task manager is up");
+        let client = redis::Client::open(ENV.redis_url.clone()).expect("redis client");
+        self.client = Some(client);
+        ctx.run_interval(Duration::from_secs(10), |actor, ctx| {
+            if let Err(err) = monitor(actor, ctx) {
+                warn!("Error occurred in task manager: {}", err);
+                // close connection and try again
+                actor.conn = None;
             }
         });
     }
@@ -175,15 +188,18 @@ impl Handler<GetMetric> for TaskManagerActor {
     type Result = GetMetricResponse;
 
     fn handle(&mut self, _req: GetMetric, _ctx: &mut Context<Self>) -> GetMetricResponse {
-        let conn = self.conn.as_mut().unwrap();
-        let len_waiting: u64 = redis::cmd("LLEN")
-            .arg(&ENV.redis_waiting_queue)
-            .query(conn)
-            .unwrap();
-        let len_working: u64 = redis::cmd("LLEN")
-            .arg(&ENV.redis_working_queue)
-            .query(conn)
-            .unwrap();
+        let mut len_waiting = 0;
+        let mut len_working = 0;
+        if let Some(conn) = self.conn.as_mut() {
+            len_waiting = redis::cmd("LLEN")
+                .arg(&ENV.redis_waiting_queue)
+                .query(conn)
+                .unwrap_or(0);
+            len_working = redis::cmd("LLEN")
+                .arg(&ENV.redis_working_queue)
+                .query(conn)
+                .unwrap_or(0);
+        }
         GetMetricResponse {
             len_waiting,
             len_working,
