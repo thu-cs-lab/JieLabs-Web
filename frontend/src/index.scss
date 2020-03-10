@@ -940,22 +940,22 @@ main {
       padding-left: 20px;
       padding-right: 20px;
     }
+  }
+}
 
-    .press-btn {
-      height: 26px;
-      width: 13px;
-      background: rgba(255,255,255,.2);
-      cursor: pointer;
-      margin: 5px;
-      
-      transition: transform .2s ease, box-shadow .2s ease;
-      box-shadow: rgba(0,0,0,.3) 0 3px 9px;
+.press-btn {
+  height: 26px;
+  width: 13px;
+  background: rgba(255,255,255,.2);
+  cursor: pointer;
+  margin: 5px;
+  
+  transition: transform .1s ease, box-shadow .1s ease;
+  box-shadow: rgba(0,0,0,.3) 0 3px 9px;
 
-      &.pusheen {
-        transform: scale(0.8);
-        box-shadow: rgba(0,0,0,.3) 0 1px 3px;
-      }
-    }
+  &.pusheen {
+    transform: scale(0.8);
+    box-shadow: rgba(0,0,0,.3) 0 1px 3px;
   }
 }
 
@@ -989,7 +989,7 @@ main {
   box-shadow: rgba(0,0,0,.3) 0 3px 9px;
   background: rgba(255,255,255,.2);
 
-  transition: box-shadow .2s ease, background .2s ease;
+  transition: box-shadow .1s ease, background .1s ease;
 
   &.pusheen {
     box-shadow: rgba(0,0,0,.3) 0 1px 3px;
