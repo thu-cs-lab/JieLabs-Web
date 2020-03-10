@@ -3,8 +3,9 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 import pako from 'pako';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { saveAs } from 'file-saver';
+
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { HARD_LOGOUT, BOARDS, TAR_FILENAMES, TIMEOUT, TIMEOUT_BUFFER } from './config';
 import {
@@ -24,6 +25,7 @@ import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
 import Highlighter from './comps/Highlighter';
 import Input from './comps/Input';
+import Dialog from './comps/Dialog';
 import HelpLayer from './HelpLayer';
 
 const LoginLoader = import('./routes/Login');
@@ -362,146 +364,200 @@ export default React.memo(() => {
         <Route path="/" exact render={() => <Workspace showSettings={showSettings} />} />
       </Switch>
 
-      <TransitionGroup>
-        { detail !== null && (
-          <CSSTransition
-            timeout={500}
-            classNames="fade"
-          >
-            <div className="backdrop centering" onMouseDown={dismissDetail}>
-              <div className="dialog build-detail-dialog" onMouseDown={weakBlocker} onAnimationEnd={weakBlocker} onTransitionEnd={weakBlocker}>
-                <div className="build-detail-header">
-                  <div className="hint">BUILD DETAIL</div>
-                  <div className="dialog-title monospace">Build #{detail.basic.id}</div>
+      <Dialog className="build-detail-dialog" open={detail} onClose={dismissDetail}
+        render={() => (<>
+          <div className="build-detail-header">
+            <div className="hint">BUILD DETAIL</div>
+            <div className="dialog-title monospace">Build #{detail.basic.id}</div>
 
-                  <div className="build-detail-tabber-container">
-                    <div className="tabber-click-zone" onClick={toggleTabber}>
-                      <div className="descs">
-                        <div
-                          className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'logs' })}
-                        >INFO</div>
+            <div className="build-detail-tabber-container">
+              <div className="tabber-click-zone" onClick={toggleTabber}>
+                <div className="descs">
+                  <div
+                    className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'logs' })}
+                  >INFO</div>
 
-                        <div
-                          className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'code' })}
-                        >CODE</div>
-                      </div>
-                      <div className="tabbers">
-                        <Icon
-                          className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
-                        >notes</Icon>
-                        <span className="sep">/</span>
-                        <Icon
-                          className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
-                        >code</Icon>
-                      </div>
-                    </div>
-                  </div>
+                  <div
+                    className={cn("build-detail-tab-desc", { 'desc-active': detailTab === 'code' })}
+                  >CODE</div>
                 </div>
-                <div className="build-detail">
-                  <div className={cn("build-detail-pane", "padded", { 'pane-active': detailTab === 'logs' })}>
-                    <div className="hint">
-                      BUILD STATUS
-                    </div>
-                    <div className="build-detail-status">
-                      { detail.basic.status || 'Compiling...' }
-                    </div>
-
-                    <div className="build-detail-info">
-                      Submitted at <strong>{ formatDate(new Date(detail.basic.created)) }</strong>{ !!detail.basic.finished && (
-                        <>, finished in <strong>{formatDuration(new Date(detail.basic.finished) - new Date(detail.basic.created))}</strong></>
-                      )}
-                    </div>
-
-                    { detail.bit !== null && (
-                      <>
-                        <button className="labeled-btn" onClick={downloadBit}>
-                          <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit.length)})</span>
-                        </button>
-
-                        <button
-                          className="labeled-btn"
-                          disabled={!idleBoard}
-                          onClick={() => dispatch(programBitstream(detail.basic.id))}
-                        >
-                          <Icon>cloud_download</Icon> <span>{ hasBoard ? (
-                            idleBoard ? 'PROGRAM FPGA' : 'PROGRAMMING...'
-                          ) : 'FPGA DISCONNECTED' }</span>
-                        </button>
-                      </>
-                    ) }
-
-                    <div className="build-detail-sep" />
-
-                    { detail.constraints ? (
-                      <>
-                        <div className="hint">
-                          CONSTRAINTS
-                        </div>
-
-                        <Highlighter
-                          className="build-detail-console"
-                          source={detail.constraints}
-                          type="constraints"
-                        />
-
-                        <div className="build-detail-sep" />
-                      </>
-                    ) : null }
-
-                    { detail.logs ? (
-                      <>
-                        { detail.logs.stderr !== '' && (
-                          <>
-                            <div className="hint">
-                              STDERR
-                            </div>
-
-                            <Highlighter
-                              className="build-detail-console"
-                              source={detail.logs.stderr}
-                              type="log"
-                            />
-
-                            <div className="build-detail-sep" />
-                          </>
-                        ) }
-
-                        <div className="hint">
-                          STDOUT
-                        </div>
-
-                        <Highlighter
-                          className="build-detail-console"
-                          source={detail.logs.stdout}
-                          type="log"
-                        />
-                      </>
-                    ) : (
-                      <div className="build-detail-placeholder">
-                        <div className="loading" />
-                      </div>
-                    ) }
-
-                  </div>
-
-                  <div className={cn("build-detail-pane", "centering", { 'pane-active': detailTab === 'code' })}>
-                    { detail.code ? (
-                      <Monaco
-                        options={{
-                          theme: 'vs-dark',
-                          language: `${detail.lang || 'vhdl'}-ro`,
-                          readonly: true,
-                        }}
-                        value={detail.code}
-                      />
-                    ) : <div className="loading"></div> }
-                  </div>
+                <div className="tabbers">
+                  <Icon
+                    className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'logs' })}
+                  >notes</Icon>
+                  <span className="sep">/</span>
+                  <Icon
+                    className={cn("build-detail-tabber", { 'tabber-active': detailTab === 'code' })}
+                  >code</Icon>
                 </div>
               </div>
             </div>
-          </CSSTransition>
-        )}
-      </TransitionGroup>
+          </div>
+          <div className="build-detail">
+            <div className={cn("build-detail-pane", "padded", { 'pane-active': detailTab === 'logs' })}>
+              <div className="hint">
+                BUILD STATUS
+              </div>
+              <div className="build-detail-status">
+                { detail.basic.status || 'Compiling...' }
+              </div>
+
+              <div className="build-detail-info">
+                Submitted at <strong>{ formatDate(new Date(detail.basic.created)) }</strong>{ !!detail.basic.finished && (
+                  <>, finished in <strong>{formatDuration(new Date(detail.basic.finished) - new Date(detail.basic.created))}</strong></>
+                )}
+              </div>
+
+              { detail.bit !== null && (
+                <>
+                  <button className="labeled-btn" onClick={downloadBit}>
+                    <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit.length)})</span>
+                  </button>
+
+                  <button
+                    className="labeled-btn"
+                    disabled={!idleBoard}
+                    onClick={() => dispatch(programBitstream(detail.basic.id))}
+                  >
+                    <Icon>cloud_download</Icon> <span>{ hasBoard ? (
+                      idleBoard ? 'PROGRAM FPGA' : 'PROGRAMMING...'
+                    ) : 'FPGA DISCONNECTED' }</span>
+                  </button>
+                </>
+              ) }
+
+              <div className="build-detail-sep" />
+
+              { detail.constraints ? (
+                <>
+                  <div className="hint">
+                    CONSTRAINTS
+                  </div>
+
+                  <Highlighter
+                    className="build-detail-console"
+                    source={detail.constraints}
+                    type="constraints"
+                  />
+
+                  <div className="build-detail-sep" />
+                </>
+              ) : null }
+
+              { detail.logs ? (
+                <>
+                  { detail.logs.stderr !== '' && (
+                    <>
+                      <div className="hint">
+                        STDERR
+                      </div>
+
+                      <Highlighter
+                        className="build-detail-console"
+                        source={detail.logs.stderr}
+                        type="log"
+                      />
+
+                      <div className="build-detail-sep" />
+                    </>
+                  ) }
+
+                  <div className="hint">
+                    STDOUT
+                  </div>
+
+                  <Highlighter
+                    className="build-detail-console"
+                    source={detail.logs.stdout}
+                    type="log"
+                  />
+                </>
+              ) : (
+                <div className="build-detail-placeholder">
+                  <div className="loading" />
+                </div>
+              ) }
+
+            </div>
+
+            <div className={cn("build-detail-pane", "centering", { 'pane-active': detailTab === 'code' })}>
+              { detail.code ? (
+                <Monaco
+                  options={{
+                    theme: 'vs-dark',
+                    language: `${detail.lang || 'vhdl'}-ro`,
+                    readonly: true,
+                  }}
+                  value={detail.code}
+                />
+              ) : <div className="loading"></div> }
+            </div>
+          </div>
+        </>)}
+      >
+      </Dialog>
+
+      <Dialog className="settings-dialog" open={settings} onClose={dismissSettings}>
+        <div className="hint">
+          LOGGED IN AS <strong>{ user.user_name }</strong>
+        </div>
+        <div className="user-realname">
+          { user.real_name }
+        </div>
+        <div className="user-pass">
+          <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
+          <button onClick={submitPass}>
+            <Icon>arrow_forward</Icon>
+          </button>
+        </div>
+
+        <div className="hint">LANGUAGE</div>
+        <div className="languages">
+          <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
+            <div className="language-ind"><Icon>done</Icon></div>
+            <div className="language-name">Verilog</div>
+          </div>
+
+          <div className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
+            <div className="language-ind"><Icon>done</Icon></div>
+            <div className="language-name">VHDL</div>
+          </div>
+        </div>
+
+        <div className="hint">MISC</div>
+        <button
+          className="labeled-btn"
+          onClick={showAbout}
+        >
+          <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>ABOUT</span>
+        </button>
+      </Dialog>
+
+      <Dialog open={about} onClose={dismissAbout} className="about-dialog">
+        <div className="brand"><strong>Jie</strong>Labs</div>
+        <div className="ref">
+          { __COMMIT_HASH__ /* eslint-disable-line */ }
+        </div>
+
+        <div className="hint">BY</div>
+        陈嘉杰 <span className="sep">/</span> 高一川 <span className="sep">/</span> 刘晓义
+
+        <div className="hint">USING</div>
+        <a href="https://www.rust-lang.org/">Rust</a>
+        <span className="sep">/</span>
+        <a href="https://actix.rs/">actix-web</a>
+        <span className="sep">/</span>
+        <a href="https://diesel.rs/">diesel</a>
+        <br />
+        <a href="https://reactjs.org/">React</a>
+        <span className="sep">/</span>
+        <a href="https://sass-lang.com/">SASS</a>
+        <span className="sep">/</span>
+        <a href="https://microsoft.github.io/monaco-editor/">Monaco</a>
+
+        <div className="hint">RELEASED UNDER</div>
+        Jiegec Public License
+      </Dialog>
 
       <TransitionGroup className="snackbar">
         { snackbar.reverse().map(({ id, spec }, idx) => (
@@ -533,84 +589,6 @@ export default React.memo(() => {
             </div>
           </CSSTransition>
         )) }
-        {settings !== false &&
-          <CSSTransition
-            timeout={500}
-            classNames="fade"
-          >
-            <div className="backdrop centering" onMouseDown={dismissSettings}>
-              <div className="dialog settings-dialog" onMouseDown={weakBlocker}>
-                <div className="hint">
-                  LOGGED IN AS <strong>{ user.user_name }</strong>
-                </div>
-                <div className="user-realname">
-                  { user.real_name }
-                </div>
-                <div className="user-pass">
-                  <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
-                  <button onClick={submitPass}>
-                    <Icon>arrow_forward</Icon>
-                  </button>
-                </div>
-
-                <div className="hint">LANGUAGE</div>
-                <div className="languages">
-                  <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
-                    <div className="language-ind"><Icon>done</Icon></div>
-                    <div className="language-name">Verilog</div>
-                  </div>
-
-                  <div className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
-                    <div className="language-ind"><Icon>done</Icon></div>
-                    <div className="language-name">VHDL</div>
-                  </div>
-                </div>
-
-                <div className="hint">MISC</div>
-                <button
-                  className="labeled-btn"
-                  onClick={showAbout}
-                >
-                  <div className="labeled-btn-icon"><span role="img" aria-label="Strawberry">🍓</span></div><span>ABOUT</span>
-                </button>
-              </div>
-            </div>
-          </CSSTransition>
-        }
-        {about !== false &&
-          <CSSTransition
-            timeout={500}
-            classNames="fade"
-          >
-            <div className="backdrop centering" onMouseDown={dismissAbout}>
-              <div className="dialog about-dialog" onMouseDown={weakBlocker}>
-                <div className="brand"><strong>Jie</strong>Labs</div>
-                <div className="ref">
-                  { __COMMIT_HASH__ /* eslint-disable-line */ }
-                </div>
-
-                <div className="hint">BY</div>
-                陈嘉杰 <span className="sep">/</span> 高一川 <span className="sep">/</span> 刘晓义
-
-                <div className="hint">USING</div>
-                <a href="https://www.rust-lang.org/">Rust</a>
-                <span className="sep">/</span>
-                <a href="https://actix.rs/">actix-web</a>
-                <span className="sep">/</span>
-                <a href="https://diesel.rs/">diesel</a>
-                <br />
-                <a href="https://reactjs.org/">React</a>
-                <span className="sep">/</span>
-                <a href="https://sass-lang.com/">SASS</a>
-                <span className="sep">/</span>
-                <a href="https://microsoft.github.io/monaco-editor/">Monaco</a>
-
-                <div className="hint">RELEASED UNDER</div>
-                Jiegec Public License
-              </div>
-            </div>
-          </CSSTransition>
-        }
       </TransitionGroup>
 
       <HelpLayer onDone={showSettings} />

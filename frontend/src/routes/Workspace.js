@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import Icon from '../comps/Icon';
 import Tooltip from '../comps/Tooltip';
+import Dialog from '../comps/Dialog';
 
 import { BOARDS } from '../config';
 
@@ -91,10 +92,6 @@ export default React.memo(({ showSettings }) => {
   }, []);
 
   const top = useSelector(state => state.constraints.top);
-  const blocker = useCallback(e => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
 
   const weakBlocker = useCallback(e => {
     e.stopPropagation();
@@ -481,103 +478,86 @@ export default React.memo(({ showSettings }) => {
       />
     </div>
 
-    <TransitionGroup>
-      { assigning !== null &&
-        <CSSTransition
-          timeout={500}
-          classNames="fade"
-        >
-          <div className="backdrop centering" onMouseDown={dismissAssigning}>
-            <div className="dialog" onMouseDown={blocker}>
-              <div className="hint">PIN ASSIGNMENT</div>
-              <div className="dialog-title monospace">
-                <span className="dimmed">
-                  { top }
-                  <span className="spacer"></span>
-                  /
-                  <span className="spacer"></span>
-                </span>
-                { assigning.name }
-                { assigning.subscript !== null && (
-                  <span>
-                    <span className="dimmed">[</span>
-                    <Icon
-                      className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
-                      onClick={subscriptDec}
-                    >keyboard_arrow_left</Icon>
-                    <input
-                      className={cn("subscript-input-region", { invalid: assigning.subscript === -1 })}
-                      value={assigning.subscript !== -1 ? assigning.subscript.toString() : pendingSubscript}
-                      onMouseDown={weakBlocker}
-                      onChange={subscriptChange}
-                    />
-                    <Icon
-                      className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
-                      onClick={subscriptInc}
-                    >keyboard_arrow_right</Icon>
-                    <span className="dimmed">]</span>
-                  </span>
-                )}
-              </div>
+    <Dialog open={assigning} onClose={dismissAssigning}
+      render={() => (<>
+        <div className="hint">PIN ASSIGNMENT</div>
+        <div className="dialog-title monospace">
+          <span className="dimmed">
+            { top }
+            <span className="spacer"></span>
+            /
+            <span className="spacer"></span>
+          </span>
+          { assigning.name }
+          { assigning.subscript !== null && (
+            <span>
+              <span className="dimmed">[</span>
+              <Icon
+                className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
+                onClick={subscriptDec}
+              >keyboard_arrow_left</Icon>
+              <input
+                className={cn("subscript-input-region", { invalid: assigning.subscript === -1 })}
+                value={assigning.subscript !== -1 ? assigning.subscript.toString() : pendingSubscript}
+                onMouseDown={weakBlocker}
+                onChange={subscriptChange}
+              />
+              <Icon
+                className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
+                onClick={subscriptInc}
+              >keyboard_arrow_right</Icon>
+              <span className="dimmed">]</span>
+            </span>
+          )}
+        </div>
 
-              <div className="search-box">
-                <Icon className="search-icon">search</Icon>
-                <input
-                  className="search-input monospace"
-                  placeholder="Number | Signal | 'clock'"
-                  value={search}
-                  onMouseDown={weakBlocker}
-                  onChange={searchChange}
-                  onKeyDown={checkKey}
-                  ref={searchRef}
-                />
-              </div>
+        <div className="search-box">
+          <Icon className="search-icon">search</Icon>
+          <input
+            className="search-input monospace"
+            placeholder="Number | Signal | 'clock'"
+            value={search}
+            onMouseDown={weakBlocker}
+            onChange={searchChange}
+            onKeyDown={checkKey}
+            ref={searchRef}
+          />
+        </div>
 
-              <div className="pin-selector">
-                { pinDisp }
-              </div>
-            </div>
-          </div>
-        </CSSTransition>
-      }
-      {help !== false &&
-        <CSSTransition
-          timeout={500}
-          classNames="fade"
+        <div className="pin-selector">
+          { pinDisp }
+        </div>
+      </>)}
+    />
+
+    <Dialog className="help-dialog" open={help} onClose={dismissHelp}>
+      <div className="hint">STOP IT,</div>
+      <div className="dialog-title monospace">Get some help</div>
+      <div className="help-body">
+        SAVE YOUR PROGRESS before starting the tutorial, as it will destroy BOTH YOUR CODE AND THE SANDBOX STATE.<br/>
+        <button
+          className="labeled-btn"
+          onClick={startIntHelp}
         >
-          <div className="backdrop centering" onMouseDown={dismissHelp}>
-            <div className="dialog help-dialog" onMouseDown={blocker}>
-              <div className="hint">STOP IT,</div>
-              <div className="dialog-title monospace">Get some help</div>
-              <div className="help-body">
-                SAVE YOUR PROGRESS before starting the tutorial, as it will destroy BOTH YOUR CODE AND THE SANDBOX STATE.<br/>
-                <button
-                  className="labeled-btn"
-                  onClick={startIntHelp}
-                >
-                  <Icon>play_arrow</Icon><span>START TUTORIAL</span>
-                </button>
-              </div>
-              <div className="help-spacer" />
-              <div className="hint help-cheatsheet-header">Sandbox - Global</div>
-              <div className="help-cheatsheet">
-                <div className="help-shortcut"><strong>Ctrl-F</strong> Switch layer</div>
-                <div className="help-shortcut"><strong>Ctrl-C</strong> Open color palette</div>
-                <div className="help-shortcut"><strong>Tab</strong> Select next color</div>
-                <div className="help-shortcut"><strong>Shift-Tab</strong> Select previous color</div>
-              </div>
-              <div className="help-spacer" />
-              <div className="hint help-cheatsheet-header">Sandbox - Wire Layer</div>
-              <div className="help-cheatsheet">
-                <div className="help-shortcut"><strong>Shift</strong> Connect mode</div>
-                <div className="help-shortcut"><strong>Delete</strong> Disconnect</div>
-                <div className="help-shortcut"><strong>Backspace</strong> Disconnect</div>
-                <div className="help-shortcut"><strong>Ctrl-D</strong> Dye current color</div>
-              </div>
-            </div>
-          </div>
-        </CSSTransition>
-      }
-    </TransitionGroup>
+          <Icon>play_arrow</Icon><span>START TUTORIAL</span>
+        </button>
+      </div>
+      <div className="help-spacer" />
+      <div className="hint help-cheatsheet-header">Sandbox - Global</div>
+      <div className="help-cheatsheet">
+        <div className="help-shortcut"><strong>Ctrl-F</strong> Switch layer</div>
+        <div className="help-shortcut"><strong>Ctrl-C</strong> Open color palette</div>
+        <div className="help-shortcut"><strong>Tab</strong> Select next color</div>
+        <div className="help-shortcut"><strong>Shift-Tab</strong> Select previous color</div>
+      </div>
+      <div className="help-spacer" />
+      <div className="hint help-cheatsheet-header">Sandbox - Wire Layer</div>
+      <div className="help-cheatsheet">
+        <div className="help-shortcut"><strong>Shift</strong> Connect mode</div>
+        <div className="help-shortcut"><strong>Delete</strong> Disconnect</div>
+        <div className="help-shortcut"><strong>Backspace</strong> Disconnect</div>
+        <div className="help-shortcut"><strong>Ctrl-D</strong> Dye current color</div>
+      </div>
+    </Dialog>
   </main>;
 });
