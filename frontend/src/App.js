@@ -264,10 +264,56 @@ export default React.memo(() => {
   }, []);
   const dismissAbout = useCallback(() => setAbout(false), []);
 
+  const [importing, setImporting] = useState(false);
+  const dragCnt = useRef(0);
+  const containerRef = useRef(null);
+  const handleDragEnter = useCallback(e => {
+    ++dragCnt.current;
+    const isFiles = e.dataTransfer.types.includes('Files');
+    if(!isFiles) return;
+
+    e.dataTransfer.dropEffect = 'copy';
+    e.preventDefault();
+    setImporting(true);
+  }, []);
+
+  const handleDragOver = useCallback(e => {
+    if(!importing) return;
+    e.dataTransfer.dropEffect = 'copy';
+    e.stopPropagation();
+    e.preventDefault();
+  }, [importing]);
+
+  const handleDragLeave = useCallback(e => {
+    --dragCnt.current;
+    if(dragCnt.current === 0)
+      setImporting(false);
+  }, []);
+
+  const handleDrop = useCallback(e => {
+    e.preventDefault();
+    if(!importing) return;
+    setImporting(false);
+
+    const file = e.dataTransfer.files[0];
+    const type = file?.type;
+    if(type.indexOf('application/json') !== 0) {
+      dispatch(showSnackbar(`Invalid file format: ${type}`));
+      return;
+    }
+  }, [importing]);
+
   if(loading) 
     return <div className="container pending"></div>;
 
-  return <div className="container">
+  return <div
+    ref={containerRef}
+    className="container"
+    onDragEnter={handleDragEnter}
+    onDragOver={handleDragOver}
+    onDragLeave={handleDragLeave}
+    onDrop={handleDrop}
+  >
     <TimeoutContext.Provider value={timeoutCtx}>
       <header>
         <div className="brand"><strong>Jie</strong>Labs</div>
