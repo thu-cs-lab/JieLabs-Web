@@ -560,10 +560,10 @@ export default React.memo(() => {
 
       <Dialog className="settings-dialog" open={settings} onClose={dismissSettings}>
         <div className="hint">
-          LOGGED IN AS <strong>{ user.user_name }</strong>
+          LOGGED IN AS <strong>{ user?.user_name }</strong>
         </div>
         <div className="user-realname">
-          { user.real_name }
+          { user?.real_name }
         </div>
         <div className="user-pass">
           <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
