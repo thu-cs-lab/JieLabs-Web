@@ -1113,7 +1113,7 @@ const WireLayer = React.memo(({
     const dy = y - scroll.y;
 
     for(const cur of canvases) {
-      const { group, offset, dim, canvas } = cur;
+      const { offset, dim, canvas, /* group */ } = cur;
       const cdx = dx - offset.x;
       const cdy = dy - offset.y;
 

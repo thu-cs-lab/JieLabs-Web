@@ -192,10 +192,6 @@ export default React.memo(() => {
     else setDetailTab('code');
   }, [detailTab]);
 
-  const weakBlocker = useCallback(e => {
-    e.stopPropagation();
-  }, []);
-
   const downloadBit = useCallback(e => {
     if(!detail?.bit) return;
     const blob = new Blob(detail.bit);

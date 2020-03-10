@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import cn from 'classnames';
 
 import Icon from '../comps/Icon';
@@ -17,7 +16,6 @@ import {
   updateTop,
   assignPin,
   startHelp,
-  showSnackbar,
 } from '../store/actions';
 
 import { registerCodeLens } from '../lang';
