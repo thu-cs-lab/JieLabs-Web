@@ -1125,10 +1125,8 @@ const WireLayer = React.memo(({
 
       // Extract alpha
       const alpha = imgData.data[3];
-      if(alpha > 0) {
-        console.log('Collided with ', group);
+      if(alpha > 0)
         return cur;
-      }
     }
 
     return null;

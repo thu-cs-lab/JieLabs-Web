@@ -359,10 +359,7 @@ export default React.memo(() => {
 
       <Switch>
         <Route path="/login" exact component={Login} />
-        <Route path="/" exact render={() => {
-          console.log(Workspace);
-          return <Workspace showSettings={showSettings} />;
-        }} />
+        <Route path="/" exact render={() => <Workspace showSettings={showSettings} />} />
       </Switch>
 
       <TransitionGroup>
