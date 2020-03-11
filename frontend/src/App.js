@@ -29,7 +29,8 @@ import Input from './comps/Input';
 import Dialog from './comps/Dialog';
 import HelpLayer from './HelpLayer';
 
-const LoginLoader = import('./routes/Login');
+import Login from './routes/Login';
+
 const WorkspaceLoader = import('./routes/Workspace');
 const MonacoLoader = import('./loaders/Monaco');
 
@@ -63,7 +64,6 @@ export default React.memo(() => {
   const hasBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED || store.board.status === BOARD_STATUS.PROGRAMMING);
   const idleBoard = useSelector(store => store.board.status === BOARD_STATUS.CONNECTED);
 
-  const Login = useLoader(LoginLoader);
   const Workspace = useLoader(WorkspaceLoader);
   const Monaco = useLoader(MonacoLoader);
 
