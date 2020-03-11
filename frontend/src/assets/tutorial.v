@@ -22,9 +22,9 @@ module top (
                 counter <= 0;
                 out <= ~out;
             end else begin
-                counter <= counter + 1
+                counter <= counter + 1;
             end
         end
     end
 
-endmodule abc
+endmodule
