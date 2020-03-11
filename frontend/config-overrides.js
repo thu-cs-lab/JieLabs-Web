@@ -21,7 +21,7 @@ module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
     languages: [],
     features: ['bracketMatching', 'clipboard', 'codelens', 'coreCommands', 'find',
-      'wordHighlighter'],
+      'hover', 'wordHighlighter'],
   })),
   addWebpackPlugin(new webpack.DefinePlugin({
     __COMMIT_HASH__: JSON.stringify(commitInfo),
