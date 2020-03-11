@@ -17,8 +17,8 @@ use diesel::prelude::*;
 use log::*;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
-use std::time::{Duration, Instant};
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::time::{Duration, Instant};
 
 pub static ONLINE_USERS: AtomicUsize = AtomicUsize::new(0);
 
