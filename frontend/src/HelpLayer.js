@@ -9,7 +9,8 @@ import { BOARD_STATUS, unstepHelp, stepHelp, endHelp, updateCode, updateTop, del
 
 import { DEFAULT_FIELD } from './config';
 
-import src from './assets/tutorial.vhdl'; // eslint-disable-line
+import srcVHDL from './assets/tutorial.vhdl'; // eslint-disable-line
+import srcVerilog from './assets/tutorial.v'; // eslint-disable-line
 
 const STEPS = [
   {
@@ -110,7 +111,11 @@ const STEPS = [
       return errorCnt === 0;
     },
     reset: (state, dispatch) => {
-      dispatch(updateCode(src));
+      if (state.lang === 'verilog') {
+        dispatch(updateCode(srcVerilog));
+      } else {
+        dispatch(updateCode(srcVHDL));
+      }
     },
     renderer: (state) => {
       const lines = state.analysis ? state.analysis.diagnostics.filter(e => e.severity === 'error').map(e => e.pos.from_line+1) : [];

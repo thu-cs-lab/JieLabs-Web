@@ -27,6 +27,7 @@ module.exports = override(
   addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
   addWebpackModuleRule({ test: /\.vhdl/, use: 'raw-loader' }),
+  addWebpackModuleRule({ test: /\.v/, use: 'raw-loader' }),
   adjustWorkbox(wb => Object.assign(wb, {
     importWorkboxFrom: 'local',
     navigateFallbackBlacklist: [
