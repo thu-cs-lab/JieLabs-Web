@@ -478,6 +478,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
           language: 'vhdl',
           glyphMargin: true,
           automaticLayout: true,
+          fontFamily: 'Roboto Mono',
         }}
         value={code}
         onChange={setCode}

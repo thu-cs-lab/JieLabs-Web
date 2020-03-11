@@ -548,6 +548,7 @@ export default React.memo(() => {
                     theme: 'vs-dark',
                     language: `${detail.lang || 'vhdl'}-ro`,
                     readonly: true,
+                    fontFamily: 'Roboto Mono',
                   }}
                   value={detail.code}
                 />
