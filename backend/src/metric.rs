@@ -23,6 +23,11 @@ async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
             .count()
             .get_result::<i64>(&conn)
             .map_err(err)?;
+        let live_user_count = users::dsl::users
+            .filter(users::dsl::last_login.is_not_null())
+            .count()
+            .get_result::<i64>(&conn)
+            .map_err(err)?;
         let job_count = jobs::dsl::jobs
             .count()
             .get_result::<i64>(&conn)
@@ -51,8 +56,8 @@ async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
             .filter(|board| board.connected_user.is_some())
             .count();
         Ok(format!(
-            "jielabsweb-backend user-count={}i,online-user-count={}i,job-count={}i,job-compilation-success-count={}i,job-compilation-failed-count={}i,job-system-error-count={}i,waiting-len={}i,working-len={}i,board-count={}i,assigned-board-count={}i {}",
-            user_count, ONLINE_USERS.load(Ordering::SeqCst), job_count, job_compilation_success_count, job_compilation_failed_count, job_system_error_count, tasks.len_waiting, tasks.len_working, board_count, assigned_board_count, timestamp
+            "jielabsweb-backend user-count={}i,live-user-count={}i,online-user-count={}i,job-count={}i,job-compilation-success-count={}i,job-compilation-failed-count={}i,job-system-error-count={}i,waiting-len={}i,working-len={}i,board-count={}i,assigned-board-count={}i {}",
+            user_count, live_user_count, ONLINE_USERS.load(Ordering::SeqCst), job_count, job_compilation_success_count, job_compilation_failed_count, job_system_error_count, tasks.len_waiting, tasks.len_working, board_count, assigned_board_count, timestamp
         ))
     } else {
         Ok(format!(""))
