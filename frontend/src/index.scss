@@ -813,43 +813,6 @@ main {
   }
 }
 
-.digit4 {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 10px;
-
-  .pins, .digits {
-    flex: 1;
-    width: 100%;
-    display: flex;
-    align-items: center;
-
-    > div {
-      flex: 1;
-      height: 100%;
-      padding-top: 3px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-    }
-
-  }
-
-  .pins {
-    display: grid;
-    padding-top: 10px;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
-  }
-
-  .digit {
-    font-family: 'Segment7Standard';
-    font-size: 30px;
-  }
-}
-
 .digit7 {
   display: flex;
   align-items: center;
@@ -902,6 +865,20 @@ main {
   .digit-wrapper {
     padding: 5px;
     background: rgba(0,0,0,.1);
+  }
+}
+
+.digit4 {
+  @extend .digit7;
+
+  padding: 20px;
+
+  .pins {
+    justify-content: center;
+
+    .pin {
+      margin-bottom: 5px;
+    }
   }
 }
 
