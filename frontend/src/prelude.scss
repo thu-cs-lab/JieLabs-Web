@@ -86,7 +86,7 @@ body {
       transform: translateX(0);
     }
 
-    #{(100% * $factor)} {
+    #{(100% * $factor)}, 100% {
       clip-path: inset(0 0 0 100%);
       transform: translateX(10px);
     }
