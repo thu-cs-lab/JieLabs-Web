@@ -853,35 +853,139 @@ main {
 .digit7 {
   display: flex;
   align-items: center;
-  flex-direction: column;
-  padding: 4px;
+  justify-content: space-between;
+  padding: 12px 18px 8px 18px;
 
-  .pins, .digits {
-    flex: 1;
-    width: 100%;
+  .group {
     display: flex;
+    flex-direction: column;
     align-items: center;
-
-    > div {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-    }
-
+    font-size: 0;
+    height: 100%;
   }
 
   .pins {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
   }
 
-  .digit {
-    font-family: 'Segment7Standard';
-    font-size: 30px;
+  .pin {
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+
+    &:nth-child(2n) {
+      margin-left: 10px;
+    }
+
+    &:nth-child(2n+1) {
+      margin-right: 10px;
+    }
+
+    .pin-label {
+      @extend .monospace;
+      font-weight: bold;
+      color: rgba(0,0,0,.54);
+      margin-right: 5px;
+      line-height: 15px;
+      font-size: 12px;
+    }
+
+    .connector {
+      pointer-events: all;
+    }
+  }
+
+  .digit-wrapper {
+    padding: 5px;
+    background: rgba(0,0,0,.1);
+  }
+}
+
+.digit {
+  $seg-length: 15px;
+  $seg-width: 4px;
+
+  $tot-height: $seg-width + $seg-length * 2;
+
+  height: $tot-height * 0.8 + 4px;
+  padding: 2px 0;
+
+  .digit-inner {
+    transform-origin: top-left;
+    transform: scale(0.8) skewX(-5deg);
+    margin-top: -4px;
+
+    height: $tot-height;
+    width: $seg-width / 2 + $seg-length + 2px;
+  }
+
+  .digit-seg {
+    width: $seg-width;
+    height: $seg-length;
+    background: rgba(0,0,0, .18);
+
+    &.digit-seg-lit {
+      background: #FFC738;
+    }
+
+    $larger: 2/3;
+    $smaller: 1 - $larger;
+    clip-path: polygon(
+      $seg-width * $smaller 0,
+      $seg-width $seg-width * $larger,
+      $seg-width $seg-length - $seg-width * $larger,
+      $seg-width * $smaller $seg-length,
+      0 $seg-length - $seg-width * $smaller,
+      0 $seg-width * $smaller
+    );
+
+    &:first-child {
+      display: block;
+    }
+
+    position: absolute;
+    top: 2px;
+    left: 0;
+
+    transform-origin: top left;
+
+    &:nth-child(1) {
+      transform: translateX($seg-length + 2px) translateY(-2px) rotate(90deg);
+    }
+
+    &:nth-child(2) {
+      transform: translateX($seg-length + 4px) scaleX(-1);
+    }
+
+    &:nth-child(3) {
+      transform: translateY($seg-length + 1px) translateX($seg-length + $seg-width/2 + 2px) scaleX(-1);
+    }
+
+    &:nth-child(4) {
+      transform: translateX(2px) translateY($seg-length * 2 + $seg-width/2 + 1px) rotate(-90deg);
+    }
+
+    &:nth-child(5) {
+      transform: translateY($seg-length + 1px);
+    }
+
+    &:nth-child(7) {
+      $smaller: 0.5;
+      $larger: 0.5;
+      clip-path: polygon(
+        $seg-width * $smaller 0,
+        $seg-width $seg-width * $larger,
+        $seg-width $seg-length - $seg-width * $larger,
+        $seg-width * $smaller $seg-length,
+        0 $seg-length - $seg-width * $smaller,
+        0 $seg-width * $smaller
+      );
+      transform: translateX(2px) translateY($seg-length + $seg-width / 2 + 0.5px) rotate(-90deg);
+    }
   }
 }
 
