@@ -1,6 +1,6 @@
 use super::*;
 use verilog_lang::{
-    ast::{Parse, SourceText},
+    ast::{Parse, SourceText, DataTypeOrImplicit},
     parser::Parser,
 };
 
@@ -47,12 +47,13 @@ impl From<&verilog_lang::ast::PortDirection> for SignalDirection {
     }
 }
 
-fn arity_from_unpacked(dimension: &verilog_lang::ast::UnpackedDimension, parser: &Parser) -> Option<ArityInfo> {
+fn arity_from_unpacked(
+    dimension: &verilog_lang::ast::UnpackedDimension,
+    parser: &Parser,
+) -> Option<ArityInfo> {
     if dimension.from.is_some() && dimension.to.is_some() {
-        let from_token = parser
-            .get_token(dimension.from.as_ref().unwrap().token);
-        let to_token =
-            parser.get_token(dimension.to.as_ref().unwrap().token);
+        let from_token = parser.get_token(dimension.from.as_ref().unwrap().token);
+        let to_token = parser.get_token(dimension.to.as_ref().unwrap().token);
         let from = from_token.text.parse::<u64>().unwrap_or(0);
         let to = to_token.text.parse::<u64>().unwrap_or(0);
         Some(ArityInfo { from, to })
@@ -61,12 +62,13 @@ fn arity_from_unpacked(dimension: &verilog_lang::ast::UnpackedDimension, parser:
     }
 }
 
-fn arity_from_packed(dimension: &verilog_lang::ast::PackedDimension, parser: &Parser) -> Option<ArityInfo> {
+fn arity_from_packed(
+    dimension: &verilog_lang::ast::PackedDimension,
+    parser: &Parser,
+) -> Option<ArityInfo> {
     if dimension.from.is_some() && dimension.to.is_some() {
-        let from_token = parser
-            .get_token(dimension.from.as_ref().unwrap().token);
-        let to_token =
-            parser.get_token(dimension.to.as_ref().unwrap().token);
+        let from_token = parser.get_token(dimension.from.as_ref().unwrap().token);
+        let to_token = parser.get_token(dimension.to.as_ref().unwrap().token);
         let from = from_token.text.parse::<u64>().unwrap_or(0);
         let to = to_token.text.parse::<u64>().unwrap_or(0);
         Some(ArityInfo { from, to })
@@ -81,6 +83,7 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
 
     let mut parser = Parser::from(s);
     if let Some(source_text) = SourceText::parse(&mut parser) {
+        println!("{:?}", source_text);
         for module in &source_text.modules {
             let name_token = parser.get_token(module.header.identifier.token);
             if let Some(top_name) = &top_name {
@@ -97,7 +100,26 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
                     let arity = if let Some(dimension) = port.dimensions.first() {
                         arity_from_unpacked(dimension, &parser)
                     } else {
-                        None
+                        if let Some(net_port_type) = &port.net_port_type {
+                            match &net_port_type.data_type_or_implicit {
+                                DataTypeOrImplicit::Data(data) => {
+                                    if let Some(dimension) = data.dimensions.first() {
+                                        arity_from_packed(dimension, &parser)
+                                    } else {
+                                        None
+                                    }
+                                },
+                                DataTypeOrImplicit::ImplicitData(data) => {
+                                    if let Some(dimension) = data.dimensions.first() {
+                                        arity_from_packed(dimension, &parser)
+                                    } else {
+                                        None
+                                    }
+                                }
+                            }
+                        } else {
+                            None
+                        }
                     };
                     signals.push(SignalInfo {
                         name: String::from(token.text),
@@ -169,4 +191,29 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
     };
 
     result
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_entity() {
+        let result = parse(
+            "module mod_top (
+                input abc,
+                input wire [2:0] def
+    ); endmodule",
+            None,
+        );
+        assert_eq!(result.entities.len(), 1);
+        assert_eq!(result.entities[0].name, "mod_top");
+        assert_eq!(result.entities[0].signals.len(), 2);
+        assert_eq!(result.entities[0].signals[0].name, "abc");
+        assert_eq!(result.entities[0].signals[0].arity, None);
+        assert_eq!(result.entities[0].signals[1].name, "def");
+        assert_eq!(
+            result.entities[0].signals[1].arity,
+            Some(ArityInfo { from: 2, to: 0 })
+        );
+    }
 }

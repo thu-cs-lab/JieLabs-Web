@@ -34,7 +34,7 @@ enum SignalDirection {
     Unsupported,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 struct ArityInfo {
     from: u64,
     to: u64,
