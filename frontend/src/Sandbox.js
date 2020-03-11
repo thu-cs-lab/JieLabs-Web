@@ -500,7 +500,7 @@ export default React.memo(({ handlerRef }) => {
 
   const [moving, setMoving] = useState(false);
 
-  const requestLift = useCallback(() => setMoving(true));
+  const requestLift = useCallback(() => setMoving(true), []);
 
   const requestSettle = useCallback((idx, { x, y }) => {
     setMoving(false);
