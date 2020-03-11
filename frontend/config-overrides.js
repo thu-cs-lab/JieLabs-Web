@@ -20,8 +20,6 @@ const commitInfo = require('child_process')
 module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
     languages: [],
-    features: ['bracketMatching', 'clipboard', 'codelens', 'coreCommands', 'find',
-      'hover', 'wordHighlighter'],
   })),
   addWebpackPlugin(new webpack.DefinePlugin({
     __COMMIT_HASH__: JSON.stringify(commitInfo),
