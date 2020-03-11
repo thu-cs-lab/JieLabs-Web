@@ -55,7 +55,7 @@ store.subscribe(() => {
     window.localStorage.setItem('signals', JSON.stringify(signals.toJS()));
   }
 
-  if(lang !== lastTop) {
+  if(lang !== lastLang) {
     lastLang = lang;
     window.localStorage.setItem('lang', lang);
   }
