@@ -1978,7 +1978,7 @@ main {
   position: fixed;
   bottom: 0;
   right: $snackbar-margin;
-  width: 350px;
+  width: 400px;
 
   .snackbar-entry {
     height: $snackbar-height;
@@ -2025,14 +2025,15 @@ main {
 
     .snackbar-action {
       @include rst-input;
-      padding: 20px;
+      padding: 20px 0;
       background: #222;
       color: white;
       font-weight: bold;
       cursor: pointer;
       opacity: .7;
       transition: opacity .2s ease;
-      width: 100px;
+      width: 130px;
+      text-align: center;
 
       &:hover {
         opacity: 1;

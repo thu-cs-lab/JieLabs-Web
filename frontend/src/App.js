@@ -19,6 +19,7 @@ import {
   disconnectBoard,
   updateLang,
   importWorkspace,
+  connectToBoard,
 } from './store/actions';
 import { untar, readFileStr, formatSize, formatDuration, formatDate, post } from './util';
 
@@ -205,6 +206,11 @@ export default React.memo(() => {
   // TODO: cancel on server disconnect
   const timeoutRef = useRef(null);
   const timeoutWarningRef = useRef(null);
+  const reconnectFPGA = useCallback(async handle => {
+    await dispatch(connectToBoard());
+    handle();
+    resetTimeout(true);
+  }, []);
   const resetTimeout = useCallback(start => {
     let started = timeoutRef.current !== null;
     if(started) {
@@ -225,7 +231,7 @@ export default React.memo(() => {
       timeoutRef.current = null;
 
       if(timeoutWarningRef.current) timeoutWarningRef.current();
-      timeoutWarningRef.current = dispatch(showSnackbar('FPGA timed out!'));
+      timeoutWarningRef.current = dispatch(showSnackbar('FPGA timed out!', 0, reconnectFPGA, 'RECONNECT'));
       dispatch(disconnectBoard());
     }, TIMEOUT);
 
