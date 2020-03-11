@@ -563,7 +563,7 @@ export default React.memo(() => {
           LOGGED IN AS <strong>{ user?.user_name }</strong>
         </div>
         <div className="user-realname">
-          { user?.real_name }
+          <span>{ user?.real_name }</span><span className="user-big">大会员</span>
         </div>
         <div className="user-pass">
           <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
