@@ -1,10 +1,56 @@
 @import url("https://fonts.loli.net/icon?family=Material+Icons");
-@import url("https://fonts.loli.net/css?family=Roboto+Mono:100,400,700i&display=swap");
-@import url("https://fonts.loli.net/css?family=Roboto:100,400,700i&display=swap");
 
 @font-face {
     font-family: 'Segment7Standard';
-        src: url(../font/segment7/Segment7Standard.otf) format('opentype');
+        src: url(../fonts/segment7/Segment7Standard.otf) format('opentype');
     font-weight: normal;
     font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url(../fonts/Roboto/Roboto-Thin.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../fonts/Roboto/Roboto-Bold.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url(../fonts/RobotoMono/RobotoMono-Thin.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/RobotoMono/RobotoMono-Regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../fonts/RobotoMono/RobotoMono-Bold.woff2) format('woff2');
 }
