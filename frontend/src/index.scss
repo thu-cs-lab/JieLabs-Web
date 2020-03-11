@@ -865,6 +865,7 @@ main {
   .digit-wrapper {
     padding: 5px;
     background: rgba(0,0,0,.1);
+    box-shadow: rgba(0,0,0,.3) 0 1px 3px;
   }
 }
 
@@ -903,7 +904,7 @@ main {
   .digit-seg {
     width: $seg-width;
     height: $seg-length;
-    background: rgba(0,0,0, .18);
+    background: rgba(0,0,0, .1);
 
     &.digit-seg-lit {
       background: #FFC738;
