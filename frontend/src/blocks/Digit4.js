@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { List } from 'immutable';
 
 import { Connector, SIGNAL } from './index.js';
@@ -47,7 +47,7 @@ export default React.memo(({ id, ...rest }) => {
     const sig = DIGIT_LUT[integer];
 
     const elem = (
-      <div className="group">
+      <div className="group" key={name}>
         <div className="pins">
           { pins.map((pin, idx) => (
             <div className="pin" key={idx}>

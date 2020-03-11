@@ -13,7 +13,7 @@ export default React.memo(({ id, ...rest }) => {
     const curPins = useRef(pins);
 
     const elem = (
-      <div className="group">
+      <div className="group" key={name}>
         <div className="pins">
           { pins.map((pin, idx) => (
             <div className="pin" key={idx}>
