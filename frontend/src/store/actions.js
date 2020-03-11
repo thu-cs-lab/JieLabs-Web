@@ -194,7 +194,7 @@ export function login(user, pass) {
 
       dispatch(setUser(data));
 
-      dispatch(initBuilds());
+      await dispatch(initBuilds());
 
       if(!data.last_login) dispatch(startHelp());
 
@@ -215,7 +215,7 @@ export function restore() {
 
       dispatch(setUser(data));
 
-      dispatch(initBuilds());
+      await dispatch(initBuilds());
 
       return true;
     } catch (e) {
