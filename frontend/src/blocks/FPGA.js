@@ -17,8 +17,9 @@ export default React.memo(({ id, ...rest }) => {
 
   const status = useSelector(state => state.board.status);
   const ident = useSelector(state => state.board.ident);
-  const boardTmpl = useSelector(state => state.constraints.board);
-  const boardTmplPins = BOARDS[boardTmpl].pins;
+  const boardTmpl = useSelector(state => BOARDS[state.constraints.board]);
+  const boardTmplPins = boardTmpl.pins;
+
   const PIN_COUNT = boardTmplPins.length;
   const PIN_CLOCKING = boardTmplPins.findIndex(pin => pin.clock);
 
@@ -36,6 +37,19 @@ export default React.memo(({ id, ...rest }) => {
 
     return head.concat(tail);
   }, [input, directions]);
+
+  const gridStyle = useMemo(() => {
+    const slotCount = boardTmpl.dimensions[0] * boardTmpl.dimensions[1];
+    let paddingBottom = 0;
+    if(slotCount === boardTmpl.pins.length && !boardTmpl.pins[slotCount-1].placeholder)
+      paddingBottom = 10 + 15;
+
+    return {
+      paddingBottom,
+      gridTemplateColumns: new Array(boardTmpl.dimensions[0]).fill('1fr').join(' '),
+      gridTemplateRows: new Array(boardTmpl.dimensions[1]).fill('1fr').join(' '),
+    };
+  }, [boardTmpl]);
 
   const timeoutCtx = useContext(TimeoutContext);
   const doConnect = useCallback(async () => {
@@ -58,8 +72,9 @@ export default React.memo(({ id, ...rest }) => {
 
   // TODO: change fpga layout based on chosen board tempalte
 
-  return <div className="block fpga" {...rest}>
+  return <div className="block fpga" style={gridStyle} {...rest}>
     { padded.slice(0, PIN_COUNT).map((sig, idx) => (
+      boardTmplPins[idx].placeholder ? <div key={idx} className="pin-group" /> : (
       <div key={idx} className="pin-group">
         <Connector
           id={`${id}-${idx}`}
@@ -75,7 +90,7 @@ export default React.memo(({ id, ...rest }) => {
         />
         <div className="label">{ boardTmplPins[idx].label || idx }</div>
       </div>
-    ))}
+    )))}
 
     <TransitionGroup>
       { ident && (

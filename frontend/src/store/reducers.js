@@ -120,6 +120,8 @@ export function constraints(state = { board: DEFAULT_BOARD, top: null, signals: 
 
         const spec = board.pins[v];
 
+        if(!spec) return false;
+
         if(dir === 'input' && !spec.output) return false;
         if(dir === 'output' && !spec.input) return false;
 

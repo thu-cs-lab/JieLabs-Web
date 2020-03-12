@@ -719,9 +719,6 @@ main {
 
   display: grid;
   padding: 10px;
-  // 6*7 grid
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   user-select: none;
 
   .pin-group {
@@ -743,7 +740,7 @@ main {
       bottom: -4px;
       font-size: 12px;
       width: 100%;
-      text-align: right;
+      text-align: center;
       font-weight: 900;
       transform: scale(0.8);
       color: rgba(0,0,0,.38);
