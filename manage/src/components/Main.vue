@@ -229,6 +229,12 @@ export default {
         value: "last_login"
       },
       {
+        text: "Session Count",
+        align: "left",
+        sortable: false,
+        value: "session_count"
+      },
+      {
         text: "Action",
         align: "left",
         sortable: false,
