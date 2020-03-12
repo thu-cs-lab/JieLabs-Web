@@ -1,5 +1,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
+import { BOARDS, DEFAULT_BOARD } from './config';
+
 /* eslint-disable no-useless-concat,no-useless-escape */
 
 // VHDL
@@ -223,9 +225,11 @@ export default _store => {
 export function registerCodeLens(cmds) {
   const { asTop, assignPin } = cmds;
 
+  let boardConfig = BOARDS[DEFAULT_BOARD];
+
   const codeLensProvider = {
     onDidChange: cb => {
-      let { analysis: lastAnalysis, constraints: lastConstraints } = store.getState();
+      let { analysis: lastAnalysis, constraints: lastConstraints, board: lastBoard } = store.getState();
 
       const unsubscribe = store.subscribe(() => {
         const { analysis, constraints } = store.getState();
@@ -242,6 +246,8 @@ export function registerCodeLens(cmds) {
           lastConstraints = constraints;
           changed = true;
         }
+
+        boardConfig = BOARDS[constraints.board];
 
         if (changed)
           cb(codeLensProvider);
@@ -284,7 +290,8 @@ export function registerCodeLens(cmds) {
             let title;
             if (isStandalone) {
               const assigned = constraints.signals.get(name);
-              title = assigned !== undefined ? `Assigned to pin ${assigned}` : `Assign pin for ${name}`;
+              const spec = boardConfig?.pins[assigned];
+              title = assigned !== undefined ? `Assigned to pin ${ spec?.label || assigned }` : `Assign pin for ${name}`;
             } else {
               title = `Assign pins for ${name}`;
             }
