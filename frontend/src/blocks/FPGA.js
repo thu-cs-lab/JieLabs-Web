@@ -20,10 +20,9 @@ export default React.memo(({ id, ...rest }) => {
   const boardTmpl = useSelector(state => BOARDS[state.constraints.board]);
   const boardTmplPins = boardTmpl.pins;
 
-  const PIN_COUNT = boardTmplPins.length;
-  const PIN_CLOCKING = boardTmplPins.findIndex(pin => pin.clock);
+  const maxIdx = Math.max(...boardTmplPins.map((e, idx) => Number.isInteger(e.idx) ? e.idx : idx));
 
-  const padded = useMemo(() => {
+  const paddedInput = useMemo(() => {
     const head = (input || []).map((e, idx) => {
       if(directions && idx in directions && directions[idx] === 'output') // Inputs from FPGA
         return SIGNAL.X;
@@ -32,8 +31,8 @@ export default React.memo(({ id, ...rest }) => {
     });
 
     // TODO: slice based on board tmpl pin count
-    if(head.length > PIN_COUNT) return head;
-    const tail = Array(PIN_COUNT - head.length).fill(SIGNAL.X);
+    if(head.length > maxIdx) return head;
+    const tail = Array(maxIdx + 1 - head.length).fill(SIGNAL.X);
 
     return head.concat(tail);
   }, [input, directions]);
@@ -73,24 +72,28 @@ export default React.memo(({ id, ...rest }) => {
   // TODO: change fpga layout based on chosen board tempalte
 
   return <div className="block fpga" style={gridStyle} {...rest}>
-    { padded.slice(0, PIN_COUNT).map((sig, idx) => (
-      boardTmplPins[idx].placeholder ? <div key={idx} className="pin-group" /> : (
-      <div key={idx} className="pin-group">
-        <Connector
-          id={`${id}-${idx}`}
-          className="pin"
-          mode={idx === PIN_CLOCKING ? MODE.CLOCK_DEST : MODE.NORMAL}
-          onChange={updated => {
-            if(directions && idx in directions && directions[idx] === 'output')
-              dispatch(setOutput(idx, updated))
-          }}
-          onReg={idx === PIN_CLOCKING ? ctx.regClocking : null}
-          onUnreg={idx === PIN_CLOCKING ? ctx.unregClocking : null}
-          output={sig}
-        />
-        <div className="label">{ boardTmplPins[idx].label || idx }</div>
-      </div>
-    )))}
+    { boardTmplPins.map((pin, idx) => {
+      if(pin.placeholder)  return<div key={idx} className="pin-group" />;
+      const ridx = Number.isInteger(pin.idx) ? pin.idx : idx;
+
+      return (
+        <div key={idx} className="pin-group">
+          <Connector
+            id={`${id}-${idx}`}
+            className="pin"
+            mode={pin.clock ? MODE.CLOCK_DEST : MODE.NORMAL}
+            onChange={updated => {
+              if(directions && idx in directions && directions[idx] === 'output')
+                dispatch(setOutput(ridx, updated))
+            }}
+            onReg={pin.clock ? ctx.regClocking : null}
+            onUnreg={pin.clock ? ctx.unregClocking : null}
+            output={paddedInput[ridx]}
+          />
+          <div className="label">{ pin.label || ridx }</div>
+        </div>
+      );
+    })}
 
     <TransitionGroup>
       { ident && (

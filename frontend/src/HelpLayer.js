@@ -13,13 +13,14 @@ import srcVHDL from './assets/tutorial.vhdl'; // eslint-disable-line
 import srcVerilog from './assets/tutorial.v'; // eslint-disable-line
 
 // TODO: read from redux
+// TODO: handle tmpl.pins[pin].idx
 const boardTmpl = 'default';
 const boardTmplPins = BOARDS[boardTmpl].pins;
 const PIN_CLOCKING = boardTmplPins.findIndex(pin => pin.clock);
 const PIN_CLOCKING_LABEL = boardTmplPins.find(pin => pin.clock).label || PIN_CLOCKING;
 const PIN_RESET = 0;
 const PIN_RESET_LABEL = boardTmplPins[PIN_RESET].label || PIN_RESET;
-const PIN_TOGGLE = 1;
+const PIN_TOGGLE = 15;
 const PIN_TOGGLE_LABEL = boardTmplPins[PIN_TOGGLE].label || PIN_TOGGLE;
 
 const STEPS = [

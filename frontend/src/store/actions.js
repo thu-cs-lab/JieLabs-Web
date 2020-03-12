@@ -377,7 +377,9 @@ export function submitBuild() {
 
         const dirIndicator = dir === 'output' ? '->' : '<-';
         const pinName = board.pins[pin].pin;
-        const assignment = `\n# ${sig} ${dirIndicator} ${pin}\nset_location_assignment ${pinName} -to ${sig}`;
+        const pidx = Number.isInteger(board.pins[pin].idx) ? board.pins[pin].idx : pin;
+        const pinLabel = board.pins[pin].label || pidx;
+        const assignment = `\n# ${sig} ${dirIndicator} ${pinLabel}(${pin})<${pidx}>\nset_location_assignment ${pinName} -to ${sig}`;
         assignments += assignment + '\n';
       }
 

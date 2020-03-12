@@ -105,7 +105,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
 
   const availablePins = useMemo(() => {
     if(!assigning) return [];
-    else return board.pins.map((e, i) => ({ idx: i, ...e })).filter(e => {
+    else return board.pins.map((e, i) => ({ index: i, ...e })).filter(e => {
       if(assigning.dir === 'input') return e.output;
       else if(assigning.dir === 'output') return e.input;
       else return true;
@@ -126,7 +126,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     const fullName = assigning.subscript === null ? assigning.name : assigning.name + `[${assigning.subscript}]`;
 
     for(const p of availablePins) {
-      const sig = rev.get(p.idx);
+      const sig = rev.get(p.index);
       if(sig === fullName)
         current = p;
       else if(sig !== undefined)
@@ -149,14 +149,14 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
 
     const filtered = sortedPins.filter(e => {
       // Strong equality to avoid rawNum = NaN
-      const signal = revAssignment.get(e.idx);
+      const signal = revAssignment.get(e.index);
       if(signal && signal.indexOf(search) !== -1)
         return true;
 
       if('clock'.indexOf(search.toLowerCase()) === 0 && e.clock)
         return true;
 
-      const label = e.label || e.idx.toString();
+      const label = e.label || e.index.toString();
       if(label.toLowerCase() === search.toLowerCase()) perfectMatch = e;
       if(label.toLowerCase().indexOf(search.toLowerCase()) !== -1)
         return true;
@@ -168,10 +168,10 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     else return [perfectMatch, ...filtered.filter(e => e !== perfectMatch)];
   }, [search, sortedPins, revAssignment])
 
-  const handleAssign= useCallback(idx => {
+  const handleAssign= useCallback(index => {
     if(assigning.subscript === -1) throw new Error('Condition failed');
     const fullName = assigning.subscript === null ? assigning.name : assigning.name + `[${assigning.subscript}]`;
-    dispatch(assignPin(fullName, idx));
+    dispatch(assignPin(fullName, index));
   }, [dispatch, assigning]);
 
   let firstFilteredIndex = filteredPins.findIndex(e => !e.current);
@@ -184,12 +184,12 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     if(pin.output) directions.push('In');
     if(pin.clock) directions.push('Clock');
 
-    const signal = revAssignment.get(pin.idx);
+    const signal = revAssignment.get(pin.index);
 
     return (
-      <div className={cn("pin", "monospace", { "pin-assigned": !!signal })} key={ pin.idx } onClick={() => handleAssign(pin.idx)}>
+      <div className={cn("pin", "monospace", { "pin-assigned": !!signal })} key={ pin.index } onClick={() => handleAssign(pin.index)}>
         <div className="pin-ident">
-          <div className="pin-number">{ pin.label || pin.idx }</div>
+          <div className="pin-number">{ pin.label || (Number.isInteger(pin.idx) ? pin.idx : pin.index) }</div>
           <div className="pin-name">{ pin.pin }</div>
         </div>
         <div className="pin-info">
@@ -349,7 +349,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       setAssigning(null);
     else if(ev.key === 'Enter') {
       if(firstFilteredIndex !== -1)
-        handleAssign(filteredPins[firstFilteredIndex].idx)
+        handleAssign(filteredPins[firstFilteredIndex].index)
     } else if(ev.key === 'Tab') {
       // TODO: add hint/guide for this
       if(ev.shiftKey)
