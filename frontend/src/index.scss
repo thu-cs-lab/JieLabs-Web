@@ -1303,6 +1303,7 @@ main {
       justify-content: center;
 
       .pin-number {
+        @extend .monospace;
         font-size: 32px;
         font-weight: bold;
         color: white;
