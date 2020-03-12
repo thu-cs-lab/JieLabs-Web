@@ -2,6 +2,7 @@ use crate::common::err;
 use crate::models::*;
 use crate::schema::users::dsl;
 use crate::session::{get_user, hash_password};
+use crate::ws_user::ONLINE_USERS;
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{delete, get, post, put, web, HttpResponse, Result};
@@ -33,6 +34,7 @@ struct UserInfo {
     student_id: Option<String>,
     role: String,
     last_login: Option<DateTime<Utc>>,
+    session_count: Option<usize>,
 }
 
 #[get("/list")]
@@ -56,7 +58,9 @@ async fn list(
             .await
             .map_err(err)?;
             let mut res = vec![];
+            let online_users = ONLINE_USERS.lock().unwrap().clone();
             for user in users {
+                let session_count = online_users.iter().filter(|u| *u == &user.user_name).count();
                 res.push(UserInfo {
                     id: user.id,
                     user_name: user.user_name,
@@ -65,6 +69,7 @@ async fn list(
                     student_id: user.student_id,
                     role: user.role,
                     last_login: user.last_login,
+                    session_count: Some(session_count),
                 });
             }
             return Ok(HttpResponse::Ok().json(UserListResponse {
@@ -203,6 +208,7 @@ async fn get(
                     student_id: user.student_id,
                     role: user.role,
                     last_login: user.last_login,
+                    session_count: None,
                 }));
             } else {
                 return Ok(HttpResponse::Ok().json(false));
