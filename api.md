@@ -78,6 +78,14 @@ GET /api/board/version
 
 内容有三行：版本信息；下载地址；文件哈希
 
+### 设置板子配置
+
+POST /api/board/config
+
+字段：board：板子 ip，ident：bool 
+
+仅 admin 可用
+
 ## 文件管理
 
 ### 上传文件

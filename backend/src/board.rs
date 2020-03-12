@@ -1,7 +1,8 @@
-use crate::board_manager::{get_board_manager, GetBoardList};
+use crate::board_manager::{get_board_manager, GetBoardList, SendToBoardByRemote};
 use crate::common::err;
 use crate::schema::configs;
 use crate::session::get_user;
+use crate::ws_board::WSBoardMessageS2B;
 use crate::DbPool;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse, Result};
@@ -82,5 +83,32 @@ async fn get_version(pool: web::Data<DbPool>) -> Result<HttpResponse> {
         return Ok(HttpResponse::Ok().body("\n\n\n"));
     }
 
+    Ok(HttpResponse::Forbidden().finish())
+}
+
+#[derive(Serialize, Deserialize)]
+struct ConfigBoardRequest {
+    board: String,
+    ident: bool,
+}
+
+#[post("/config")]
+async fn config_board(
+    id: Identity,
+    pool: web::Data<DbPool>,
+    body: web::Json<ConfigBoardRequest>,
+) -> Result<HttpResponse> {
+    let conn = pool.get().map_err(err)?;
+    if let (Some(user), _conn) = get_user(&id, conn).await? {
+        if user.role == "admin" {
+            let res = get_board_manager()
+                .send(SendToBoardByRemote {
+                    remote: body.board.clone(),
+                    action: WSBoardMessageS2B::Ident(body.ident),
+                })
+                .await?;
+            return Ok(HttpResponse::Ok().json(res));
+        }
+    }
     Ok(HttpResponse::Forbidden().finish())
 }

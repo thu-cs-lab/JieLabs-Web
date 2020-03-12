@@ -245,6 +245,33 @@ impl Handler<RouteToUser> for BoardManagerActor {
     }
 }
 
+#[derive(Message)]
+#[rtype(result = "bool")]
+pub struct SendToBoardByRemote {
+    pub remote: String,
+    pub action: WSBoardMessageS2B,
+}
+
+impl Handler<SendToBoardByRemote> for BoardManagerActor {
+    type Result = bool;
+
+    fn handle(&mut self, req: SendToBoardByRemote, _ctx: &mut Context<Self>) -> bool {
+        for (_user, board) in &self.connections {
+            if board.info.remote == req.remote {
+                board.addr.do_send(SendToBoard { action: req.action });
+                return true;
+            }
+        }
+        for board in &self.idle_boards {
+            if board.info.remote == req.remote {
+                board.addr.do_send(SendToBoard { action: req.action });
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 pub fn get_board_manager() -> Addr<BoardManagerActor> {
     BoardManagerActor::from_registry()
 }

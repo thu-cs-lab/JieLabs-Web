@@ -62,6 +62,7 @@ async fn main() -> std::io::Result<()> {
                     .service(
                         web::scope("/board")
                             .service(board::list)
+                            .service(board::config_board)
                             .service(board::get_version)
                             .service(board::update_version),
                     )
