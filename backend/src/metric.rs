@@ -8,7 +8,6 @@ use crate::DbPool;
 use actix_web::{get, web, Result};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 use diesel::prelude::*;
-use std::sync::atomic::Ordering;
 use std::time::SystemTime;
 
 #[get("/")]
@@ -57,7 +56,7 @@ async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
             .count();
         Ok(format!(
             "jielabsweb-backend user-count={}i,live-user-count={}i,online-user-count={}i,job-count={}i,job-compilation-success-count={}i,job-compilation-failed-count={}i,job-system-error-count={}i,waiting-len={}i,working-len={}i,board-count={}i,assigned-board-count={}i {}",
-            user_count, live_user_count, ONLINE_USERS.load(Ordering::SeqCst), job_count, job_compilation_success_count, job_compilation_failed_count, job_system_error_count, tasks.len_waiting, tasks.len_working, board_count, assigned_board_count, timestamp
+            user_count, live_user_count, ONLINE_USERS.lock().unwrap().len(), job_count, job_compilation_success_count, job_compilation_failed_count, job_system_error_count, tasks.len_waiting, tasks.len_working, board_count, assigned_board_count, timestamp
         ))
     } else {
         Ok(format!(""))

@@ -14,13 +14,16 @@ use actix_identity::Identity;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use diesel::prelude::*;
+use lazy_static::lazy_static;
 use log::*;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
-pub static ONLINE_USERS: AtomicUsize = AtomicUsize::new(0);
+lazy_static! {
+    pub static ref ONLINE_USERS: Mutex<Vec<String>> = Mutex::new(vec![]);
+}
 
 pub struct WSUser {
     user_name: String,
@@ -37,7 +40,7 @@ impl Actor for WSUser {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         info!("ws_user client {} goes online", self.remote);
-        ONLINE_USERS.fetch_add(1, Ordering::SeqCst);
+        ONLINE_USERS.lock().unwrap().push(self.user_name.clone());
         ctx.run_interval(Duration::from_secs(5), |actor, ctx| {
             if Instant::now().duration_since(actor.last_heartbeat) > Duration::from_secs(30) {
                 warn!("ws_user client {} has no heartbeat", actor.remote);
@@ -50,7 +53,10 @@ impl Actor for WSUser {
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         info!("ws_user client {} goes offline", self.remote);
-        ONLINE_USERS.fetch_sub(1, Ordering::SeqCst);
+        let mut users = ONLINE_USERS.lock().unwrap();
+        if let Some(index) = users.iter().position(|x| *x == self.user_name) {
+            users.remove(index);
+        }
     }
 }
 
