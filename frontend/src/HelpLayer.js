@@ -7,10 +7,20 @@ import Icon from './comps/Icon';
 import Tooltip from './comps/Tooltip';
 import { BOARD_STATUS, unstepHelp, stepHelp, endHelp, updateCode, updateTop, deleteBlock, pushBlock } from './store/actions';
 
-import { DEFAULT_FIELD } from './config';
+import { DEFAULT_FIELD, BOARDS } from './config';
 
 import srcVHDL from './assets/tutorial.vhdl'; // eslint-disable-line
 import srcVerilog from './assets/tutorial.v'; // eslint-disable-line
+
+// TODO: read from redux
+const boardTmpl = 'default';
+const boardTmplPins = BOARDS[boardTmpl].pins;
+const PIN_CLOCKING = boardTmplPins.findIndex(pin => pin.clock);
+const PIN_CLOCKING_LABEL = boardTmplPins.find(pin => pin.clock).label || PIN_CLOCKING;
+const PIN_RESET = 0;
+const PIN_RESET_LABEL = boardTmplPins.find(pin => pin.clock).label || PIN_RESET;
+const PIN_TOGGLE = 1;
+const PIN_TOGGLE_LABEL = boardTmplPins.find(pin => pin.clock).label || PIN_TOGGLE;
 
 const STEPS = [
   {
@@ -162,7 +172,7 @@ const STEPS = [
       const rst = state.constraints.signals.get('rst');
       const clk = state.constraints.signals.get('clk');
       const toggle = state.constraints.signals.get('toggle');
-      return rst === 1 && clk === 37 && toggle === 0;
+      return rst === PIN_RESET && clk === PIN_CLOCKING && toggle === PIN_TOGGLE;
     },
     reset: (state, dispatch) => {
       dispatch(updateTop(null));
@@ -183,7 +193,7 @@ const STEPS = [
             <li>Assign to pin / Assigned to xxx: 设置引脚映射，出现在顶级实体接口中，信号声明的上方</li>
           </ul>
           <p>编辑器会高亮顶级实体和所有映射，如果某一信号未被映射，或对于向量信号而言，未被完全映射，将会以黄色标出。</p>
-          <p>请你将 <span className="help-hl">top</span> 设置为顶级实体，并将 <span className="help-hl">rst</span>, <span className="help-hl">clk</span> 和 <span className="help-hl">toggle</span> 分别映射到引脚 <span className="help-hl">1</span>, <span className="help-hl">37</span>, <span className="help-hl">0</span> 上。</p>
+          <p>请你将 <span className="help-hl">top</span> 设置为顶级实体，并将 <span className="help-hl">rst</span>, <span className="help-hl">clk</span> 和 <span className="help-hl">toggle</span> 分别映射到引脚 <span className="help-hl">{boardTmplPins[PIN_RESET].label}</span>, <span className="help-hl">{PIN_CLOCKING_LABEL}</span>, <span className="help-hl">{PIN_TOGGLE_LABEL}</span> 上。</p>
         </div>
       );
     }
@@ -300,13 +310,13 @@ const STEPS = [
         }}>
           <strong>亮，都可以亮 (续)</strong>
           <p>点击接线柱可以开始连线，在连线的过程中，被连接的接线柱会被显示为蓝色，鼠标经过其他接线柱或者其他线时，将会将其高亮为黄色。点击被高亮为黄色的接线柱或线，可以进行连线。</p>
-          <p>尝试将其中<span className="help-hl">一个 LED 连接至 FPGA 0 号引脚</span>，<span className="help-hl">4M 时钟发生器至 37 号引脚</span>，以及<span className="help-hl">一个时钟发生器下方的按钮至 1 号引脚</span>（注意，不是开关！）。<span className="help-hl">点击复位按钮</span>，你应该能看到 LED 开始以 1s 为间隔开始闪烁。</p>
+          <p>尝试将其中<span className="help-hl">一个 LED 连接至 FPGA {PIN_TOGGLE_LABEL} 号引脚</span>，<span className="help-hl">4M 时钟发生器至 {PIN_CLOCKING_LABEL} 号引脚</span>，以及<span className="help-hl">一个时钟发生器下方的按钮至 {PIN_RESET_LABEL} 号引脚</span>（注意，不是开关！）。<span className="help-hl">点击复位按钮</span>，你应该能看到 LED 开始以 1s 为间隔开始闪烁。</p>
           <p>点击蓝色接线柱或者沙盒中任意空地可以取消连线。我们没办法检查这一任务的完成与否，但是这就是指南的最后一步了！</p>
           <p>通过左下角的沙箱工具栏，你可以修改新连线使用的颜色，以及在模块和连线层之间切换（快捷键 Ctrl-F）。在连线层中你可以删除连线，修改连线颜色，或者断开特定的接线柱。尝试连接其他频率的时钟，或者将输出同时连接到多个 LED 上。当你认为自己对沙箱机制的理解已经够用了的话，可以前往下一步。</p>
           <hr />
-          <p>你可能注意到 FPGA 的 37 号引脚和时钟发生器的接线柱颜色和其他接线柱不同。蓝色的接线柱是标记这里的信号和时钟信号有关。对于 FPGA 而言，只有 37 号引脚可以接入高频时钟。连线在以下情况中会失败</p>
+          <p>你可能注意到 FPGA 的 {PIN_CLOCKING_LABEL} 号引脚和时钟发生器的接线柱颜色和其他接线柱不同。蓝色的接线柱是标记这里的信号和时钟信号有关。对于 FPGA 而言，只有 {PIN_CLOCKING_LABEL} 号引脚可以接入高频时钟。连线在以下情况中会失败</p>
           <ul>
-            <li>如果时钟发生器连接至除了 FPGA 37 号引脚以外的地方，将会失败</li>
+            <li>如果时钟发生器连接至除了 FPGA {PIN_CLOCKING_LABEL} 号引脚以外的地方，将会失败</li>
             <li>如果一个接线柱已经通过网络和即将连线的线或者接线柱相连。</li>
           </ul>
         </div>
