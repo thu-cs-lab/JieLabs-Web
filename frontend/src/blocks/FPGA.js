@@ -10,9 +10,6 @@ import { BOARDS } from '../config';
 
 import { BOARD_STATUS, setOutput, connectToBoard } from '../store/actions';
 
-const PIN_COUNT = 38;
-const PIN_CLOCKING = 37;
-
 export default React.memo(({ id, ...rest }) => {
   const input = useSelector(state => state.input);
   const directions = useSelector(state => state.activeBuild?.directions);
@@ -22,6 +19,8 @@ export default React.memo(({ id, ...rest }) => {
   const ident = useSelector(state => state.board.ident);
   const boardTmpl = useSelector(state => state.constraints.board);
   const boardTmplPins = BOARDS[boardTmpl].pins;
+  const PIN_COUNT = boardTmplPins.length;
+  const PIN_CLOCKING = boardTmplPins.findIndex(pin => pin.clock);
 
   const padded = useMemo(() => {
     const head = (input || []).map((e, idx) => {
