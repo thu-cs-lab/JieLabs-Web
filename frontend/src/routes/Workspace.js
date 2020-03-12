@@ -183,7 +183,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       <div className={cn("pin", "monospace", { "pin-assigned": !!signal })} key={ pin.idx } onClick={() => handleAssign(pin.idx)}>
         <div className="pin-ident">
           <div className="pin-number">{ pin.idx }</div>
-          <div className="pin-name">{ pin.pin }</div>
+          <div className="pin-name">{ pin.label }</div>
         </div>
         <div className="pin-info">
           <div className="pin-assignment">{ signal || 'Unassigned' }</div>

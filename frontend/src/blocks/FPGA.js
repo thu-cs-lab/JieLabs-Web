@@ -6,6 +6,7 @@ import { Connector, SIGNAL, MODE } from './index.js';
 import { FPGAEnvContext } from '../Sandbox';
 import { TimeoutContext } from '../App';
 import Icon from '../comps/Icon';
+import { BOARDS } from '../config';
 
 import { BOARD_STATUS, setOutput, connectToBoard } from '../store/actions';
 
@@ -19,6 +20,8 @@ export default React.memo(({ id, ...rest }) => {
 
   const status = useSelector(state => state.board.status);
   const ident = useSelector(state => state.board.ident);
+  const boardTmpl = useSelector(state => state.constraints.board);
+  const boardTmplPins = BOARDS[boardTmpl].pins;
 
   const padded = useMemo(() => {
     const head = (input || []).map((e, idx) => {
@@ -71,7 +74,7 @@ export default React.memo(({ id, ...rest }) => {
           onUnreg={idx === PIN_CLOCKING ? ctx.unregClocking : null}
           output={sig}
         />
-        <div className="label">{ idx }</div>
+        <div className="label">{ boardTmplPins[idx].label || idx }</div>
       </div>
     ))}
 

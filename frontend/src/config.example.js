@@ -36,10 +36,10 @@ export const BOARDS = {
   default: {
     name: '数电实验',
     pins: [
-      { pin: 'PIN_K24',  input: true, output: true,  clock: false },
-      { pin: 'PIN_K23',  input: true, output: true,  clock: false },
-      { pin: 'PIN_H26',  input: true, output: true,  clock: false },
-      { pin: 'PIN_L24',  input: true, output: true,  clock: false },
+      { pin: 'PIN_K24',  input: true, output: true,  clock: false, label: 'RST' },
+      { pin: 'PIN_K23',  input: true, output: true,  clock: false, label: 'IO3' },
+      { pin: 'PIN_H26',  input: true, output: true,  clock: false, label: 'IO2' },
+      { pin: 'PIN_L24',  input: true, output: true,  clock: false, label: 'IO1' },
       { pin: 'PIN_L23',  input: true, output: true,  clock: false },
       { pin: 'PIN_M22',  input: true, output: true,  clock: false },
       { pin: 'PIN_J25',  input: true, output: true,  clock: false },
