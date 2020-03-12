@@ -59,6 +59,7 @@ pub enum WSBoardMessageS2B {
     UnsubscribeIOChange(String),
     EnableUserClock(ClockSetting),
     DisableUserClock(String),
+    Ident(bool)
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSBoard {
@@ -236,6 +237,11 @@ mod test {
         println!(
             "{}",
             serde_json::to_string(&WSBoardMessageS2B::UnsubscribeIOChange(String::from("")))
+                .unwrap()
+        );
+        println!(
+            "{}",
+            serde_json::to_string(&WSBoardMessageS2B::Ident(true))
                 .unwrap()
         );
     }

@@ -135,6 +135,20 @@ bitstream.rbf
 {"DisableUserClock":""}
 ```
 
+### 设置板子显示
+
+服务端 -> 客户端
+
+行为：打开/关闭板子显示。
+
+格式：
+
+```json
+{"Ident":true}
+```
+
+
+
 # 后端与前端通信协议
 
 通过 WebSocket 通信，由前端发起，endpoint 为 /api/ws_user 。
