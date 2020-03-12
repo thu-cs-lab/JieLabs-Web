@@ -145,7 +145,9 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     const rawNum = Number.parseInt(search, 10);
     const num = Number.isInteger(rawNum) ? rawNum : null;
 
-    return sortedPins.filter(e => {
+    let perfectMatch = null;
+
+    const filtered = sortedPins.filter(e => {
       // Strong equality to avoid rawNum = NaN
       const signal = revAssignment.get(e.idx);
       if(signal && signal.indexOf(search) !== -1)
@@ -155,11 +157,15 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
         return true;
 
       const label = e.label || e.idx.toString();
+      if(label.toLowerCase() === search.toLowerCase()) perfectMatch = e;
       if(label.toLowerCase().indexOf(search.toLowerCase()) !== -1)
         return true;
 
       return false;
     });
+
+    if(perfectMatch === null) return filtered;
+    else return [perfectMatch, ...filtered.filter(e => e !== perfectMatch)];
   }, [search, sortedPins, revAssignment])
 
   const handleAssign= useCallback(idx => {
