@@ -181,6 +181,7 @@ class Handler {
   tryUpdateSet(set) {
     const sigs = Array.from(set).map(id => this.connectors[id].input);
     const sig = negotiateSignal(...sigs);
+    console.log(sigs);
     for(const id of set)
       this.tryNotify(id, sig);
   }
@@ -193,7 +194,7 @@ class Handler {
     if(this.connectors[id].ack !== signal) {
       if(this.connectors[id].cb.current)
         this.connectors[id].cb.current(signal)
-      this.connectors[id].ack = this.connectors[id].input;
+      this.connectors[id].ack = signal;
     }
   }
 
