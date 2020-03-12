@@ -214,6 +214,13 @@ export function restore() {
       if (!data.login) return false;
 
       dispatch(setUser(data));
+      let websocket = connectWebSocket(dispatch);
+
+      dispatch(setBoard({
+        websocket,
+        ident: null,
+        status: BOARD_STATUS.DISCONNECTED,
+      }));
 
       await dispatch(initBuilds());
 
@@ -418,6 +425,48 @@ export function submitBuild() {
   }
 }
 
+function connectWebSocket(dispatch) {
+  let websocket = new WebSocket(`${WS_BACKEND}/api/ws_user`);
+
+  websocket.onmessage = (message) => {
+    let msg = JSON.parse(message.data);
+    if("BoardAllocateResult" in msg) {
+      const ident = msg['BoardAllocateResult'];
+
+      if(!ident) {
+        dispatch(showSnackbar('FPGA allocation failed, try again later!'));
+        return;
+      }
+
+      websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');
+      dispatch(setBoard({
+        websocket,
+        ident,
+        status: BOARD_STATUS.CONNECTED,
+      }));
+    } else if (msg["BoardDisconnected"] !== undefined) {
+      dispatch(setBoard({
+        websocket,
+        ident: null,
+        status: BOARD_STATUS.DISCONNECTED,
+      }));
+    } else if (msg["ReportIOChange"]) {
+      const { data } = msg["ReportIOChange"];
+      dispatch(updateInput(data));
+    } else if (msg['ProgramBitstreamFinish'])
+      dispatch(updateBoard(BOARD_STATUS.CONNECTED));
+  };
+
+  websocket.onclose = () => {
+    dispatch(setBoard({
+      websocket: null,
+      ident: null,
+      status: BOARD_STATUS.DISCONNECTED,
+    }));
+  };
+  return websocket;
+}
+
 export function connectToBoard() {
   return async (dispatch, getState) => {
     // TODO: enter waiting state
@@ -435,48 +484,11 @@ export function connectToBoard() {
       }
 
       if (!websocket) {
-        websocket = new WebSocket(`${WS_BACKEND}/api/ws_user`);
-
+        websocket = connectWebSocket(dispatch);
         websocket.onopen = () => {
           websocket.send('{"RequestForBoard":""}');
         };
 
-        websocket.onmessage = (message) => {
-          let msg = JSON.parse(message.data);
-          if("BoardAllocateResult" in msg) {
-            const ident = msg['BoardAllocateResult'];
-
-            if(!ident) {
-              dispatch(showSnackbar('FPGA allocation failed, try again later!'));
-              return;
-            }
-
-            websocket.send('{"ToBoard":{"SubscribeIOChange":""}}');
-            dispatch(setBoard({
-              websocket,
-              ident,
-              status: BOARD_STATUS.CONNECTED,
-            }));
-          } else if (msg["BoardDisconnected"] !== undefined) {
-            dispatch(setBoard({
-              websocket,
-              ident: null,
-              status: BOARD_STATUS.DISCONNECTED,
-            }));
-          } else if (msg["ReportIOChange"]) {
-            const { data } = msg["ReportIOChange"];
-            dispatch(updateInput(data));
-          } else if (msg['ProgramBitstreamFinish'])
-            dispatch(updateBoard(BOARD_STATUS.CONNECTED));
-        };
-
-        websocket.onclose = () => {
-          dispatch(setBoard({
-            websocket: null,
-            ident: null,
-            status: BOARD_STATUS.DISCONNECTED,
-          }));
-        };
 
         dispatch(setBoard({
           websocket,
