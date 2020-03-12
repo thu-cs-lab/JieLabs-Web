@@ -157,6 +157,10 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       if('clock'.indexOf(search.toLowerCase()) === 0 && e.clock)
         return true;
 
+      if (e.label && e.label.toLowerCase().indexOf(search.toLowerCase()) === 0) {
+        return true;
+      }
+
       return false;
     });
   }, [search, sortedPins, revAssignment])
@@ -524,7 +528,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
           <Icon className="search-icon">search</Icon>
           <input
             className="search-input monospace"
-            placeholder="Number | Signal | 'clock'"
+            placeholder="Number | Signal | Label | 'clock'"
             value={search}
             onMouseDown={weakBlocker}
             onChange={searchChange}
