@@ -181,7 +181,6 @@ class Handler {
   tryUpdateSet(set) {
     const sigs = Array.from(set).map(id => this.connectors[id].input);
     const sig = negotiateSignal(...sigs);
-    console.log(sigs);
     for(const id of set)
       this.tryNotify(id, sig);
   }
