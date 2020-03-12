@@ -147,9 +147,6 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
 
     return sortedPins.filter(e => {
       // Strong equality to avoid rawNum = NaN
-      if(e.idx === num)
-        return true;
-
       const signal = revAssignment.get(e.idx);
       if(signal && signal.indexOf(search) !== -1)
         return true;
@@ -157,9 +154,9 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       if('clock'.indexOf(search.toLowerCase()) === 0 && e.clock)
         return true;
 
-      if (e.label && e.label.toLowerCase().indexOf(search.toLowerCase()) === 0) {
+      const label = e.label || e.idx.toString();
+      if(label.toLowerCase().indexOf(search.toLowerCase()) !== -1)
         return true;
-      }
 
       return false;
     });
@@ -186,8 +183,8 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     return (
       <div className={cn("pin", "monospace", { "pin-assigned": !!signal })} key={ pin.idx } onClick={() => handleAssign(pin.idx)}>
         <div className="pin-ident">
-          <div className="pin-number">{ pin.idx }</div>
-          <div className="pin-name">{ pin.label }</div>
+          <div className="pin-number">{ pin.label || pin.idx }</div>
+          <div className="pin-name">{ pin.pin }</div>
         </div>
         <div className="pin-info">
           <div className="pin-assignment">{ signal || 'Unassigned' }</div>
