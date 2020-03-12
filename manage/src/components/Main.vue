@@ -110,7 +110,12 @@
               </v-btn>
             </v-card-title>
             <v-card-text>
-              <v-data-table :headers="board_headers" :items="boards" :options="board_options"></v-data-table>
+              <v-data-table :headers="board_headers" :items="boards" :options.sync="board_options">
+                <template v-slot:item.action="{ item }">
+                  <v-icon small class="mr-2" @click="ident_on(item)">mdi-lightbulb-on-outline</v-icon>
+                  <v-icon small @click="ident_off(item)">mdi-lightbulb-outline</v-icon>
+                </template>
+              </v-data-table>
               <v-text-field label="Version" v-model="board_version[0]"></v-text-field>
               <v-text-field label="Url" v-model="board_version[1]"></v-text-field>
               <v-text-field label="Hash" v-model="board_version[2]"></v-text-field>
@@ -274,6 +279,12 @@ export default {
         align: "left",
         sortable: false,
         value: "connected_user"
+      },
+      {
+        text: "Action",
+        align: "left",
+        sortable: false,
+        value: "action"
       }
     ],
     board_options: {},
@@ -402,6 +413,20 @@ export default {
     close() {
       this.edit_user_dialog = false;
       this.add_user_dialog = false;
+    },
+
+    async ident_on(board) {
+      await post(`/api/board/config`, {
+        board: board.board.remote,
+        ident: true,
+      });
+    },
+
+    async ident_off(board) {
+      await post(`/api/board/config`, {
+        board: board.board.remote,
+        ident: false,
+      });
     }
   },
   watch: {
