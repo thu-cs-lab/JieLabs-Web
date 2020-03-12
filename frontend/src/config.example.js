@@ -39,15 +39,15 @@ export const BOARDS = {
       { pin: 'PIN_K24',  input: true, output: true,  clock: false, label: 'RST' },
       { pin: 'PIN_K23',  input: true, output: true,  clock: false },
       { pin: 'PIN_H26',  input: true, output: true,  clock: false },
-      { pin: 'PIN_L24',  input: false, output: true, clock: true, label: 'CLK' },
+      { pin: 'PIN_L24',  input: true, output: true,  clock: false },
       { pin: 'PIN_L23',  input: true, output: true,  clock: false, label: 'IO21' },
-      { pin: 'PIN_M22',  input: true, output: true,  clock: false},
+      { pin: 'PIN_M22',  input: true, output: true,  clock: false },
       { pin: 'PIN_J25',  input: true, output: true,  clock: false, label: 'IO3' },
       { pin: 'PIN_J26',  input: true, output: true,  clock: false, label: 'IO6' },
       { pin: 'PIN_K25',  input: true, output: true,  clock: false, label: 'IO14' },
       { pin: 'PIN_M24',  input: true, output: true,  clock: false, label: 'IO17' },
       { pin: 'PIN_M23',  input: true, output: true,  clock: false, label: 'IO20' },
-      { pin: 'PIN_K26',  input: true, output: true,  clock: false},
+      { pin: 'PIN_K26',  input: true, output: true,  clock: false },
       { pin: 'PIN_L25',  input: true, output: true,  clock: false, label: 'IO2' },
       { pin: 'PIN_N24',  input: true, output: true,  clock: false, label: 'IO5' },
       { pin: 'PIN_N23',  input: true, output: true,  clock: false, label: 'IO8' },
@@ -73,7 +73,7 @@ export const BOARDS = {
       { pin: 'PIN_P24',  input: true, output: true,  clock: false },
       { pin: 'PIN_P23',  input: true, output: true,  clock: false },
       { pin: 'PIN_T25',  input: true, output: true,  clock: false },
-      { pin: 'PIN_R25',  input: true, output: true, clock: false  }
+      { pin: 'PIN_R25',  input: false, output: true, clock: true, label: 'CLK' }
     ],
   },
 };
