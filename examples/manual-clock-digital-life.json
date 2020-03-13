@@ -1,0 +1,150 @@
+{
+  "redux": {
+    "top": "series",
+    "signals": {
+      "display[6]": 5,
+      "display[5]": 6,
+      "display[4]": 7,
+      "clk": 3,
+      "display[3]": 8,
+      "display[2]": 9,
+      "display[1]": 10,
+      "display[0]": 11,
+      "rst": 0,
+      "display_4_2[3]": 16,
+      "display_4_1[3]": 12,
+      "display_4_2[2]": 17,
+      "display_4_1[2]": 13,
+      "display_4_2[1]": 18,
+      "display_4_1[1]": 14,
+      "display_4_2[0]": 19,
+      "display_4_1[0]": 15
+    },
+    "code": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.std_logic_arith.all;\nuse ieee.std_logic_unsigned.all;\n\nentity series is\n\tport(\n\t\tclk:in std_logic;\n\t\trst:in std_logic;\n\t\tdisplay:out std_logic_vector(6 downto 0);     \n\t\tdisplay_4_1:out std_logic_vector(3 downto 0); \n\t\tdisplay_4_2:out std_logic_vector(3 downto 0) \n\t\t);\nend series;\n\narchitecture bhv of series is\n\nsignal key1:std_logic_vector(3 downto 0);\nsignal key2:std_logic_vector(3 downto 0);\nsignal key3:std_logic_vector(3 downto 0);\n\nbegin\n\tdisplay_4_1<=key2;\n\tdisplay_4_2<=key3;\n\t\n\tprocess(clk,rst)\n\tbegin\n\t\tif(rst = '0') then\n\t\t\tkey1<=\"0000\";\n\t\t\tkey2<=\"0001\";\n\t\t\tkey3<=\"0000\";\n\t\telsif (clk'event and clk= '1') then \n\t\t\n\t\t\tif(key1=\"1001\") then\n\t\t\t\tkey1<=\"0000\";\n\t\t\telse\n\t\t\t\tkey1<=key1+1;\n\t\t\tend if;\n\n\t\t\tif(key2=\"1001\") then\n\t\t\t\tkey2<=\"0001\";\n\t\t\telse\n\t\t\t\tkey2<=key2+2;\n\t\t\tend if;\n\n\t\t\tif(key3=\"1000\") then\n\t\t\t\tkey3<=\"0000\";\n\t\t\telse\n\t\t\t\tkey3<=key3+2;\n\t\t\tend if;\n\t\tend if;\n\tend process;\n\t\n\tprocess(key1)\n\tbegin\n\t\tcase key1 is\n\t\t\twhen \"0000\"=>display<=\"1111110\"; \n\t\t\twhen \"0001\"=>display<=\"0110000\";\n\t\t\twhen \"0010\"=>display<=\"1101101\";\n\t\t\twhen \"0011\"=>display<=\"1111001\";\n\t\t\twhen \"0100\"=>display<=\"0110011\";\n\t\t\twhen \"0101\"=>display<=\"1011011\";\n\t\t\twhen \"0110\"=>display<=\"1011111\";\n\t\t\twhen \"0111\"=>display<=\"1110000\";\n\t\t\twhen \"1000\"=>display<=\"1111111\"; \n\t\t\twhen \"1001\"=>display<=\"1110011\"; \n\t\t\twhen others=>display<=\"0000000\";\n\t\tend case;\n\tend process;\nend bhv;\t\t\n",
+    "field": [
+      {
+        "type": "FPGA",
+        "x": 0,
+        "y": 0,
+        "id": "fpga",
+        "persistent": true
+      },
+      {
+        "type": "Switch4",
+        "x": 0,
+        "y": 175,
+        "id": "switch4_1"
+      },
+      {
+        "type": "Digit4",
+        "x": 175,
+        "y": 0,
+        "id": "digit4_1"
+      },
+      {
+        "type": "Digit7",
+        "x": 350,
+        "y": 0,
+        "id": "digit7_1"
+      },
+      {
+        "type": "Clock",
+        "x": 175,
+        "y": 175,
+        "id": "clock_1"
+      }
+    ]
+  },
+  "sandbox": {
+    "groups": {
+      "e60dbb9e-dcf7-4a9a-8f85-8d1dc3d30e21": [
+        "fpga-0",
+        "switch4_1-switch-3"
+      ],
+      "27c9b77c-b0cb-4494-9555-99d8ceddf9cd": [
+        "fpga-12",
+        "digit4_1-A-8"
+      ],
+      "60431eb1-0b38-4bf3-b86e-30f9334fdeb2": [
+        "fpga-13",
+        "digit4_1-A-4"
+      ],
+      "1cd0df16-4596-40a0-a315-ca303e270863": [
+        "fpga-14",
+        "digit4_1-A-2"
+      ],
+      "ede0e7b2-430e-454b-9491-c312cb8b4867": [
+        "fpga-15",
+        "digit4_1-A-1"
+      ],
+      "fdb308d1-5020-40aa-a042-ca7a41fb9ccd": [
+        "fpga-16",
+        "digit4_1-B-8"
+      ],
+      "12f67449-6a35-46ec-b65c-5d9d11ecf68d": [
+        "fpga-17",
+        "digit4_1-B-4"
+      ],
+      "0179f1ea-8e02-44f4-b0e3-26c3b929e307": [
+        "fpga-18",
+        "digit4_1-B-2"
+      ],
+      "be7b6dcc-9d16-4106-8fd3-ac2de7a05a68": [
+        "fpga-19",
+        "digit4_1-B-1"
+      ],
+      "92cab5ad-ebf7-4877-9ae3-de481c01c07a": [
+        "fpga-5",
+        "digit7_1-A-A"
+      ],
+      "45d97325-8715-4d0a-a239-3536e1c4b039": [
+        "digit7_1-A-B",
+        "fpga-6"
+      ],
+      "b04c4fb5-983a-4b36-af70-58e9997dfdd2": [
+        "fpga-7",
+        "digit7_1-A-C"
+      ],
+      "7e45964b-1244-4e44-a467-070555fb5e91": [
+        "fpga-8",
+        "digit7_1-A-D"
+      ],
+      "f89269e7-cee5-4b50-8881-4799734cac76": [
+        "fpga-9",
+        "digit7_1-A-E"
+      ],
+      "b7102a85-6180-4379-b635-99326941956b": [
+        "fpga-10",
+        "digit7_1-A-F"
+      ],
+      "c65fa3f7-d30e-4275-a9f8-fe63a92bf242": [
+        "fpga-11",
+        "digit7_1-A-G"
+      ],
+      "cb432218-6d7f-4fdf-a2ef-ca5ecc0709d5": [
+        "clock_1-clk",
+        "fpga-3"
+      ]
+    },
+    "colors": {
+      "e60dbb9e-dcf7-4a9a-8f85-8d1dc3d30e21": "#000000",
+      "27c9b77c-b0cb-4494-9555-99d8ceddf9cd": "#000000",
+      "60431eb1-0b38-4bf3-b86e-30f9334fdeb2": "#000000",
+      "1cd0df16-4596-40a0-a315-ca303e270863": "#000000",
+      "ede0e7b2-430e-454b-9491-c312cb8b4867": "#000000",
+      "fdb308d1-5020-40aa-a042-ca7a41fb9ccd": "#000000",
+      "12f67449-6a35-46ec-b65c-5d9d11ecf68d": "#000000",
+      "0179f1ea-8e02-44f4-b0e3-26c3b929e307": "#000000",
+      "be7b6dcc-9d16-4106-8fd3-ac2de7a05a68": "#000000",
+      "92cab5ad-ebf7-4877-9ae3-de481c01c07a": "#000000",
+      "45d97325-8715-4d0a-a239-3536e1c4b039": "#000000",
+      "b04c4fb5-983a-4b36-af70-58e9997dfdd2": "#000000",
+      "7e45964b-1244-4e44-a467-070555fb5e91": "#000000",
+      "f89269e7-cee5-4b50-8881-4799734cac76": "#000000",
+      "b7102a85-6180-4379-b635-99326941956b": "#000000",
+      "c65fa3f7-d30e-4275-a9f8-fe63a92bf242": "#000000",
+      "cb432218-6d7f-4fdf-a2ef-ca5ecc0709d5": "#000000"
+    },
+    "color": "#000000"
+  }
+}
