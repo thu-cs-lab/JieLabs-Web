@@ -508,7 +508,7 @@ export function connectToBoard() {
 export function programBitstream(id) {
   return async (dispatch, getState) => {
     try {
-      let { board, builds, clock } = getState();
+      let { board, builds, clock, constraints } = getState();
       const build = builds.list.find(e => e.id === id);
       if(!build || !board || !board.websocket) return false;
       if(board.status !== BOARD_STATUS.CONNECTED) return false;
@@ -521,18 +521,20 @@ export function programBitstream(id) {
       let dirArr = [];
       let maskArr = [];
 
-      for(const pin in directions) {
-        const parsed = Number.parseInt(pin, 10);
+      const pinConf = BOARDS[constraints.board].pins;
 
-        if(parsed >= dirArr.length) {
+      for(const pin in directions) {
+        const ridx = pinConf[pin].idx ?? pin;
+
+        if(ridx >= dirArr.length) {
           let length = dirArr.length;
-          dirArr.push(...Array(parsed - length + 1).fill(0));
-          maskArr.push(...Array(parsed - length + 1).fill(0));
+          dirArr.push(...Array(ridx - length + 1).fill(0));
+          maskArr.push(...Array(ridx - length + 1).fill(0));
         }
 
-        maskArr[parsed] = 1;
+        maskArr[ridx] = 1;
         if(directions[pin] === 'input') // Reads from FPGA
-          dirArr[parsed] = 1;
+          dirArr[ridx] = 1;
           
       }
 

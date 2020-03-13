@@ -24,15 +24,15 @@ export default React.memo(({ id, ...rest }) => {
 
   const paddedInput = useMemo(() => {
     // Build reverse direction mapping
-    const revDir = new Map();
+    const revDir = {};
     if(directions)
       for(const i in directions) {
         const ridx = boardTmplPins[i].idx ?? i;
-        revDir.set(ridx, directions[i]);
+        revDir[ridx] = directions[i]; // We are using objects here because typeof i === 'string'
       }
 
     const head = (input || []).map((e, idx) => {
-      if(revDir.get(idx) === 'output') // Inputs from FPGA
+      if(revDir[idx] === 'output') // Inputs from FPGA
         return SIGNAL.X;
       else
         return e;
