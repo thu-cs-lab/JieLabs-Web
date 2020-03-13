@@ -103,7 +103,7 @@ const STEPS = [
 
         <div className="help-box" style={{
           position: 'absolute',
-          top: 60*6 + 100,
+          top: 60*6 + 50,
           left: '50vw',
           transform: 'translateX(-50%)',
         }}>
@@ -216,9 +216,9 @@ const STEPS = [
           编译状态
         </div>
 
-        <div className="help-box" style={{
+        <div className="help-box help-box-wide" style={{
           position: 'absolute',
-          top: 60*2 + 100,
+          top: 60*2 + 50,
           left: '50vw',
           transform: 'translateX(-50%)',
         }}>
@@ -308,6 +308,8 @@ const STEPS = [
           position: 'fixed',
           top: 40,
           right: 40,
+          maxHeight: 'calc(100vh - 80px)',
+          overflowY: 'auto',
         }}>
           <strong>亮，都可以亮 (续)</strong>
           <p>点击接线柱可以开始连线，在连线的过程中，被连接的接线柱会被显示为蓝色，鼠标经过其他接线柱或者其他线时，将会将其高亮为黄色。点击被高亮为黄色的接线柱或线，可以进行连线。</p>

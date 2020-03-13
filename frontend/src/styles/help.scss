@@ -211,6 +211,10 @@ $hl: #ffeb3b;
     font-size: 32px;
     line-height: 32px;
   }
+
+  &.help-box-wide {
+    max-width: 600px;
+  }
 }
 
 .help-layout {
