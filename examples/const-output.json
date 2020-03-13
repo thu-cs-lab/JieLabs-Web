@@ -1,0 +1,60 @@
+{
+  "redux": {
+    "top": "test",
+    "signals": {
+      "const0": 4,
+      "const1": 5
+    },
+    "code": "module test(\n\tconst0,\n\tconst1\n\t);\n\n\toutput wire const0;\n\toutput wire const1;\n\tassign const0 = 0;\n\tassign const1 = 1;\n\nendmodule",
+    "field": [
+      {
+        "type": "FPGA",
+        "x": 0,
+        "y": 0,
+        "id": "fpga",
+        "persistent": true
+      },
+      {
+        "type": "Switch4",
+        "x": 0,
+        "y": 175,
+        "id": "switch4_1"
+      },
+      {
+        "type": "Digit4",
+        "x": 175,
+        "y": 0,
+        "id": "digit4_1"
+      },
+      {
+        "type": "Digit7",
+        "x": 350,
+        "y": 0,
+        "id": "digit7_1"
+      },
+      {
+        "type": "Clock",
+        "x": 175,
+        "y": 175,
+        "id": "clock_1"
+      }
+    ]
+  },
+  "sandbox": {
+    "groups": {
+      "eb06d95c-cd5e-4dbd-9a45-2d9a938343db": [
+        "fpga-4",
+        "digit4_1-A-1"
+      ],
+      "58bc06bd-be76-4a26-ba82-91d05a4b78b4": [
+        "fpga-5",
+        "digit4_1-B-1"
+      ]
+    },
+    "colors": {
+      "eb06d95c-cd5e-4dbd-9a45-2d9a938343db": "#000000",
+      "58bc06bd-be76-4a26-ba82-91d05a4b78b4": "#000000"
+    },
+    "color": "#000000"
+  }
+}
