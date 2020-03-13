@@ -60,7 +60,10 @@ async fn list(
             let mut res = vec![];
             let online_users = ONLINE_USERS.lock().unwrap().clone();
             for user in users {
-                let session_count = online_users.iter().filter(|u| *u == &user.user_name).count();
+                let session_count = online_users
+                    .iter()
+                    .filter(|u| *u == &user.user_name)
+                    .count();
                 res.push(UserInfo {
                     id: user.id,
                     user_name: user.user_name,
@@ -112,8 +115,8 @@ async fn update(
     body: web::Json<UserUpdateRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
-        if user.role == "admin" || (user.user_name == *path) {
+    if let (Some(login_user), conn) = get_user(&id, conn).await? {
+        if login_user.role == "admin" || (login_user.user_name == *path) {
             // admin: edit anyone
             // other: edit himself
             if let Ok(mut user) = dsl::users
@@ -121,25 +124,25 @@ async fn update(
                 .first::<User>(&conn)
             {
                 if let Some(real_name) = &body.real_name {
-                    if user.role != "admin" {
+                    if login_user.role != "admin" {
                         return Ok(HttpResponse::Forbidden().finish());
                     }
                     user.real_name = Some(real_name.clone());
                 }
                 if let Some(class) = &body.class {
-                    if user.role != "admin" {
+                    if login_user.role != "admin" {
                         return Ok(HttpResponse::Forbidden().finish());
                     }
                     user.class = Some(class.clone());
                 }
                 if let Some(student_id) = &body.student_id {
-                    if user.role != "admin" {
+                    if login_user.role != "admin" {
                         return Ok(HttpResponse::Forbidden().finish());
                     }
                     user.student_id = Some(student_id.clone());
                 }
                 if let Some(role) = &body.role {
-                    if user.role != "admin" {
+                    if login_user.role != "admin" {
                         return Ok(HttpResponse::Forbidden().finish());
                     }
                     user.role = role.clone();
