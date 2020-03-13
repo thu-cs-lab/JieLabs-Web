@@ -443,7 +443,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     const redux = dispatch(exportWorkspace());
     const sandbox = sandboxHandlerRef.current.export();
 
-    const str = JSON.stringify({ redux, sandbox }, null, 2);
+    const str = JSON.stringify({ redux, sandbox, lang }, null, 2);
     const blob = new Blob([str], { type: 'application/json;charset=utf-8' });
     saveAs(blob, 'jielabs-export.json');
     dispatch(showSnackbar('Exported! Drag-n-Drop to load', 5000));
