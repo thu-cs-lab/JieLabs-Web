@@ -88,7 +88,7 @@ export default React.memo(({ id, ...rest }) => {
             }}
             onReg={pin.clock ? ctx.regClocking : null}
             onUnreg={pin.clock ? ctx.unregClocking : null}
-            output={paddedInput[ridx]}
+            output={paddedInput[idx]}
           />
           <div className="label">{ pin.label || ridx }</div>
         </div>
