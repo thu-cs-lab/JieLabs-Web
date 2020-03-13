@@ -317,11 +317,14 @@ export default React.memo(() => {
       console.log(text);
       const parsed = JSON.parse(text);
 
-      const { redux, sandbox } = parsed;
+      const { redux, sandbox, lang } = parsed;
       // TODO: Check fields
 
       dispatch(importWorkspace(redux));
       sandboxHandlerRef.current.import(sandbox);
+      if (lang === 'verilog' || lang === 'vhdl') {
+        dispatch(updateLang(lang));
+      }
     } catch(e) {
       console.error(e);
       dispatch(showSnackbar('Unable to parse save file'));
@@ -581,12 +584,12 @@ export default React.memo(() => {
 
         <div className="hint">LANGUAGE</div>
         <div className="languages">
-          <div className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
+          <div id="verilog" className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
             <div className="language-ind"><Icon>done</Icon></div>
             <div className="language-name">Verilog</div>
           </div>
 
-          <div className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
+          <div id="vhdl" className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
             <div className="language-ind"><Icon>done</Icon></div>
             <div className="language-name">VHDL</div>
           </div>
