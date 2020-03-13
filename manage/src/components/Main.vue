@@ -362,6 +362,10 @@ export default {
           (page - 1)}&limit=${itemsPerPage}`
       );
       this.jobs = jobs.jobs;
+      for (let i in this.jobs) {
+        this.jobs[i].created_at = new Date(this.jobs[i].created_at);
+        this.jobs[i].finished_at = new Date(this.jobs[i].finished_at);
+      }
       this.job_count = await get("/api/task/count");
       this.loading = false;
     },
@@ -375,6 +379,9 @@ export default {
           (page - 1)}&limit=${itemsPerPage}`
       );
       this.users = users.users;
+      for (let i in this.users) {
+        this.users[i].last_login = new Date(this.users[i].last_login);
+      }
       this.user_count = await get("/api/user/count");
       this.loading = false;
     },
