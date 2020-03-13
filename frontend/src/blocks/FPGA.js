@@ -23,8 +23,16 @@ export default React.memo(({ id, ...rest }) => {
   const maxIdx = Math.max(...boardTmplPins.map((e, idx) => Number.isInteger(e.idx) ? e.idx : idx));
 
   const paddedInput = useMemo(() => {
+    // Build reverse direction mapping
+    const revDir = new Map();
+    if(directions)
+      for(const i in directions) {
+        const ridx = boardTmplPins[i].idx ?? i;
+        revDir.set(ridx, directions[i]);
+      }
+
     const head = (input || []).map((e, idx) => {
-      if(directions && idx in directions && directions[idx] === 'output') // Inputs from FPGA
+      if(revDir.get(idx) === 'output') // Inputs from FPGA
         return SIGNAL.X;
       else
         return e;
@@ -35,7 +43,7 @@ export default React.memo(({ id, ...rest }) => {
     const tail = Array(maxIdx + 1 - head.length).fill(SIGNAL.X);
 
     return head.concat(tail);
-  }, [input, directions]);
+  }, [input, directions, boardTmplPins]);
 
   const gridStyle = useMemo(() => {
     const slotCount = boardTmpl.dimensions[0] * boardTmpl.dimensions[1];
@@ -69,8 +77,6 @@ export default React.memo(({ id, ...rest }) => {
     </>
   }
 
-  // TODO: change fpga layout based on chosen board tempalte
-
   return <div className="block fpga" style={gridStyle} {...rest}>
     { boardTmplPins.map((pin, idx) => {
       if(pin.placeholder)  return<div key={idx} className="pin-group" />;
@@ -88,7 +94,7 @@ export default React.memo(({ id, ...rest }) => {
             }}
             onReg={pin.clock ? ctx.regClocking : null}
             onUnreg={pin.clock ? ctx.unregClocking : null}
-            output={paddedInput[idx]}
+            output={paddedInput[ridx]}
           />
           <div className="label">{ pin.label || ridx }</div>
         </div>

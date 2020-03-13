@@ -48,9 +48,13 @@ class Handler {
 
   // TODO: move groups into outer component
   register(id, cbref, mode, data, selcbref) {
+    // IMPORTANT: this replace pending pin. See import
+
     if(!id) throw new Error('Connector registered without ID');
     const ref = React.createRef();
-    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, group: null, mode, data, selcb: selcbref };
+    const group = this.connectors[id]?.group ?? null;
+
+    this.connectors[id] = { cb: cbref, ref, input: SIGNAL.X, ack: SIGNAL.X, group, mode, data, selcb: selcbref };
     this.fireListeners();
     return { ref, id };
   }
@@ -301,9 +305,25 @@ class Handler {
   }
 
   import({ groups: _groups, colors, color }) {
+    // IMPORTANT:
+    // When doing imports, pins are not currently registered.
+    // Registration will happen on next React render cycle.
+    // So here, we are going to register as many pin as possible,
+    // and for pins not available, we are creating an placeholder for it
+
+    // TODO: do we need to exclude pending pins from lines and connset?
+
     const groups = {};
-    for(const k in _groups)
+    for(const k in _groups) {
       groups[k] = new Set(_groups[k]);
+      for(const pin of _groups[k]) {
+        if(this.connectors[pin]) this.connectors[pin].group = k;
+        else this.connectors[pin] = {
+          pending: true,
+          group: k,
+        };
+      }
+    }
 
     this.groups = groups;
     this.colors = colors;
