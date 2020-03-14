@@ -20,6 +20,7 @@
   &-subtitle {
     font-size: 18px;
     opacity: .3;
+    margin-top: 5px;
   }
 
   &-desc {
@@ -27,5 +28,36 @@
     max-width: 400px;
     text-indent: 2em;
     margin-bottom: 20px;
+  }
+
+  &-progress {
+    margin-top: 20px;
+    height: 5px;
+    background: rgba(0,0,0,.12);
+    width: calc(100% - 100px);
+    max-width: 400px;
+
+    overflow: hidden;
+
+    &:after {
+      content: ' ';
+      display: block;
+      height: 100%;
+      width: 100%;
+
+      background: $primary-color;
+
+      animation: error-progress 1.5s ease infinite;
+
+      @keyframes error-progress {
+        0% {
+          transform: translateX(-100%);
+        }
+
+        100% {
+          transform: translateX(100%);
+        }
+      }
+    }
   }
 }

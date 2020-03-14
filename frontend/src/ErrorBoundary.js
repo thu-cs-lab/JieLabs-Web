@@ -31,8 +31,9 @@ export default class ErrorBoundary extends Component {
 
     return (
       <div className="error">
-        <div className="error-title">Bug 了！</div>
-        <div className="error-subtitle">杰哥火速排查中</div>
+        <div className="error-title">JieLabs 预■体验成员内■版本遇到问题</div>
+        <div className="error-subtitle">杰哥正在寻找该问题的解决方案...</div>
+        <div className="error-progress"></div>
 
         <div className="error-desc">
           我们已经收集了错误的基本信息，请尝试刷新能否解决这个问题。如果问题依旧存在，您可以尝试点击下面的按钮清空本地存储并刷新。
