@@ -314,6 +314,9 @@ class Handler {
     // TODO: do we need to exclude pending pins from lines and connset?
 
     const groups = {};
+    // Drop all groups
+    for(const pin in this.connectors)
+      this.connectors[pin].group = null;
     for(const k in _groups) {
       groups[k] = new Set(_groups[k]);
       for(const pin of _groups[k]) {
@@ -407,19 +410,18 @@ export default React.memo(({ handlerRef }) => {
 
   const [color, setColor] = useState(COLORS[0]);
 
-  const handler = useMemo(() => {
-    const ret = new Handler(id => {
-      setLinking(true);
-      setFocus({ type: 'connector', id });
-    }, () => {
-      ret.localSave('sandbox');
-      setLines(ret.getLines());
-      setColor(ret.getActiveColor());
-    });
+  const handler = useMemo(() => new Handler(id => {
+    setLinking(true);
+    setFocus({ type: 'connector', id });
+  }, () => {
+    handler.localSave('sandbox');
+    setLines(handler.getLines());
+    setColor(handler.getActiveColor());
+  }), []);
 
-    ret.localLoad('sandbox');
-    return ret;
-  }, []);
+  useEffect(() => {
+    setTimeout(() => handler.localLoad('sandbox'));
+  }, [handler]);
 
   useEffect(() => {
     if(handlerRef)

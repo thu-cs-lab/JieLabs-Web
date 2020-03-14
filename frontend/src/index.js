@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-import store from './store';
+import buildStore from './store';
 import { showSnackbar } from './store/actions';
 
 import ErrorBoundary from './ErrorBoundary';
@@ -26,15 +26,31 @@ if(!window.TextEncoder)
 if(!window.TextDecoder)
   window.TextDecoder = TextDecoder;
 
-import('./lang').then(mod => mod.default(store));
+let storeSet = null;
+const storePromise = new Promise(resolve => {
+  storeSet = resolve;
+});
 
-const build = App => () => <Provider store={store}>
-  <ErrorBoundary>
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <App />
-    </BrowserRouter>
-  </ErrorBoundary>
-</Provider>;
+const Root = React.memo(({ Comp }) => {
+  const store = React.useMemo(() => buildStore(), []);
+
+  React.useEffect(() => {
+    import('./lang').then(mod => mod.default(store));
+    storeSet(store);
+  }, [store]);
+
+  return (
+    <Provider store={store}>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
+        <Comp />
+      </BrowserRouter>
+    </Provider>
+  );
+});
+
+const build = App => () => <ErrorBoundary>
+  <Root Comp={App} />
+</ErrorBoundary>
 
 
 const Render = build(App);
@@ -45,7 +61,8 @@ ReactDOM.render(<Render />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register({
-  onUpdate(reg) {
+  async onUpdate(reg) {
+    const store = await storePromise;
     store.dispatch(showSnackbar(
       'Update available!',
       0,
