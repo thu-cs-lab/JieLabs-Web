@@ -331,6 +331,19 @@ class Handler {
 
     if(this.onImported) this.onImported();
   }
+
+  localSave(id) {
+    const data = this.export();
+    const str = JSON.stringify(data);
+    window.localStorage.setItem(id, str);
+  }
+
+  localLoad(id) {
+    const data = window.localStorage.getItem(id);
+    if(!data) return;
+
+    this.import(JSON.parse(data));
+  }
 }
 
 function center(rect, ref) {
@@ -394,14 +407,19 @@ export default React.memo(({ handlerRef }) => {
 
   const [color, setColor] = useState(COLORS[0]);
 
-  const handler = useMemo(() => new Handler(id => {
-    setLinking(true);
-    setFocus({ type: 'connector', id });
-  }, () => {
-    console.log(handler.getLines());
-    setLines(handler.getLines());
-    setColor(handler.getActiveColor());
-  }), []);
+  const handler = useMemo(() => {
+    const ret = new Handler(id => {
+      setLinking(true);
+      setFocus({ type: 'connector', id });
+    }, () => {
+      ret.localSave('sandbox');
+      setLines(ret.getLines());
+      setColor(ret.getActiveColor());
+    });
+
+    ret.localLoad('sandbox');
+    return ret;
+  }, []);
 
   useEffect(() => {
     if(handlerRef)
@@ -418,6 +436,7 @@ export default React.memo(({ handlerRef }) => {
       result = handler.connect(handler.getLeaderId(focus.id), id);
     if(!result) return;
 
+    handler.localSave('sandbox');
     setLines(handler.getLines());
     setLinking(false);
     setFocus(null)
@@ -598,6 +617,7 @@ export default React.memo(({ handlerRef }) => {
     if(focus.type === 'group') handler.disassembleGroup(focus.id);
     else handler.removeFromGroup(focus.id);
 
+    handler.localSave('sandbox');
     setLines(handler.getLines());
     setFocus(null);
   }, [focus, handler, timeoutCtx]);
@@ -621,6 +641,8 @@ export default React.memo(({ handlerRef }) => {
     if(focus?.type !== 'group') return;
     handler.dyeGroup(focus.id);
     setFocus(null);
+
+    handler.localSave('sandbox');
     setLines(handler.getLines());
   }, [focus, handler]);
 
