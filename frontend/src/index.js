@@ -9,6 +9,8 @@ import * as serviceWorker from './serviceWorker';
 import store from './store';
 import { showSnackbar } from './store/actions';
 
+import ErrorBoundary from './ErrorBoundary';
+
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -27,9 +29,11 @@ if(!window.TextDecoder)
 import('./lang').then(mod => mod.default(store));
 
 const build = App => () => <Provider store={store}>
-  <BrowserRouter basename={process.env.PUBLIC_URL}>
-    <App />
-  </BrowserRouter>
+  <ErrorBoundary>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
+      <App />
+    </BrowserRouter>
+  </ErrorBoundary>
 </Provider>;
 
 

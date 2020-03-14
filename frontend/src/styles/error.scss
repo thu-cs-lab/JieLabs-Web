@@ -1,0 +1,31 @@
+.error {
+  position: fixed;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: $bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  color: white;
+
+  &-title {
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  &-subtitle {
+    font-size: 18px;
+    opacity: .3;
+  }
+
+  &-desc {
+    margin-top: 40px;
+    max-width: 400px;
+    text-indent: 2em;
+    margin-bottom: 20px;
+  }
+}
