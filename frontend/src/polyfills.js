@@ -32,11 +32,22 @@ function toUTF8Array(str) {
 export class TextEncoder {
   constructor(encoding) {
     console.log('Using custom encoder, expect some real slow motion, please upgrade your browser');
-    if(encoding && encoding !== 'utf-8')
-      throw new Error('Sorry, Meow\'s TextEncoder only supports UTF-8');
+    if(encoding && encoding.toLowerCase() !== 'utf-8' && encoding.toLowerCase() !== 'utf-16le')
+      throw new Error(`Sorry, Meow\'s TextEncoder only supports UTF-8/16LE, required ${encoding}`);
+    this.encoding = encoding.toLowerCase();
   }
 
   encode(str) {
+    if(this.encoding === 'utf-16le') {
+      const buf = new ArrayBuffer(str.length * 2);
+      const view = new Uint16Array(buf);
+
+      for(let i = 0; i < str.length; ++i)
+        view[i] = str.charCodeAt(i);
+
+      return buf;
+    }
+
     const plain = toUTF8Array(str);
     const buf = new ArrayBuffer(plain.length);
     const arr = new Uint8Array(buf);
@@ -48,11 +59,15 @@ export class TextEncoder {
 export class TextDecoder {
   constructor(encoding) {
     console.log('Using custom decoder, expect some real slow motion');
-    if(encoding && encoding !== 'utf-8')
-      throw new Error('Sorry, Meow\'s TextDecoder only supports UTF-8');
+    if(encoding && encoding.toLowerCase() !== 'utf-8' && encoding.toLowerCase() !== 'utf-16le')
+      throw new Error(`Sorry, Meow\'s TextEncoder only supports UTF-8/16LE, required ${encoding}`);
+    this.encoding = encoding.toLowerCase();
   }
   decode(arr) {
     if(!arr) return '';
+    if(this.encoding === 'utf-16le')
+      return String.fromCharCode(...new Uint16Array(arr));
+
     let result = '';
     for(let i = 0; i < arr.length; ++i) {
       const char = arr[i];
