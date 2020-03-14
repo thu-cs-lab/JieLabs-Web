@@ -4,14 +4,15 @@ import logger from 'redux-logger';
 
 import * as reducers from './reducers';
 
-import { Map } from 'immutable';
-import { DEFAULT_BOARD } from '../config';
+import { Map, List } from 'immutable';
+import { DEFAULT_BOARD, DEFAULT_FIELD } from '../config';
 
-let lastCode = window.localStorage.getItem('code') || '';
-let lastBoard = window.localStorage.getItem('board') || DEFAULT_BOARD;
-let lastTop = window.localStorage.getItem('top') || null;
-let lastSignals = Map(JSON.parse(window.localStorage.getItem('signals')) || {});
-let lastLang = window.localStorage.getItem('lang') || 'vhdl';
+const code = window.localStorage.getItem('code') || '';
+const board = window.localStorage.getItem('board') || DEFAULT_BOARD;
+const top = window.localStorage.getItem('top') || null;
+const signals = Map(JSON.parse(window.localStorage.getItem('signals')) || {});
+const lang = window.localStorage.getItem('lang') || 'vhdl';
+const field = List(JSON.parse(window.localStorage.getItem('field')) || DEFAULT_FIELD);
 
 let middleware = [thunk];
 if (process.env.NODE_ENV !== 'production') {
@@ -21,44 +22,46 @@ if (process.env.NODE_ENV !== 'production') {
 const store = createStore(
   combineReducers(reducers),
   {
-    code: lastCode,
+    code,
     constraints: {
-      board: lastBoard,
-      top: lastTop,
-      signals: lastSignals,
+      board,
+      top,
+      signals,
     },
-    lang: lastLang,
+    lang,
+    field,
   },
   applyMiddleware(...middleware),
 );
 
+function saver(name, first, mapper = data => data) {
+  let last = first;
+  return data => {
+    if(data != last) {
+      last = data;
+
+      const mapped = mapper(data);
+      window.localStorage.setItem(name, mapped);
+    }
+  }
+}
+
+const saveCode = saver('code', code);
+const saveBoard = saver('board', board);
+const saveTop = saver('top', top);
+const saveSignals = saver('top', signals, d => JSON.stringify(d.toJS()));
+const saveLang = saver('lang', lang);
+const saveField = saver('field', field, d => JSON.stringify(d.toJS()));
+
 store.subscribe(() => {
-  const { code, constraints: { board, top, signals }, lang } = store.getState();
+  const { code, constraints: { board, top, signals }, lang, field } = store.getState();
 
-  if(code !== lastCode) {
-    lastCode = code;
-    window.localStorage.setItem('code', code);
-  }
-
-  if(board !== lastBoard) {
-    lastBoard = board;
-    window.localStorage.setItem('board', board);
-  }
-
-  if(top !== lastTop) {
-    lastTop = top;
-    window.localStorage.setItem('top', top);
-  }
-
-  if(signals !== lastSignals) {
-    lastSignals = signals;
-    window.localStorage.setItem('signals', JSON.stringify(signals.toJS()));
-  }
-
-  if(lang !== lastLang) {
-    lastLang = lang;
-    window.localStorage.setItem('lang', lang);
-  }
+  saveCode(code);
+  saveBoard(board);
+  saveTop(top);
+  saveSignals(signals);
+  saveLang(lang);
+  saveField(field);
 });
 
 export default store;
