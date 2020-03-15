@@ -505,6 +505,7 @@ export default React.memo(({ handlerRef }) => {
   // Update lines & connectors when updating field
   useLayoutEffect(() => {
     setTimeout(() => {
+      handler.localSave('sandbox');
       setLines(handler.getLines());
       refreshConnectors();
     });
