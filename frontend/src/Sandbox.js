@@ -333,6 +333,7 @@ class Handler {
     this.color = color;
 
     if(this.onImported) this.onImported();
+    this.fireListeners();
   }
 
   localSave(id) {
