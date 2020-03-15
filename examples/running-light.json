@@ -1,0 +1,85 @@
+{
+  "redux": {
+    "top": "mod_top",
+    "signals": {
+      "M_nRESET": 0,
+      "CLK_100M": 3,
+      "EXP_IO[3]": 4,
+      "EXP_IO[2]": 5,
+      "EXP_IO[1]": 6,
+      "EXP_IO[0]": 7
+    },
+    "code": "library ieee;\n    use ieee.std_logic_1164.all;\n    use ieee.std_logic_unsigned.all;\n\nentity mod_top is\n    port (\n        M_nRESET :in std_logic;\n        CLK_100M :in std_logic;\n        EXP_IO :out std_logic_vector (3 downto 0)\n    );\nend entity;\narchitecture rtl of mod_top is\n    signal output :std_logic_vector (3 downto 0) := (0 => '1', others => '0');\n    signal counter :std_logic_vector (31 downto 0) := (others => '0');\nbegin\n    process (CLK_100M, M_nRESET) begin\n        if (M_nRESET = '0') then\n            output <= (0 => '1', others => '0');\n            counter <= (others => '0');\n        elsif (rising_edge(CLK_100M)) then\n            if (counter = 1_000_000) then\n                counter <= (others => '0');\n                if (output(3) = '1') then\n                    output <= (0 => '1', others => '0');\n                else\n                    output <= output(2 downto 0) & '0';\n                end if;\n            else\n                counter <= counter + 1;\n            end if;\n        end if;\n    end process;\n    EXP_IO <= output;\nend architecture;\n\n",
+    "field": [
+      {
+        "type": "FPGA",
+        "x": 0,
+        "y": 0,
+        "id": "fpga",
+        "persistent": true
+      },
+      {
+        "type": "Switch4",
+        "x": 0,
+        "y": 175,
+        "id": "switch4_1"
+      },
+      {
+        "type": "Digit4",
+        "x": 175,
+        "y": 0,
+        "id": "digit4_1"
+      },
+      {
+        "type": "Digit7",
+        "x": 350,
+        "y": 0,
+        "id": "digit7_1"
+      },
+      {
+        "type": "Clock",
+        "x": 175,
+        "y": 175,
+        "id": "clock_1"
+      }
+    ]
+  },
+  "sandbox": {
+    "groups": {
+      "759cafa7-bab3-4e0f-8396-90c4868bd391": [
+        "fpga-3",
+        "clock_1-1"
+      ],
+      "933404e8-e4ec-4b89-8258-571efe153d1f": [
+        "fpga-0",
+        "clock_1-clk"
+      ],
+      "6a013009-7c5e-4a01-93f5-70479c46ce2b": [
+        "fpga-4",
+        "switch4_1-led-3"
+      ],
+      "22621c4f-0aa3-42af-9d48-67ae10aebaaf": [
+        "fpga-5",
+        "switch4_1-led-2"
+      ],
+      "af51e295-5c62-4655-8e97-8d3a01cd16d8": [
+        "fpga-6",
+        "switch4_1-led-1"
+      ],
+      "c0cebd2a-9ce6-4106-9c09-c76b304856f4": [
+        "fpga-7",
+        "switch4_1-led-0"
+      ]
+    },
+    "colors": {
+      "759cafa7-bab3-4e0f-8396-90c4868bd391": "#f44336",
+      "933404e8-e4ec-4b89-8258-571efe153d1f": "#f44336",
+      "6a013009-7c5e-4a01-93f5-70479c46ce2b": "#f44336",
+      "22621c4f-0aa3-42af-9d48-67ae10aebaaf": "#f44336",
+      "af51e295-5c62-4655-8e97-8d3a01cd16d8": "#f44336",
+      "c0cebd2a-9ce6-4106-9c09-c76b304856f4": "#f44336"
+    },
+    "color": "#f44336"
+  },
+  "lang": "vhdl"
+}
