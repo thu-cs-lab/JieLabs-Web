@@ -1,0 +1,151 @@
+{
+  "redux": {
+    "top": "DigitalLife",
+    "signals": {
+      "display[6]": 4,
+      "display[5]": 5,
+      "display[4]": 6,
+      "clk": 3,
+      "display[3]": 7,
+      "display[2]": 8,
+      "display[1]": 9,
+      "display[0]": 10,
+      "rst": 0,
+      "display2[3]": 15,
+      "display1[3]": 11,
+      "display2[2]": 16,
+      "display1[2]": 12,
+      "display2[1]": 17,
+      "display1[1]": 13,
+      "display2[0]": 18,
+      "display1[0]": 14
+    },
+    "code": "library ieee;\r\nuse ieee.std_logic_1164.all;\r\nuse ieee.std_logic_unsigned.all;\r\n\r\nentity DigitalLife is\r\n    port (\r\n        rst: in std_logic;\r\n        clk: in std_logic;\r\n        display: out std_logic_vector(6 downto 0);\r\n        display1: out std_logic_vector(3 downto 0);\r\n        display2: out std_logic_vector(3 downto 0)\r\n        \r\n    );\r\nend entity;\r\n\r\n\r\n\r\narchitecture main of DigitalLife is\r\n    signal count: std_logic_vector(3 downto 0);\r\n    signal count1: std_logic_vector(3 downto 0);\r\n    signal count2: std_logic_vector(3 downto 0);\r\n    signal timeCount: std_logic_vector(31 downto 0);\r\nbegin\r\n    process (clk, rst) begin\r\n        if (rst = '1') then\r\n            count <= (others => '0');\r\n            count1 <= (others => '0');\r\n            count2 <= (0 => '1', others => '0');\r\n            timeCount <= (others => '0');\r\n        elsif (rising_edge(clk)) then\r\n            if (timeCount = 4_000_000) then\r\n                count <= count + 1;\r\n                if (count1 = 8) then\r\n                    count1 <= (others => '0');\r\n                else\r\n                    count1 <= count1 + 2;\r\n                end if;\r\n                if (count2 = 9) then\r\n                    count2 <= (0 =>'1', others => '0');\r\n                else\r\n                    count2 <= count2 + 2;\r\n                end if;\r\n                timeCount <= (others => '0');\r\n            else\r\n                timeCount <= timeCount + 1;\r\n            end if;\r\n        end if;\r\n    end process;\r\n\r\n    process (count) begin\r\n        case count is\r\n            when \"0000\" =>\r\n                display <= \"0111111\";\r\n            when \"0001\" =>\r\n                display <= \"0000110\";\r\n            when \"0010\" =>\r\n                display <= \"1011011\";\r\n            when \"0011\" =>\r\n                display <= \"1001111\";\r\n            when \"0100\" =>\r\n                display <= \"1100110\";\r\n            when \"0101\" =>\r\n                display <= \"1101101\";\r\n            when \"0110\" =>\r\n                display <= \"1111101\";\r\n            when \"0111\" =>\r\n                display <= \"0000111\";\r\n            when \"1000\" =>\r\n                display <= \"1111111\";\r\n            when \"1001\" =>\r\n                display <= \"1101111\";\r\n            when \"1010\" =>\r\n                display <= \"1110111\";\r\n            when \"1011\" =>\r\n                display <= \"1111100\";\r\n            when \"1100\" =>\r\n                display <= \"0111001\";\r\n            when \"1101\" =>\r\n                display <= \"1011110\";\r\n            when \"1110\" =>\r\n                display <= \"1111001\";\r\n            when others =>\r\n                display <= \"1110001\";\r\n        end case;\r\n    end process;\r\n    \r\n    display1 <= count1;\r\n    display2 <= count2;\r\n\r\nend architecture main;\r\n",
+    "field": [
+      {
+        "type": "FPGA",
+        "x": 0,
+        "y": 0,
+        "id": "fpga",
+        "persistent": true
+      },
+      {
+        "type": "Switch4",
+        "x": 0,
+        "y": 175,
+        "id": "switch4_1"
+      },
+      {
+        "type": "Digit4",
+        "x": 175,
+        "y": 0,
+        "id": "digit4_1"
+      },
+      {
+        "type": "Digit7",
+        "x": 350,
+        "y": 0,
+        "id": "digit7_1"
+      },
+      {
+        "type": "Clock",
+        "x": 175,
+        "y": 175,
+        "id": "clock_1"
+      }
+    ]
+  },
+  "sandbox": {
+    "groups": {
+      "dbc5ef43-a217-4ee8-a19f-08b2b48bc1ac": [
+        "clock_1-clk",
+        "fpga-0"
+      ],
+      "ec5fc9da-b888-45f4-96ed-b871db074389": [
+        "fpga-3",
+        "clock_1-4"
+      ],
+      "df034a06-db55-4274-aeb9-515361d0a076": [
+        "digit7_1-A-G",
+        "fpga-4"
+      ],
+      "b18bf006-72e4-433d-a525-b55c0abdc450": [
+        "digit7_1-A-F",
+        "fpga-5"
+      ],
+      "c731791b-de81-4198-b047-97f964ed6953": [
+        "fpga-6",
+        "digit7_1-A-E"
+      ],
+      "db3d1645-e5a8-4b41-9d37-0337fbda2525": [
+        "digit7_1-A-D",
+        "fpga-7"
+      ],
+      "c390f3db-7b66-4f5a-8065-7d73143fcc7e": [
+        "digit7_1-A-C",
+        "fpga-8"
+      ],
+      "39b632d1-8de0-42f3-8a87-7aad50ec9bc4": [
+        "fpga-9",
+        "digit7_1-A-B"
+      ],
+      "c77c75ab-c38a-4210-8a14-94fa97cb3654": [
+        "fpga-10",
+        "digit7_1-A-A"
+      ],
+      "1f36ee01-5de6-4a30-9518-d488ccd971e3": [
+        "fpga-11",
+        "digit4_1-A-8"
+      ],
+      "b8e18046-6d9d-4106-a26a-d1a1c352a995": [
+        "fpga-12",
+        "digit4_1-A-4"
+      ],
+      "2740739d-0464-4e7f-8ab3-06d55192ac34": [
+        "fpga-13",
+        "digit4_1-A-2"
+      ],
+      "f2ff0738-59f6-4f39-b880-5c02dc6265c7": [
+        "fpga-14",
+        "digit4_1-A-1"
+      ],
+      "abc0441c-525d-4677-979d-d438cf704f4d": [
+        "fpga-15",
+        "digit4_1-B-8"
+      ],
+      "41d594fc-ccff-4696-b569-0de39a07cb6b": [
+        "fpga-16",
+        "digit4_1-B-4"
+      ],
+      "f56921cf-740d-4c7b-a574-5a10fc349168": [
+        "fpga-17",
+        "digit4_1-B-2"
+      ],
+      "2cdc646f-c9c5-4785-a0ea-dc6c88cb51da": [
+        "fpga-18",
+        "digit4_1-B-1"
+      ]
+    },
+    "colors": {
+      "dbc5ef43-a217-4ee8-a19f-08b2b48bc1ac": "#000000",
+      "ec5fc9da-b888-45f4-96ed-b871db074389": "#000000",
+      "df034a06-db55-4274-aeb9-515361d0a076": "#000000",
+      "b18bf006-72e4-433d-a525-b55c0abdc450": "#000000",
+      "c731791b-de81-4198-b047-97f964ed6953": "#000000",
+      "db3d1645-e5a8-4b41-9d37-0337fbda2525": "#000000",
+      "c390f3db-7b66-4f5a-8065-7d73143fcc7e": "#000000",
+      "39b632d1-8de0-42f3-8a87-7aad50ec9bc4": "#000000",
+      "c77c75ab-c38a-4210-8a14-94fa97cb3654": "#000000",
+      "1f36ee01-5de6-4a30-9518-d488ccd971e3": "#000000",
+      "b8e18046-6d9d-4106-a26a-d1a1c352a995": "#000000",
+      "2740739d-0464-4e7f-8ab3-06d55192ac34": "#000000",
+      "f2ff0738-59f6-4f39-b880-5c02dc6265c7": "#000000",
+      "abc0441c-525d-4677-979d-d438cf704f4d": "#000000",
+      "41d594fc-ccff-4696-b569-0de39a07cb6b": "#000000",
+      "f56921cf-740d-4c7b-a574-5a10fc349168": "#000000",
+      "2cdc646f-c9c5-4785-a0ea-dc6c88cb51da": "#000000"
+    },
+    "color": "#f44336"
+  },
+  "lang": "vhdl"
+}
