@@ -597,7 +597,7 @@ checksum = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"
 [[package]]
 name = "verilog-lang"
 version = "0.1.0"
-source = "git+https://github.com/jiegec/verilog-lang#9429acddddfffe1957b29c53a77465c745330030"
+source = "git+https://github.com/jiegec/verilog-lang#6621645da4663faea3f8fc1a6676cb649a36cc4b"
 dependencies = [
  "lazy_static",
  "regex",
