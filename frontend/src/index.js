@@ -3,6 +3,9 @@ import './index.scss';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import * as Sentry from '@sentry/browser';
+import { SENTRY } from './config';
+
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
@@ -25,6 +28,10 @@ if(!window.TextEncoder)
 
 if(!window.TextDecoder)
   window.TextDecoder = TextDecoder;
+
+/* Sentry */
+if(SENTRY !== null)
+  Sentry.init({ dsn: SENTRY });
 
 let storeSet = null;
 const storePromise = new Promise(resolve => {

@@ -5,6 +5,8 @@ export const CODE_ANALYSE_DEBOUNCE = 100;
 export const BUILD_POLL_INTERVAL = 3000;
 export const BUILD_LIST_FETCH_LENGTH = 5;
 
+export const SENTRY = null;
+
 export const TAR_FILENAMES = {
   bitstream: 'bitstream.rbf',
   stdout: 'stdout',

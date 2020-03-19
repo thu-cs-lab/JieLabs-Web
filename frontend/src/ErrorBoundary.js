@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import * as Sentry from '@sentry/browser';
 
 import Icon from './comps/Icon';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { error: null };
+    this.state = { error: null, evid: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -13,7 +14,11 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error(error);
+    Sentry.withScope(scope => {
+      scope.setExtras(errorInfo);
+      const evid = Sentry.captureException(error);
+      this.setState({ evid });
+    });
   }
 
   refresh() {
@@ -43,6 +48,8 @@ export default class ErrorBoundary extends Component {
           <button className="error-action labeled-btn" onClick={this.refresh}><Icon>refresh</Icon><span>普通刷新</span></button>
           <button className="error-action labeled-btn" onClick={this.forceRefresh}><Icon>refresh</Icon><span><del>金色普通</del> 清空缓存并刷新</span></button>
         </div>
+
+        <div className="error-evid">{ this.state.evid || '上传中...' }</div>
       </div>
     );
   }

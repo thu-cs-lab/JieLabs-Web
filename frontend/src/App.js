@@ -331,6 +331,14 @@ export default React.memo(() => {
     }
   }, [importing]);
 
+  const [errored, setErrored] = useState(false);
+  const generateError = useCallback(() => {
+    setErrored(true);
+  }, []);
+
+  if(errored)
+    throw new Error('Meow is gone!');
+
   if(loading) 
     return <div className="container pending"></div>;
 
@@ -632,7 +640,7 @@ export default React.memo(() => {
         <span className="sep">/</span>
         <a href="https://www.intel.cn/content/www/cn/zh/software/programmable/quartus-prime/overview.html">Quartus</a>
 
-        <div className="hint">RELEASED UNDER</div>
+        <div className="hint" onClick={generateError}>RELEASED UNDER</div>
         Jiegec Public License
       </Dialog>
 
