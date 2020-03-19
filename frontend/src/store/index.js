@@ -1,6 +1,9 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
+import createSentryMiddleware from 'redux-sentry-middleware';
+
+import * as Sentry from '@sentry/browser';
 
 import * as reducers from './reducers';
 
@@ -15,7 +18,7 @@ export default () => {
   const lang = window.localStorage.getItem('lang') || 'vhdl';
   const field = List(JSON.parse(window.localStorage.getItem('field')) || DEFAULT_FIELD);
 
-  let middleware = [thunk];
+  let middleware = [thunk, createSentryMiddleware(Sentry)];
   if (process.env.NODE_ENV !== 'production') {
     middleware = [...middleware, logger]
   }

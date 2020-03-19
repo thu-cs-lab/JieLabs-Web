@@ -9031,6 +9031,11 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
+redux-sentry-middleware@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.npmjs.org/redux-sentry-middleware/-/redux-sentry-middleware-0.1.6.tgz#7cc947a66d6dc38408d6d9e6c551cec341a8fdfe"
+  integrity sha512-hJxoJGtA/sM5YblSEGzqSC87LQQXps4FHgOxZZ3lZ31qEjwDXRzafUGUe4Xw/qn/89zTEROFz1vu6PDWZeNBtg==
+
 redux-thunk@^2.3.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/redux-thunk/-/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"
