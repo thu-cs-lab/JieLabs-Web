@@ -457,7 +457,7 @@ export default React.memo(({ handlerRef }) => {
   }, [layer]);
 
   const linkCancel = useCallback(() => {
-    setLinking(null);
+    setLinking(false);
     setFocus(null);
   }, []);
 
@@ -611,13 +611,13 @@ export default React.memo(({ handlerRef }) => {
     if(layer === LAYERS.BLOCK) setLayer(LAYERS.WIRE);
     else setLayer(LAYERS.BLOCK);
 
-    setLinking(null);
+    setLinking(false);
     setFocus(null);
   }, [layer]);
 
   const onBlur = useCallback(() => {
-    setFocus(null);
     setLinking(false);
+    setFocus(null);
   }, []);
 
   const doDisconnect = useCallback(() => {
@@ -630,6 +630,7 @@ export default React.memo(({ handlerRef }) => {
 
     handler.localSave('sandbox');
     setLines(handler.getLines());
+    setLinking(false);
     setFocus(null);
   }, [focus, handler, timeoutCtx]);
 
@@ -651,6 +652,7 @@ export default React.memo(({ handlerRef }) => {
   const doDye = useCallback(() => {
     if(focus?.type !== 'group') return;
     handler.dyeGroup(focus.id);
+    setLinking(false);
     setFocus(null);
 
     handler.localSave('sandbox');
