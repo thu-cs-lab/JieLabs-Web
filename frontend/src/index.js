@@ -30,8 +30,10 @@ if(!window.TextDecoder)
   window.TextDecoder = TextDecoder;
 
 /* Sentry */
-if(SENTRY !== null)
-  Sentry.init({ dsn: SENTRY });
+if(SENTRY !== null) {
+  const release = (__COMMIT_HASH__.match(/^heads\/(.*)[\n\r]+$/) ?? {})[1] ?? __COMMIT_HASH__; // eslint-disable-line no-undef
+  Sentry.init({ dsn: SENTRY, release });
+}
 
 let storeSet = null;
 const storePromise = new Promise(resolve => {
