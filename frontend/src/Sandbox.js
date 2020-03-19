@@ -243,10 +243,7 @@ class Handler {
   getConnected(id) {
     const cs = this.connSet(id);
     if(cs.size === 1) return null;
-    if(cs.size !== 2) {
-      console.log(`Getting connected pin in a conset with size ${cs.size}`);
-      return null;
-    }
+    if(cs.size !== 2) throw new Error(`Getting connected pin in a conset with size ${cs.size}`);
     return Array.from(cs).filter(e => e !== id)[0];
   }
 
@@ -578,7 +575,11 @@ export default React.memo(({ handlerRef }) => {
       regClocking: id => {
         cpid.current = id;
 
-        const other = handler.getConnected(id);
+        let other = null;
+        try {
+          other = handler.getConnected(id);
+        } catch(e) { /* ignores */ }
+
         if(other !== null)
           return dispatch(updateClock(handler.getData(other) || null));
         else
@@ -595,7 +596,10 @@ export default React.memo(({ handlerRef }) => {
     return handler.onChange(() => {
       if(!cpid.current) return;
 
-      const other = handler.getConnected(cpid.current);
+      let other = null;
+      try {
+        other = handler.getConnected(cpid.current);
+      } catch(e) { /* ignores */ }
       if(other !== null)
         return dispatch(updateClock(handler.getData(other) || null));
       else
