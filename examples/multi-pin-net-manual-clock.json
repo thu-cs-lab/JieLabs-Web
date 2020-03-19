@@ -1,0 +1,72 @@
+{
+  "redux": {
+    "top": "{\"EXP_IO[3]\":0,\"EXP_IO[2]\":4,\"EXP_IO[1]\":5,\"EXP_IO[0]\":6}",
+    "signals": {
+      "display[6]": 5,
+      "display[5]": 6,
+      "display[4]": 7,
+      "clk": 3,
+      "display[3]": 8,
+      "display[2]": 9,
+      "display[1]": 10,
+      "display[0]": 11,
+      "rst": 0,
+      "display_4_2[3]": 16,
+      "display_4_1[3]": 12,
+      "display_4_2[2]": 17,
+      "display_4_1[2]": 13,
+      "display_4_2[1]": 18,
+      "display_4_1[1]": 14,
+      "display_4_2[0]": 19,
+      "display_4_1[0]": 15
+    },
+    "code": "library ieee;\n    use ieee.std_logic_1164.all;\n    use ieee.std_logic_unsigned.all;\n\nentity mod_top is\n    port (\n        M_nRESET :in std_logic;\n        CLK_100M :in std_logic;\n        EXP_IO :out std_logic_vector (3 downto 0)\n    );\nend entity;\narchitecture rtl of mod_top is\n    signal output :std_logic_vector (3 downto 0) := (0 => '1', others => '0');\n    signal counter :std_logic_vector (31 downto 0) := (others => '0');\nbegin\n    process (CLK_100M, M_nRESET) begin\n        if (M_nRESET = '0') then\n            output <= (0 => '1', others => '0');\n            counter <= (others => '0');\n        elsif (rising_edge(CLK_100M)) then\n            if (counter = 1_000_000) then\n                counter <= (others => '0');\n                if (output(3) = '1') then\n                    output <= (0 => '1', others => '0');\n                else\n                    output <= output(2 downto 0) & '0';\n                end if;\n            else\n                counter <= counter + 1;\n            end if;\n        end if;\n    end process;\n    EXP_IO <= output;\nend architecture;\n\n",
+    "field": [
+      {
+        "type": "FPGA",
+        "x": 0,
+        "y": 0,
+        "id": "fpga",
+        "persistent": true
+      },
+      {
+        "type": "Switch4",
+        "x": 0,
+        "y": 175,
+        "id": "switch4_1"
+      },
+      {
+        "type": "Digit4",
+        "x": 175,
+        "y": 0,
+        "id": "digit4_1"
+      },
+      {
+        "type": "Digit7",
+        "x": 350,
+        "y": 0,
+        "id": "digit7_1"
+      },
+      {
+        "type": "Clock",
+        "x": 175,
+        "y": 175,
+        "id": "clock_1"
+      }
+    ]
+  },
+  "sandbox": {
+    "groups": {
+      "0ad48749-caf0-49ab-a9b2-eba1430ed302": [
+        "switch4_1-switch-3",
+        "fpga-3",
+        "switch4_1-switch-2"
+      ]
+    },
+    "colors": {
+      "0ad48749-caf0-49ab-a9b2-eba1430ed302": "#000000"
+    },
+    "color": "#000000"
+  },
+  "lang": "vhdl"
+}
