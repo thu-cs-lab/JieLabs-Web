@@ -30,3 +30,4 @@ JieLabs 版本可以从设定 -> About 中查看。JieLabs 每五分钟自动检
 - 加载存档、刷新前后保持选项中的语言设定
 - 在手动刷新以外，定时检查是否有更新
 - VHDL 语言支持更新到了 VHDL-2008
+- Sentry error logging
