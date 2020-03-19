@@ -243,7 +243,10 @@ class Handler {
   getConnected(id) {
     const cs = this.connSet(id);
     if(cs.size === 1) return null;
-    if(cs.size !== 2) throw new Error(`Getting connected pin in a conset with size ${cs.size}`);
+    if(cs.size !== 2) {
+      console.log(`Getting connected pin in a conset with size ${cs.size}`);
+      return null;
+    }
     return Array.from(cs).filter(e => e !== id)[0];
   }
 
