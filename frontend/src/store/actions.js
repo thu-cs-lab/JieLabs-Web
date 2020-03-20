@@ -351,6 +351,15 @@ export async function kickoffPolling(dispatch, getState) {
   return await kickoffPolling(dispatch, getState);
 }
 
+export function refreshBuild(id) {
+  return async dispatch => {
+    const info = await get(`/api/task/get/${id}`);
+    const mapped = jobMapper(info);
+    dispatch(putBuild(mapped))
+    return mapped;
+  }
+}
+
 export function submitBuild() {
   return async (dispatch, getState) => {
     try {

@@ -20,6 +20,7 @@ import {
   updateLang,
   importWorkspace,
   connectToBoard,
+  refreshBuild,
 } from './store/actions';
 import { untar, readFileStr, formatSize, formatDuration, formatDate, post } from './util';
 
@@ -114,9 +115,20 @@ export default React.memo(() => {
 
     // Load src
     async function loadSrc() {
-      const resp = await fetch(e.src);
-      const buf = await resp.arrayBuffer();
-      const arr = new Uint8Array(buf);
+      let arr = null;
+      while(true) {
+        let src = e.src;
+        try {
+          const resp = await fetch(src);
+          const buf = await resp.arrayBuffer();
+          arr = new Uint8Array(buf);
+          break;
+        } catch(error) {
+          const updated = await dispatch(refreshBuild(e.id));
+          currentLoading.current.basic = updated;
+          setDetail(currentLoading.current);
+        }
+      }
 
       if(currentLoading.current?.basic.id !== e.id) return;
 
@@ -137,6 +149,7 @@ export default React.memo(() => {
   }, [detail]);
 
   const detailedBuild = detail === null ? null : latestBuilds.find(e => e.id === detail.basic.id);
+
   useEffect(() => {
     if(!detailedBuild?.status) return;
     if(!Number.isInteger(detail?.basic.id)) return;
@@ -159,8 +172,13 @@ export default React.memo(() => {
 
     // Load dst
     async function loadDst() {
-      const resp = await fetch(detail.basic.dst);
-      const buf = await resp.arrayBuffer();
+      let buf = null;
+      try {
+        const resp = await fetch(detail.basic.dst);
+        buf = await resp.arrayBuffer();
+      } catch(e) {
+        return; // dst url will be updated in src fetch
+      }
       const inflated = pako.inflate(buf);
 
       const content = untar(inflated);
