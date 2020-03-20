@@ -563,7 +563,7 @@ export default React.memo(() => {
                 <Monaco
                   options={{
                     theme: 'vs-dark',
-                    language: `${detail.lang || 'vhdl'}-ro`,
+                    language: `${detail.basic?.lang || 'vhdl'}-ro`,
                     readonly: true,
                     fontFamily: 'Roboto Mono',
                   }}
