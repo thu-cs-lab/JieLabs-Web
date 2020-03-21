@@ -5,12 +5,12 @@ use futures::TryStreamExt;
 use log::*;
 use rusoto_core::credential::{AwsCredentials, StaticProvider};
 use rusoto_core::Region;
-use rusoto_s3::util::PreSignedRequest;
+use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
 use rusoto_s3::S3;
 use rusoto_s3::{GetObjectRequest, PutObjectRequest, S3Client};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt::Display;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -65,7 +65,10 @@ pub fn get_upload_url(file_name: &String) -> String {
         key: file_name.clone(),
         ..Default::default()
     };
-    let presigned_url = req.get_presigned_url(&s3_region(), &s3_credentials(), &Default::default());
+    let option = PreSignedRequestOption {
+        expires_in: Duration::from_secs(3600 * 24),
+    };
+    let presigned_url = req.get_presigned_url(&s3_region(), &s3_credentials(), &option);
     presigned_url
 }
 
@@ -76,7 +79,10 @@ pub fn get_download_url(file_name: &String) -> String {
         key: file_name.clone(),
         ..Default::default()
     };
-    let presigned_url = req.get_presigned_url(&s3_region(), &s3_credentials(), &Default::default());
+    let option = PreSignedRequestOption {
+        expires_in: Duration::from_secs(3600 * 24),
+    };
+    let presigned_url = req.get_presigned_url(&s3_region(), &s3_credentials(), &option);
     presigned_url
 }
 
