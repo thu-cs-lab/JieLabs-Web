@@ -314,9 +314,14 @@ class Handler {
     // TODO: do we need to exclude pending pins from lines and connset?
 
     const groups = {};
-    // Drop all groups
-    for(const pin in this.connectors)
-      this.connectors[pin].group = null;
+    // Drop all groups, and remove redudant pin entries
+    for(const pin in this.connectors) {
+      if(this.connectors[pin])
+        this.connectors[pin].group = null;
+      else 
+        delete this.connectors[pin];
+    }
+
     for(const k in _groups) {
       groups[k] = new Set(_groups[k]);
       for(const pin of _groups[k]) {
