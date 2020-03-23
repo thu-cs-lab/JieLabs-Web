@@ -603,8 +603,8 @@ export default React.memo(() => {
         </div>
         <div className="user-pass">
           <Input label="New Password" className="user-pass-input" onChange={setNewPass} value={newPass} type="password" />
-          <button onClick={submitPass}>
-            <Icon>arrow_forward</Icon>
+          <button onClick={submitPass} disabled={newPass === ''}>
+            <Icon>done</Icon>
           </button>
         </div>
 

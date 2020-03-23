@@ -2106,6 +2106,7 @@ main {
 
       &:disabled {
         filter: grayscale(1);
+        cursor: default;
         .material-icons {
           opacity: .38;
         }
