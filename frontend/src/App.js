@@ -612,7 +612,9 @@ export default React.memo(() => {
         <div className="languages">
           <div id="verilog" className={cn('language', { 'language-selected': lang === 'verilog' })} onClick={() => setLanguage('verilog')}>
             <div className="language-ind"><Icon>done</Icon></div>
-            <div className="language-name">Verilog (experimental)</div>
+            <div className="language-name language-experimental">
+              Verilog
+            </div>
           </div>
 
           <div id="vhdl" className={cn('language', { 'language-selected': lang === 'vhdl' })} onClick={() => setLanguage('vhdl')}>
