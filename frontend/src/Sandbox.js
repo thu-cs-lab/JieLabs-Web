@@ -98,6 +98,19 @@ class Handler {
     this.fireListeners();
   }
 
+  removeAllGroup() {
+    this.groups = {};
+    this.colors = {};
+
+    for(const id in this.connectors)
+      if(this.connectors[id]?.group) {
+        this.connectors[id].group = null;
+        this.tryUpdate(id);
+      }
+    
+    this.fireListeners();
+  }
+
   unionGroup(aid, bid) {
     const ag = this.groups[aid];
     const bg = this.groups[bid];
@@ -639,6 +652,16 @@ export default React.memo(({ handlerRef }) => {
     setFocus(null);
   }, [focus, handler, timeoutCtx]);
 
+  const doDisconnectAll = useCallback(() => {
+    timeoutCtx.reset();
+
+    handler.removeAllGroup();
+    handler.localSave('sandbox');
+    setLines(handler.getLines());
+    setLinking(false);
+    setFocus(null);
+  }, [focus, handler, timeoutCtx]);
+
   /* Color stuff */
 
   const [paletteShown, setPaletteShown] = useState(false);
@@ -877,6 +900,13 @@ export default React.memo(({ handlerRef }) => {
         onClick={doDye}
       ><Icon>format_paint</Icon></span>
       <div className="sandbox-toolbar-hint tool-activated">Dye <small>[C-d]</small></div>
+
+      <span
+        className={cn("tool")}
+        data-tool="wire 4"
+        onClick={doDisconnectAll}
+      ><Icon>delete_sweep</Icon></span>
+      <div className="sandbox-toolbar-hint tool-activated">Disconnect all</div>
 
       <div className="spanner"></div>
 
