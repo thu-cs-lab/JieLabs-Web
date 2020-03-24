@@ -438,7 +438,7 @@ export default React.memo(({ handlerRef }) => {
     setColor(handler.getActiveColor());
   }), []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setTimeout(() => handler.localLoad('sandbox'));
   }, [handler]);
 
