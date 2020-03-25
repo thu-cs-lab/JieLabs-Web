@@ -302,7 +302,7 @@ const STEPS = [
     done: () => true,
     renderer: () => {
       return (
-        <div className="help-box" style={{
+        <div className="help-box with-events" style={{
           width: 'calc(50vw - 80px)',
           maxWidth: 'unset',
           position: 'fixed',
@@ -310,7 +310,6 @@ const STEPS = [
           right: 40,
           maxHeight: 'calc(100vh - 80px)',
           overflowY: 'auto',
-          pointerEvents: 'all',
         }}>
           <strong>亮，都可以亮 (续)</strong>
           <p>点击接线柱可以开始连线，在连线的过程中，被连接的接线柱会被显示为蓝色，鼠标经过其他接线柱或者其他线时，将会将其高亮为黄色。点击被高亮为黄色的接线柱或线，可以进行连线。</p>
@@ -404,7 +403,7 @@ export default React.memo(({ onDone }) => {
     setHidden(!hidden);
   }, [hidden]);
 
-  return <div className={cn("help", { 'help-open': open })}>
+  return <div className={cn("help", { 'help-open': open }, { 'help-shown': open && !hidden })}>
     <div className={cn("help-backdrop", {
       'help-backdrop-shown': open && !hidden,
       'help-backdrop-editor-only': region === 'editor-only',

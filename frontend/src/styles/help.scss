@@ -215,6 +215,12 @@ $hl: #ffeb3b;
   &.help-box-wide {
     max-width: 600px;
   }
+
+  &.with-events {
+    .help-shown & {
+      pointer-events: all;
+    }
+  }
 }
 
 .help-layout {
