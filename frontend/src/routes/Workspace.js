@@ -590,6 +590,14 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
         <div className="help-shortcut"><strong>Backspace</strong> Disconnect</div>
         <div className="help-shortcut"><strong>Ctrl-D</strong> Dye current color</div>
       </div>
+      <div className="help-spacer" />
+      <div className="hint help-cheatsheet-header">Editor - Pin Assignment</div>
+      <div className="help-cheatsheet">
+        <div className="help-shortcut"><strong>Enter</strong> Assign new pin</div>
+        <div className="help-shortcut"><strong>Escape</strong> Exit</div>
+        <div className="help-shortcut"><strong>Tab</strong> Next subscript</div>
+        <div className="help-shortcut"><strong>Shift-Tab</strong> Previous subscript</div>
+      </div>
     </Dialog>
   </main>;
 });
