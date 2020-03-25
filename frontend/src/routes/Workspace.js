@@ -172,6 +172,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     if(assigning.subscript === -1) throw new Error('Condition failed');
     const fullName = assigning.subscript === null ? assigning.name : assigning.name + `[${assigning.subscript}]`;
     dispatch(assignPin(fullName, index));
+    setTimeout(() => searchRef.current.focus());
   }, [dispatch, assigning]);
 
   let firstFilteredIndex = filteredPins.findIndex(e => !e.current);
