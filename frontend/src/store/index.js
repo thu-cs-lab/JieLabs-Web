@@ -53,7 +53,7 @@ export default () => {
   const saveCode = saver('code', code);
   const saveBoard = saver('board', board);
   const saveTop = saver('top', top);
-  const saveSignals = saver('top', signals, d => JSON.stringify(d.toJS()));
+  const saveSignals = saver('signals', signals, d => JSON.stringify(d.toJS()));
   const saveLang = saver('lang', lang);
   const saveField = saver('field', field, d => JSON.stringify(d.toJS()));
 
