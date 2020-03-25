@@ -361,9 +361,11 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     } else if (ev.key === 'n' && ev.ctrlKey) {
       // C-n
       subscriptInc();
+      ev.preventDefault();
     } else if (ev.key === 'p' && ev.ctrlKey) {
       // C-p
       subscriptDec();
+      ev.preventDefault();
     }
   }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
 
@@ -495,47 +497,60 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     </div>
 
     <Dialog open={assigning} onClose={dismissAssigning}
+      className="pin-assignment-dialog"
+      onKeyDown={checkKey}
       render={() => (<>
         <div className="hint">PIN ASSIGNMENT</div>
-        <div className="dialog-title monospace">
-          <span className="dimmed">
+        <div className="dialog-title monospace pin-assignment-title">
+          <span className="dimmed pin-assignment-top">
             { top }
-            <span className="spacer"></span>
-            /
-            <span className="spacer"></span>
           </span>
-          { assigning.name }
+          <span className="dimmed">/</span>
+          <span className="spacer"></span>
+          <span>{ assigning.name }</span>
           { assigning.subscript !== null && (
             <span>
               <span className="dimmed">[</span>
-              <Icon
-                className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
-                onClick={subscriptDec}
-              >keyboard_arrow_left</Icon>
               <input
                 className={cn("subscript-input-region", { invalid: assigning.subscript === -1 })}
                 value={assigning.subscript !== -1 ? assigning.subscript.toString() : pendingSubscript}
                 onMouseDown={weakBlocker}
                 onChange={subscriptChange}
               />
-              <Icon
-                className={cn("subscript-adjust", { invalid: assigning.subscript === -1})}
-                onClick={subscriptInc}
-              >keyboard_arrow_right</Icon>
               <span className="dimmed">]</span>
             </span>
           )}
         </div>
 
+        { assigning.subscript !== null && (
+          <div className="subscript-adjust-box">
+            <span
+              className={cn('subscript-adjust', { invalid: assigning.subscript === -1})}
+              onClick={subscriptDec}
+            >
+              <Icon>keyboard_arrow_left</Icon>
+              S-Tab
+            </span>
+
+            <span className="sep">/</span>
+
+            <span
+              className={cn('subscript-adjust', { invalid: assigning.subscript === -1})}
+              onClick={subscriptInc}
+            >
+              Tab
+              <Icon>keyboard_arrow_right</Icon>
+            </span>
+          </div>
+        )}
         <div className="search-box">
           <Icon className="search-icon">search</Icon>
           <input
             className="search-input monospace"
-            placeholder="Number | Signal | Label | 'clock'"
+            placeholder="Signal | Label | 'clock'"
             value={search}
             onMouseDown={weakBlocker}
             onChange={searchChange}
-            onKeyDown={checkKey}
             ref={searchRef}
           />
         </div>

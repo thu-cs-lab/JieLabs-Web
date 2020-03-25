@@ -1196,6 +1196,7 @@ main {
 .search-box {
   height: 42px;
   position: relative;
+  margin-top: 20px;
 
   .material-icons {
     color: rgba(255,255,255,.54);
@@ -1203,7 +1204,7 @@ main {
     line-height: 40px;
 
     position: absolute;
-    left: 0;
+    left: 10px;
     top: 0;
   }
 
@@ -1214,10 +1215,44 @@ main {
     line-height: 40px;
     width: 100%;
     height: 100%;
-    padding-left: 24px + 10px;
+    padding-left: 24px + 20px;
 
-    border-bottom: rgba(255,255,255,.38) 2px dashed;
+    background: rgba(0,0,0,.2);
   }
+}
+
+.pin-assignment-title {
+  display: flex;
+  white-space: nowrap;
+
+  .pin-assignment-top {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dialog & {
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
+}
+
+.pin-assignment-dialog {
+  position: relative;
+}
+
+.subscript-adjust-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 18px;
+  .sep {
+    margin: 0 5px;
+  }
+  user-select: none;
+
+  position: absolute;
+  top: 20px;
+  right: 30px;
 }
 
 .subscript-input-region {
@@ -1225,6 +1260,10 @@ main {
   display: inline-block;
   width: 2em;
   text-align: center;
+
+  margin: 0 5px;
+  line-height: 28px;
+  height: 28px;
 
   font-size: inherit;
   color: inherit;
@@ -1234,7 +1273,7 @@ main {
 
   position: relative;
 
-  border-bottom: rgba(255,255,255,.38) 2px dashed;
+  background: rgba(0,0,0,.2);
   transition: border-color .2s ease; // TODO: performance concern?
 
   overflow: hidden;
@@ -1245,16 +1284,22 @@ main {
   }
 }
 
-.material-icons.subscript-adjust {
-  vertical-align: top;
-
+.subscript-adjust {
   line-height: 32px;
-  font-size: 24px;
+  font-size: 12px;
+
+  .material-icons {
+    font-size: 18px;
+  }
 
   color: white;
   opacity: .38;
 
   transition: opacity .2s ease;
+
+  display: flex;
+  align-items: center;
+  height: 18px;
 
   &:not(.invalid) {
     cursor: pointer;
