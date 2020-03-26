@@ -364,8 +364,11 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     if(ev.key === 'Escape' || (ev.key === 'g' && ev.ctrlKey))
       setAssigning(null);
     else if(ev.key === 'Enter') {
-      if(firstFilteredIndex !== -1)
+      if(firstFilteredIndex !== -1) {
         handleAssign(filteredPins[firstFilteredIndex].index)
+        setSearch('');
+        signalInc();
+      }
     } else if(ev.key === 'Tab') {
       // TODO: add hint/guide for this
       if(ev.shiftKey)
@@ -614,7 +617,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       <div className="help-spacer" />
       <div className="hint help-cheatsheet-header">Editor - Pin Assignment</div>
       <div className="help-cheatsheet">
-        <div className="help-shortcut"><strong>Enter</strong> Assign new pin</div>
+        <div className="help-shortcut"><strong>Enter</strong> Assign + step</div>
         <div className="help-shortcut"><strong>Escape</strong> Exit</div>
         <div className="help-shortcut"><strong>Tab</strong> Next signal</div>
         <div className="help-shortcut"><strong>Shift-Tab</strong> Previous signal</div>
