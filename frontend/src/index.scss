@@ -1298,7 +1298,8 @@ main {
 
   &-assigned {
     background: red;
-    padding: 5px 10px 5px 12px;
+    padding: 4px 10px 4px 12px;
+    margin: 1px 0;
 
     &-input {
       clip-path: polygon(5px 0, 0 50%, 5px 100%, 100% 100%, 100% 0);
