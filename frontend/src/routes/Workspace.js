@@ -316,34 +316,49 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     });
   }, [assigning, analysis]);
 
-  const subscriptStep = useCallback(step => {
-    // Asserts step \in {1, -1}
-    if(assigning.subscript === -1 || assigning.subscript === null) return;
-    if(!analysis) return;
+  const expandedSignals = useMemo(() => {
+    if(!analysis) return [];
+    if(analysis.top === null) return [];
+    const entity = analysis.entities[analysis.top];
 
-    const target = analysis.entities[analysis.top].signals.find(e => e.name === assigning.name);
-    if(!target || target.arity === null) return;
+    return entity.signals.reduce((acc, { name, dir, arity }) => {
+      const result = [];
+      if (arity === null) {
+        // std_logic
+        const assigned = assignments.get(name) ?? null;
+        result.push({ name, subscript: null, assigned, dir });
+      } else {
+        // std_logic_vector
+        let { from, to } = arity;
+        let step = 1;
+        if (from > to) {
+          step = -1;
+        }
+        for (let i = from; i !== to + step; i += step) {
+          const assigned = assignments.get(`${name}[${i}]`) ?? null;
+          result.push({ name, subscript: i, assigned, dir });
+        }
+      }
 
-    let next;
-    if(target.arity.from >= target.arity.to) {
-      // Inc = -1
-      next = assigning.subscript - step;
-      if(next === target.arity.from+1) next = target.arity.to;
-      if(next === target.arity.to-1) next = target.arity.from;
-    } else {
-      next = assigning.subscript + step;
-      if(next === target.arity.from-1) next = target.arity.to;
-      if(next === target.arity.to+1) next = target.arity.from;
-    }
+      return acc.concat(result);
+    }, []);
+  }, [assignments, analysis]);
 
-    setAssigning({
-      ...assigning,
-      subscript: next,
-    });
-  }, [analysis, assigning]);
+  const signalStep = useCallback(step => {
+    // Find signal
+    if(expandedSignals.length === 0) return;
+    const cur = expandedSignals.findIndex(e => e.name === assigning.name && e.subscript === assigning.subscript);
+    let next = cur + step;
+    if(next >= expandedSignals.length) next = 0;
+    else if(next === -1) next = expandedSignals.length - 1;
 
-  const subscriptInc = useCallback(() => subscriptStep(1), [subscriptStep]);
-  const subscriptDec = useCallback(() => subscriptStep(-1), [subscriptStep]);
+    const { name, subscript, dir } = expandedSignals[next];
+
+    setAssigning({ name, subscript, dir });
+  }, [expandedSignals, assigning]);
+
+  const signalInc = useCallback(() => signalStep(1), [signalStep]);
+  const signalDec = useCallback(() => signalStep(-1), [signalStep]);
 
   const checkKey= useCallback(ev => {
     if(ev.key === 'Escape' || (ev.key === 'g' && ev.ctrlKey))
@@ -354,46 +369,26 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     } else if(ev.key === 'Tab') {
       // TODO: add hint/guide for this
       if(ev.shiftKey)
-        subscriptDec();
+        signalDec();
       else
-        subscriptInc();
+        signalInc();
 
       ev.preventDefault();
     } else if (ev.key === 'n' && ev.ctrlKey) {
       // C-n
-      subscriptInc();
+      signalInc();
       ev.preventDefault();
     } else if (ev.key === 'p' && ev.ctrlKey) {
       // C-p
-      subscriptDec();
+      signalDec();
       ev.preventDefault();
     }
-  }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, subscriptInc, subscriptDec]);
+  }, [setAssigning, handleAssign, filteredPins, firstFilteredIndex, signalInc, signalDec]);
 
   const canUpload = useMemo(() => {
-    if(!analysis) return false;
-    if(analysis.top === null) return false;
-    const entity = analysis.entities[analysis.top];
-
-    return entity.signals.every(({ name, arity }) => {
-      if (arity === null) {
-        // std_logic
-        return assignments.get(name) !== undefined;
-      } else {
-        // std_logic_vector
-        let { from, to } = arity;
-        if (from > to) {
-          [from, to] = [to, from];
-        }
-        for (let i = from; i <= to; i += 1) {
-          if (assignments.get(`${name}[${i}]`) === undefined) {
-            return false;
-          }
-        }
-        return true;
-      }
-    });
-  }, [assignments, analysis]);
+    if(!analysis || analysis.top === null) return null;
+    return expandedSignals.every(e => e.assigned !== null);
+  }, [analysis, expandedSignals]);
 
   let downloadTooltip = '';
   if(!hasBoard) downloadTooltip = 'FPGA disconnected';
@@ -500,34 +495,13 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     <Dialog open={assigning} onClose={dismissAssigning}
       className="pin-assignment-dialog"
       onKeyDown={checkKey}
+      tabIndex="0"
       render={() => (<>
-        <div className="hint">PIN ASSIGNMENT</div>
-        <div className="dialog-title monospace pin-assignment-title">
-          <span className="dimmed pin-assignment-top">
-            { top }
-          </span>
-          <span className="dimmed">/</span>
-          <span className="spacer"></span>
-          <span>{ assigning.name }</span>
-          { assigning.subscript !== null && (
-            <span>
-              <span className="dimmed">[</span>
-              <input
-                className={cn("subscript-input-region", { invalid: assigning.subscript === -1 })}
-                value={assigning.subscript !== -1 ? assigning.subscript.toString() : pendingSubscript}
-                onMouseDown={weakBlocker}
-                onChange={subscriptChange}
-              />
-              <span className="dimmed">]</span>
-            </span>
-          )}
-        </div>
-
-        { assigning.subscript !== null && (
+        <div className="pin-assignment-left">
           <div className="subscript-adjust-box">
             <span
               className={cn('subscript-adjust', { invalid: assigning.subscript === -1})}
-              onClick={subscriptDec}
+              onClick={signalDec}
             >
               <Icon>keyboard_arrow_left</Icon>
               S-Tab
@@ -537,27 +511,74 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
 
             <span
               className={cn('subscript-adjust', { invalid: assigning.subscript === -1})}
-              onClick={subscriptInc}
+              onClick={signalInc}
             >
               Tab
               <Icon>keyboard_arrow_right</Icon>
             </span>
           </div>
-        )}
-        <div className="search-box">
-          <Icon className="search-icon">search</Icon>
-          <input
-            className="search-input monospace"
-            placeholder="Signal | Label | 'clock'"
-            value={search}
-            onMouseDown={weakBlocker}
-            onChange={searchChange}
-            ref={searchRef}
-          />
-        </div>
 
-        <div className="pin-selector">
-          { pinDisp }
+          <div className="pin-assignment-signals">
+            { expandedSignals.map(({ name, subscript, assigned, dir }) => (
+              <div
+                className={cn("pin-assignment-signal", {
+                  'pin-assignment-signal-active': assigning?.name === name && assigning.subscript === subscript
+                })}
+                onClick={() => setAssigning({ name, subscript, dir })}
+              >
+                <span className={cn('pin-assignment-signal-name', { 'pin-assignment-signal-name-assigned': assigned !== null })}>
+                  { name }{ subscript !== null && (
+                    <span className="pin-assignment-signal-subscript">
+                      <span className="dimmed">[</span>
+                      { subscript }
+                      <span className="dimmed">]</span>
+                    </span>
+                  )}
+                </span>
+
+                { assigned !== null && (
+                  <div
+                    className={cn("pin-assignment-signal-assigned", `pin-assignment-signal-assigned-${dir}`)}
+                  >
+                    { board.pins[assigned].label ?? assigned }
+                  </div>
+                )}
+              </div>
+            )) }
+          </div>
+        </div>
+        <div className="pin-assignment-right">
+          <div className="hint">PIN ASSIGNMENT</div>
+          <div className="dialog-title monospace pin-assignment-title">
+            <span className="dimmed pin-assignment-top">
+              { top }
+            </span>
+            <span className="dimmed">/</span>
+            <span className="spacer"></span>
+            <span>{ assigning.name }</span>
+            { assigning.subscript !== null && (
+              <span>
+                <span className="dimmed">[</span>
+                { assigning.subscript.toString() }
+                <span className="dimmed">]</span>
+              </span>
+            )}
+          </div>
+          <div className="search-box">
+            <Icon className="search-icon">search</Icon>
+            <input
+              className="search-input monospace"
+              placeholder="Signal | Label | 'clock'"
+              value={search}
+              onMouseDown={weakBlocker}
+              onChange={searchChange}
+              ref={searchRef}
+            />
+          </div>
+
+          <div className="pin-selector">
+            { pinDisp }
+          </div>
         </div>
       </>)}
     />
@@ -595,8 +616,8 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       <div className="help-cheatsheet">
         <div className="help-shortcut"><strong>Enter</strong> Assign new pin</div>
         <div className="help-shortcut"><strong>Escape</strong> Exit</div>
-        <div className="help-shortcut"><strong>Tab</strong> Next subscript</div>
-        <div className="help-shortcut"><strong>Shift-Tab</strong> Previous subscript</div>
+        <div className="help-shortcut"><strong>Tab</strong> Next signal</div>
+        <div className="help-shortcut"><strong>Shift-Tab</strong> Previous signal</div>
       </div>
     </Dialog>
   </main>;
