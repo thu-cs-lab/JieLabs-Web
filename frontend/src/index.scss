@@ -1317,6 +1317,7 @@ main {
   padding: 20px 30px;
   box-shadow: rgba(0,0,0,.3) 0 4px 12px;
   z-index: 1;
+  max-width: 450px;
 }
 
 .subscript-adjust-box {
@@ -1416,11 +1417,14 @@ main {
 
       display: flex;
       flex-direction: column;
+      overflow: hidden;
 
       .pin-assignment {
         flex: 1;
         font-size: 18px;
         opacity: .38;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .pin-direction {
