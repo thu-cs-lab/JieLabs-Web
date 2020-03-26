@@ -1,5 +1,7 @@
-$tile-size: 100px;
-$shutter-color: rgba(255,255,255,.3);
+$tile-size: 150px;
+$shutter-color: white;
+$shutter-opacity: .3;
+$error-margin: .02;
 
 .shutter {
   position: absolute;
@@ -9,6 +11,7 @@ $shutter-color: rgba(255,255,255,.3);
   top: 0;
 
   pointer-events: none;
+  opacity: $shutter-opacity;
 }
 
 .shutter-top {
@@ -18,23 +21,28 @@ $shutter-color: rgba(255,255,255,.3);
   right: -$tile-size;
   top: -$tile-size;
 
-  background: linear-gradient(45deg, $shutter-color 0% 25%, transparent 25% 50%, $shutter-color 50% 75%, transparent 75% 100%);
+  background: linear-gradient(45deg, $shutter-color 0% 20%, transparent 20% 50%, $shutter-color 50% 70%, transparent 70% 100%);
   background-size: $tile-size $tile-size;
   background-repeat: repeat;
 
-  mask-image: linear-gradient(45deg, black 0% 25%, transparent 25% 50%, black 50% 75%, transparent 75% 100%);
+  mask-image: linear-gradient(45deg, black 0% (20% + $error-margin * 100%), transparent (20% + $error-margin * 100%) 50%, black 50% (70% + $error-margin * 100%), transparent (70% + $error-margin * 100%) 100%);
   mask-size: $tile-size $tile-size;
   mask-repeat: repeat;
-  mask-position: $tile-size/2 0px;
+  mask-position: ($tile-size * .5 - ($error-margin)) 0px;
 
-  transition: mask-position .5s ease;
+  transition: mask-position 1s ease;
 
   .shutter.shutter-open & {
-    mask-position: 0px 0px;
+    mask-position: ($tile-size * -$error-margin) 0px;
   }
+}
+
+.shutter-middle {
+  @extend .shutter-top;
+  transform: translateY($tile-size/3);
 }
 
 .shutter-bottom {
   @extend .shutter-top;
-  transform: translateY($tile-size/2);
+  transform: translateY($tile-size * 2/3);
 }

@@ -1472,6 +1472,7 @@ const WireLayer = React.memo(({
 const Shutter = React.memo(({ open, className, ...rest }) => {
   return <div className={cn('shutter', className, { 'shutter-open': open })} {...rest}>
     <div className="shutter-top"></div>
+    <div className="shutter-middle"></div>
     <div className="shutter-bottom"></div>
   </div>;
 });
