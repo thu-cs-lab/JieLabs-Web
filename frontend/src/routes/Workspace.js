@@ -326,7 +326,14 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       if (arity === null) {
         // std_logic
         const assigned = assignments.get(name) ?? null;
-        result.push({ name, subscript: null, assigned, dir });
+        result.push({
+          name,
+          subscript: null,
+          assigned,
+          dir,
+          start: true,
+          end: true,
+        });
       } else {
         // std_logic_vector
         let { from, to } = arity;
@@ -336,7 +343,14 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
         }
         for (let i = from; i !== to + step; i += step) {
           const assigned = assignments.get(`${name}[${i}]`) ?? null;
-          result.push({ name, subscript: i, assigned, dir });
+          result.push({
+            name,
+            subscript: i,
+            assigned,
+            dir,
+            start: i === from,
+            end: i === to,
+          });
         }
       }
 
@@ -522,12 +536,15 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
           </div>
 
           <div className="pin-assignment-signals">
-            { expandedSignals.map(({ name, subscript, assigned, dir }) => (
+            { expandedSignals.map(({ name, subscript, assigned, dir, start, end }) => (
               <div
                 className={cn("pin-assignment-signal", {
-                  'pin-assignment-signal-active': assigning?.name === name && assigning.subscript === subscript
+                  'pin-assignment-signal-active': assigning?.name === name && assigning.subscript === subscript,
+                  'pin-assignment-signal-start': start,
+                  'pin-assignment-signal-end': end,
                 })}
                 onClick={() => setAssigning({ name, subscript, dir })}
+                key={`${name}-${subscript || ''}`}
               >
                 <span className={cn('pin-assignment-signal-name', { 'pin-assignment-signal-name-assigned': assigned !== null })}>
                   { name }{ subscript !== null && (
