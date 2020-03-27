@@ -116,18 +116,23 @@ export default React.memo(() => {
     // Load src
     async function loadSrc() {
       let arr = null;
-      while(true) {
-        let src = e.src;
-        try {
-          const resp = await fetch(src);
-          const buf = await resp.arrayBuffer();
-          arr = new Uint8Array(buf);
-          break;
-        } catch(error) {
-          const updated = await dispatch(refreshBuild(e.id));
-          currentLoading.current.basic = updated;
-          setDetail(currentLoading.current);
+      try {
+        const resp = await fetch(currentLoading.current.basic.src);
+        if(resp.status === 403) {
+          // Timeout
+          throw new Error('Timeout');
         }
+
+        const buf = await resp.arrayBuffer();
+        arr = new Uint8Array(buf);
+      } catch(error) {
+        const updated = await dispatch(refreshBuild(e.id));
+        currentLoading.current = {
+          ...currentLoading.current,
+          basic: updated,
+        };
+        setDetail(currentLoading.current);
+        return loadSrc();
       }
 
       if(currentLoading.current?.basic.id !== e.id) return;
@@ -175,6 +180,10 @@ export default React.memo(() => {
       let buf = null;
       try {
         const resp = await fetch(detail.basic.dst);
+        if(resp.status === 403) {
+          // Timeout
+          throw new Error('Timeout');
+        }
         buf = await resp.arrayBuffer();
       } catch(e) {
         return; // dst url will be updated in src fetch
@@ -507,7 +516,7 @@ export default React.memo(() => {
               { detail.bit !== null && (
                 <>
                   <button className="labeled-btn" onClick={downloadBit}>
-                    <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit.length)})</span>
+                    <Icon>file_download</Icon> <span>BITSTREAM ({formatSize(detail.bit?.length)})</span>
                   </button>
 
                   <button

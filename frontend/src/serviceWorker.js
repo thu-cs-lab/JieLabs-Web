@@ -93,7 +93,7 @@ function registerValidSW(swUrl, config) {
         };
       };
 
-      // Check for update every half hours
+      // Check for update periodically
       registration.update();
       if(window.swUpdateInterval) clearInterval(window.swUpdateInterval);
       window.swUpdateInterval = setInterval(() => {
