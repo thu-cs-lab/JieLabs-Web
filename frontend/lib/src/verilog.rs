@@ -142,7 +142,7 @@ pub(crate) fn parse(s: &str, top_name: Option<String>) -> ParseResult {
                                 (SignalDirection::Output, &decl.port_type, &decl.identifiers)
                             }
                             InOut(_attr, decl) => (
-                                SignalDirection::Unsupported,
+                                SignalDirection::Output,
                                 &decl.port_type,
                                 &decl.identifiers,
                             ),
