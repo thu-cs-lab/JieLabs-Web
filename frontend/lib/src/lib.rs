@@ -31,7 +31,6 @@ struct Pos {
 enum SignalDirection {
     Input,
     Output,
-    Unsupported,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]

@@ -19,7 +19,7 @@ impl From<vhdl_lang::ast::Mode> for SignalDirection {
         match mode {
             Mode::In => SignalDirection::Input,
             Mode::Out => SignalDirection::Output,
-            _ => SignalDirection::Unsupported,
+            _ => SignalDirection::Output,
         }
     }
 }

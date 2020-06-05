@@ -42,7 +42,7 @@ impl From<&verilog_lang::ast::PortDirection> for SignalDirection {
         match *dir {
             Input => SignalDirection::Input,
             Output => SignalDirection::Output,
-            _ => SignalDirection::Unsupported,
+            _ => SignalDirection::Output,
         }
     }
 }
