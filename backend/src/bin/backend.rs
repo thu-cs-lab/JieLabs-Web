@@ -84,7 +84,7 @@ async fn main() -> std::io::Result<()> {
                     ),
             )
     })
-    .bind("127.0.0.1:8080")?
+    .bind(&std::env::var("LISTEN").unwrap_or("127.0.0.1:8080".to_string()))?
     .run()
     .await
 }

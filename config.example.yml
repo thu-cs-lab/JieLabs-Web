@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: jielabs-backend-env
 data:
+  RUST_LOG: info
+  LISTEN: 0.0.0.0:80
   DATABASE_URL: postgresql://jielabs:REDACTED@jielabs-db/jielabs
   COOKIE_SECRET: REDACTED
   PASSWORD_SECRET: REDACTED
