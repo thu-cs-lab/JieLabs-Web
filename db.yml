@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jielabs-db
+  labels:
+    app: jielabs-db
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: jielabs-db
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jielabs-db
+  labels:
+    app: jielabs-db
+spec:
+  selector:
+    matchLabels:
+      app: jielabs-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jielabs-db
+    spec:
+      volumes:
+      - name: db-volume
+        persistentVolumeClaim:
+          claimName: jielabs-db-pv-claim
+      containers:
+      - name: db-master
+        image: postgres:11.9
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 5432
+        envFrom:
+        - configMapRef:
+            name: jielabs-db-config
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: db-volume
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jielabs-db-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jielabs-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/k8s/jielabs-db"
+

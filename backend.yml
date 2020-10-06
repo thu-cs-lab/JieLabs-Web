@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jielabs-backend
+  labels:
+    app: jielabs-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jielabs-backend
+  template:
+    metadata:
+      labels:
+        app: jielabs-backend
+    spec:
+      containers:
+        - name: jielabs-backend
+          image: jiegec/jielabs-backend:latest
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: "1"
+          envFrom:
+           - configMapRef:
+               name: jielabs-backend-env
+
