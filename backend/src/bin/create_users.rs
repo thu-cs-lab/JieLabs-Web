@@ -40,9 +40,15 @@ fn main(args: Args) {
         for result in rdr.deserialize() {
             let mut record: Row = result.unwrap();
             println!("adding {:?}", record);
-            let password = record
-                .password
-                .unwrap_or_else(|| thread_rng().sample_iter(&Alphanumeric).take(10).collect());
+            let password = record.password.unwrap_or_else(|| {
+                String::from_utf8(
+                    thread_rng()
+                        .sample_iter(&Alphanumeric)
+                        .take(10)
+                        .collect::<Vec<u8>>(),
+                )
+                .unwrap()
+            });
             record.password = Some(password.clone());
             wtr.serialize(record.clone()).unwrap();
 

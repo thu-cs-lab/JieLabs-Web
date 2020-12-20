@@ -169,9 +169,15 @@ async fn create(
     if let (Some(user), conn) = get_user(&id, conn).await? {
         if user.role == "admin" {
             let body = body.clone();
-            let password = body
-                .password
-                .unwrap_or_else(|| thread_rng().sample_iter(&Alphanumeric).take(10).collect());
+            let password = body.password.unwrap_or_else(|| {
+                String::from_utf8(
+                    thread_rng()
+                        .sample_iter(&Alphanumeric)
+                        .take(10)
+                        .collect::<Vec<u8>>(),
+                )
+                .unwrap()
+            });
             let new_user = NewUser {
                 user_name: path.clone(),
                 password: hash_password(&password),
