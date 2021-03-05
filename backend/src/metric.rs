@@ -46,8 +46,8 @@ async fn get(pool: web::Data<DbPool>, auth: BearerAuth) -> Result<String> {
             .count()
             .get_result::<i64>(&conn)
             .map_err(err)?;
-        let tasks: GetMetricResponse = get_task_manager().send(GetMetric).await?;
-        let boards: BoardInfoList = get_board_manager().send(GetBoardList).await?;
+        let tasks: GetMetricResponse = get_task_manager().send(GetMetric).await.map_err(err)?;
+        let boards: BoardInfoList = get_board_manager().send(GetBoardList).await.map_err(err)?;
         let board_count = boards.0.len();
         let assigned_board_count = boards
             .0

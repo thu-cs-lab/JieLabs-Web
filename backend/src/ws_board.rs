@@ -180,7 +180,7 @@ impl Handler<ProgramBitstream> for WSBoard {
 
 pub async fn ws_board(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     let conn = req.connection_info();
-    let remote = conn.remote();
+    let remote = conn.remote_addr();
     ws::start(
         WSBoard::new(remote.unwrap_or("Unknown Remote")),
         &req,

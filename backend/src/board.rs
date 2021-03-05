@@ -106,7 +106,8 @@ async fn config_board(
                     remote: body.board.clone(),
                     action: WSBoardMessageS2B::Ident(body.ident),
                 })
-                .await?;
+                .await
+                .map_err(err)?;
             return Ok(HttpResponse::Ok().json(res));
         }
     }

@@ -21,7 +21,7 @@ async fn main() -> std::io::Result<()> {
 
     if let Some(url) = ENV.sentry_url.clone() {
         std::mem::forget(sentry::init(url));
-        sentry::integrations::panic::register_panic_handler();
+        // sentry::integrations::panic::register_panic_handler();
         info!("sentry report is up");
     };
 
@@ -39,7 +39,11 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            .wrap(actix_cors::Cors::new().supports_credentials().finish())
+            .wrap(
+                actix_cors::Cors::default()
+                    .supports_credentials()
+                    .allowed_origin("https://lab.cs.tsinghua.edu.cn"),
+            )
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(secret.as_ref())
                     .name("jielabsweb")
