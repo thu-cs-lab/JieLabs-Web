@@ -24,6 +24,7 @@ WORKDIR /app/lib/pkg
 RUN yarn link
 WORKDIR /app
 
+RUN ln -s src/config.example.js src/config.js
 ARG commit_sha
 RUN CI_COMMIT_SHA=$commit_sha yarn build
 
