@@ -28,6 +28,7 @@ services:
 
 stages:
   - build
+  - deploy
 
 build:
   stage: build
@@ -35,3 +36,14 @@ build:
     - until docker info; do sleep 1; done
     - echo "$REGISTRY_PASS" | docker login $REGISTRY --username $REGISTRY_USER --password-stdin
     - ./build.sh
+
+deploy:
+  stage: deploy
+  image: bitnami/kubectl:1.20
+  environment:
+    name: production
+  only:
+    - master
+  script:
+    - kubectl -n jielabs rollout restart deployment/jielabs-frontend
+
