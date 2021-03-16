@@ -1,4 +1,4 @@
 #!/bin/sh
-sudo docker build -t jielabs-backend .
-sudo docker tag jielabs-backend:latest jiegec/jielabs-backend:latest
-sudo docker push jiegec/jielabs-backend:latest
+docker build -t thu-cs-lab/jielabs-backend .
+docker tag thu-cs-lab/jielabs-backend:latest $REGISTRY/thu-cs-lab/jielabs-backend:latest
+docker push $REGISTRY/thu-cs-lab/jielabs-backend:latest
