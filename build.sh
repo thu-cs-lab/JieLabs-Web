@@ -13,3 +13,15 @@ docker tag thu-cs-lab/jielabs-backend:latest $REGISTRY/thu-cs-lab/jielabs-backen
 docker push $REGISTRY/thu-cs-lab/jielabs-backend:latest
 cd ..
 
+
+cd frontend
+docker pull $REGISTRY/thu-cs-lab/jielabs-frontend:builder || true
+docker build --target builder --cache-from $REGISTRY/thu-cs-lab/jielabs-frontend:builder $DOCKER_ARGS -t thu-cs-lab/jielabs-frontend:builder .
+docker tag thu-cs-lab/jielabs-frontend:builder $REGISTRY/thu-cs-lab/jielabs-frontend:builder
+docker push $REGISTRY/thu-cs-lab/jielabs-frontend:builder
+docker pull $REGISTRY/thu-cs-lab/jielabs-frontend:latest || true
+docker build --cache-from $REGISTRY/thu-cs-lab/jielabs-frontend:builder --cache-from $REGISTRY/thu-cs-lab/jielabs-frontend:latest $DOCKER_ARGS -t thu-cs-lab/jielabs-frontend:latest .
+docker tag thu-cs-lab/jielabs-frontend:latest $REGISTRY/thu-cs-lab/jielabs-frontend:latest
+docker push $REGISTRY/thu-cs-lab/jielabs-frontend:latest
+cd ..
+
