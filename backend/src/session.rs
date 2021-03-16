@@ -5,7 +5,7 @@ use crate::schema::users::dsl;
 use crate::DbConnection;
 use crate::DbPool;
 use actix_session::Session;
-use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
+use actix_web::{delete, get, post, web, HttpResponse, Result};
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
@@ -131,7 +131,7 @@ async fn logout(sess: Session) -> Result<HttpResponse> {
 }
 
 #[get("/portal/auth")]
-async fn portal_fwd(sess: Session, rng: web::Data<dyn rand::SecureRandom>) -> Result<HttpResponse> {
+async fn portal_fwd(sess: Session, rng: web::Data<rand::SystemRandom>) -> Result<HttpResponse> {
     let rnd: [u8;32] = rand::generate(rng.as_ref()).map_err(actix_web::error::ErrorInternalServerError)?.expose();
     let state = hex::encode(&rnd);
     sess.set("state", &state)?;
@@ -167,10 +167,10 @@ enum CallbackData {
 #[derive(Deserialize)]
 struct TokenData {
     access_token: String,
-    refresh_token: String,
-    expires_in: usize,
-    scope: String,
-    token_type: String, // Asserts to Bearer
+    // refresh_token: String,
+    // expires_in: usize,
+    // scope: String,
+    // token_type: String, // Asserts to Bearer
 }
 
 #[derive(Deserialize)]
@@ -186,58 +186,61 @@ struct PortalUser {
 #[get("/portal/callback")]
 async fn portal_cb(sess: Session, data: web::Query<CallbackData>, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     // TODO: state timeout
-    if let CallbackData::Success { state, code } = data.into_inner() {
-        let stored_state = sess.get::<String>("state")?;
-        if stored_state != Some(state) {
-            return Ok(HttpResponse::BadRequest().finish())
-        }
+    match data.into_inner() {
+        CallbackData::Success { state, code } => {
+            let stored_state = sess.get::<String>("state")?;
+            if stored_state != Some(state) {
+                return Ok(HttpResponse::BadRequest().finish())
+            }
 
-        let cb = format!("{}/api/portal/callback", ENV.base);
-        let endpoint = format!("{}/api/token", ENV.portal);
+            let cb = format!("{}/api/portal/callback", ENV.base);
+            let endpoint = format!("{}/api/token", ENV.portal);
 
-        let token_url = url::Url::parse_with_params(&endpoint, &[
-            ("redirect_uri", cb.as_str()),
-            ("scope", "read"),
-            ("client_id", ENV.portal_client_id.as_str()),
-            ("client_secret", ENV.portal_client_secret.as_str()),
-            ("grant_type", "authorization_code"),
-            ("code", code.as_str()),
-        ]).map_err(actix_web::error::ErrorInternalServerError)?;
+            let token_url = url::Url::parse_with_params(&endpoint, &[
+                ("redirect_uri", cb.as_str()),
+                ("scope", "read"),
+                ("client_id", ENV.portal_client_id.as_str()),
+                ("client_secret", ENV.portal_client_secret.as_str()),
+                ("grant_type", "authorization_code"),
+                ("code", code.as_str()),
+            ]).map_err(actix_web::error::ErrorInternalServerError)?;
 
-        let cli = reqwest::Client::new();
-        let token_resp = cli.get(token_url).send().await.map_err(actix_web::error::ErrorInternalServerError)?;
-        let token_data: TokenData = token_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
+            let cli = reqwest::Client::new();
+            let token_resp = cli.get(token_url).send().await.map_err(actix_web::error::ErrorInternalServerError)?;
+            let token_data: TokenData = token_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
 
-        let user_endpoint = format!("{}/api/self", ENV.portal);
-        let user_resp = cli.get(user_endpoint).bearer_auth(token_data.access_token).send()
-            .await.map_err(actix_web::error::ErrorInternalServerError)?;
-        let user_data: PortalUser = user_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
+            let user_endpoint = format!("{}/api/self", ENV.portal);
+            let user_resp = cli.get(user_endpoint).bearer_auth(token_data.access_token).send()
+                .await.map_err(actix_web::error::ErrorInternalServerError)?;
+            let user_data: PortalUser = user_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
 
-        let now = Utc::now();
+            let now = Utc::now();
 
-        let new_user = NewUser {
-            user_name: user_data.user_name.clone(),
-            password: None,
-            real_name: Some(user_data.real_name),
-            student_id: user_data.student_id,
-            class: user_data.department,
-            role: None,
-            last_login: Some(now),
-        };
+            let new_user = NewUser {
+                user_name: user_data.user_name.clone(),
+                password: None,
+                real_name: Some(user_data.real_name),
+                student_id: user_data.student_id,
+                class: user_data.department,
+                role: None,
+                last_login: Some(now),
+            };
 
-        let conn = pool.get().map_err(err)?;
+            let conn = pool.get().map_err(err)?;
 
-        diesel::insert_into(crate::schema::users::table)
-            .values(&new_user)
-            .on_conflict(dsl::user_name)
-            .do_update()
-            .set(dsl::last_login.eq(Some(now)))
-            .execute(&conn)
-            .expect("insert should not fail");
+            diesel::insert_into(crate::schema::users::table)
+                .values(&new_user)
+                .on_conflict(dsl::user_name)
+                .do_update()
+                .set(dsl::last_login.eq(Some(now)))
+                .execute(&conn)
+                .expect("insert should not fail");
 
-        sess.set("login", user_data.user_name)?;
-        Ok(HttpResponse::Ok().finish()) // TODO: postMessage
-    } else {
-        Ok(HttpResponse::BadRequest().finish())
+            sess.set("login", user_data.user_name)?;
+            Ok(HttpResponse::Ok().finish()) // TODO: postMessage
+        },
+        CallbackData::Error { error, error_description } => {
+            Ok(HttpResponse::BadRequest().body(format!("{}: {}", error, error_description)))
+        },
     }
 }
