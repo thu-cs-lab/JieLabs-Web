@@ -49,7 +49,7 @@ fn get_env() -> Env {
         portal: var("PORTAL").unwrap_or_else(|_| "https://lab.cs.tsinghua.edu.cn/portal".to_owned()),
         portal_client_id: var("PORTAL_CLIENT_ID").unwrap_or_else(|_| "jielabs".to_owned()),
         portal_client_secret: var("PORTAL_CLIENT_SECRET").expect("PORTAL_CLIENT_SECRET"),
-        base: var("BASE").unwrap_or_else(|_| "https://lab.cs.tsinghua.edu.cn/jielabs".to_owned()),
+        base: var("BASE").unwrap_or_else(|_| "https://lab.cs.tsinghua.edu.cn/jie".to_owned()),
     }
 }
 
