@@ -240,7 +240,7 @@ async fn portal_cb(
                 real_name: Some(user_data.real_name),
                 student_id: user_data.student_id,
                 class: user_data.department,
-                role: Some(String::from("user")),
+                role: String::from("user"),
                 last_login: Some(now),
             };
 
@@ -252,7 +252,7 @@ async fn portal_cb(
                 .do_update()
                 .set(dsl::last_login.eq(Some(now)))
                 .execute(&conn)
-                .expect("insert should not fail");
+                .map_err(err)?;
 
             sess.set("login", user_data.user_name)?;
             Ok(HttpResponse::Ok().finish()) // TODO: postMessage

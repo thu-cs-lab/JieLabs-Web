@@ -184,7 +184,7 @@ async fn create(
                 real_name: body.real_name,
                 student_id: body.student_id,
                 class: body.class,
-                role: body.role,
+                role: body.role.unwrap_or(String::from("user")),
                 last_login: None,
             };
             diesel::insert_into(crate::schema::users::table)

@@ -36,7 +36,7 @@ fn main(args: Args) {
         real_name: args.real_name,
         student_id: args.student_id,
         class: args.class,
-        role: args.role,
+        role: args.role.unwrap_or(String::from("user")),
         last_login: None,
     };
     diesel::insert_into(backend::schema::users::table)

@@ -21,7 +21,7 @@ pub struct NewUser {
     pub real_name: Option<String>,
     pub class: Option<String>,
     pub student_id: Option<String>,
-    pub role: Option<String>,
+    pub role: String,
     pub last_login: Option<DateTime<Utc>>,
 }
 
