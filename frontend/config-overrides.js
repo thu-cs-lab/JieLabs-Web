@@ -13,9 +13,11 @@ const AnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const path = require('path');
 const webpack = require('webpack');
 
-const commitInfo = require('child_process')
-  .execSync('git describe --all --dirty --long')
-  .toString();
+let commitInfo = process.env.CI_COMMIT_SHA;
+if(!commitInfo)
+  commitInfo = require('child_process')
+    .execSync('git describe --all --dirty --long')
+    .toString();
 
 module.exports = override(
   addWebpackPlugin(new MonacoPlugin({
