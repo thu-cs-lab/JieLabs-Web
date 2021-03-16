@@ -21,7 +21,7 @@ docker tag thu-cs-lab/jielabs-frontend:wasm $REGISTRY/thu-cs-lab/jielabs-fronten
 docker push $REGISTRY/thu-cs-lab/jielabs-frontend:wasm
 
 docker pull $REGISTRY/thu-cs-lab/jielabs-frontend:builder || true
-docker build --target builder --cache-from $REGISTRY/thu-cs-lab/jielabs-frontend:builder $DOCKER_ARGS -t thu-cs-lab/jielabs-frontend:builder .
+docker build --target builder --cache-from $REGISTRY/thu-cs-lab/jielabs-frontend:builder $DOCKER_ARGS --build-arg commit_sha=$CI_COMMIT_SHA -t thu-cs-lab/jielabs-frontend:builder .
 docker tag thu-cs-lab/jielabs-frontend:builder $REGISTRY/thu-cs-lab/jielabs-frontend:builder
 docker push $REGISTRY/thu-cs-lab/jielabs-frontend:builder
 

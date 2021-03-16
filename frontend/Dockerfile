@@ -23,7 +23,9 @@ ADD . .
 WORKDIR /app/lib/pkg
 RUN yarn link
 WORKDIR /app
-RUN yarn build
+
+ARG commit_sha
+RUN CI_COMMIT_SHA=$commit_sha commit_sha yarn build
 
 FROM nginx:1.18-alpine
 ENV TZ=Asia/Shanghai
