@@ -255,7 +255,9 @@ async fn portal_cb(
                 .map_err(err)?;
 
             sess.set("login", user_data.user_name)?;
-            Ok(HttpResponse::Ok().finish()) // TODO: postMessage
+            Ok(HttpResponse::Ok()
+                .content_type("text/html")
+                .body("<script>window.opener.postMessage('done', '*');</script>"))
         }
         CallbackData::Error {
             error,
