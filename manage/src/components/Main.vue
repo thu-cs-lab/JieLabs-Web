@@ -19,12 +19,12 @@
                 :server-items-length="job_count"
                 :loading="loading"
               >
-                <template v-slot:item.src_url="{ item }">
+                <template v-slot:[`item.src_url`]="{ item }">
                   <v-btn icon :href="item.src_url" target="_blank">
                     <v-icon>mdi-download</v-icon>
                   </v-btn>
                 </template>
-                <template v-slot:item.dst_url="{ item }">
+                <template v-slot:[`item.dst_url`]="{ item }">
                   <v-btn icon :href="item.dst_url" target="_blank">
                     <v-icon>mdi-download</v-icon>
                   </v-btn>
@@ -94,7 +94,7 @@
                 </v-btn>
               </v-toolbar>
             </template>
-            <template v-slot:item.action="{ item }">
+            <template v-slot:[`item.action`]="{ item }">
               <v-icon small class="mr-2" @click="edit_user(item)">mdi-pencil-outline</v-icon>
               <v-icon small @click="delete_user(item)">mdi-delete</v-icon>
             </template>
@@ -111,7 +111,7 @@
             </v-card-title>
             <v-card-text>
               <v-data-table :headers="board_headers" :items="boards" :options.sync="board_options">
-                <template v-slot:item.action="{ item }">
+                <template v-slot:[`item.action`]="{ item }">
                   <v-icon small class="mr-2" @click="ident_on(item)">mdi-lightbulb-on-outline</v-icon>
                   <v-icon small @click="ident_off(item)">mdi-lightbulb-outline</v-icon>
                 </template>
