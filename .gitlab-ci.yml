@@ -34,4 +34,4 @@ build:
   script:
     - until docker info; do sleep 1; done
     - echo "$REGISTRY_PASS" | docker login $REGISTRY --username $REGISTRY_USER --password-stdin
-    - cd backend && ./build.sh
+    - ./build.sh
