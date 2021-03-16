@@ -14,7 +14,6 @@ actix-http = "2.2.0"
 actix-web = "3.3.2"
 actix-web-actors = "3.0.0"
 actix-web-httpauth = "0.5.0"
-actix-identity = "0.3.1"
 actix-rt = "1.1.1"
 bimap = "0.5.3"
 bytes = "0.5"
@@ -41,6 +40,10 @@ sentry = "0.21.0"
 structopt = { version = "0.3.21", features = ["paw"] }
 uuid = { version = "0.8.1", features = ["v4"] }
 ws = "0.9.1"
+actix-session = "0.4.0"
+reqwest = { version = "0.11.2", features = ["json"] }
+hex = "0.4.3"
+url = "2.2.1"
 
 [package.metadata.deb]
 name = "jielabs-backend"

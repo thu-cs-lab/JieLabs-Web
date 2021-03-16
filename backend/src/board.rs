@@ -4,15 +4,15 @@ use crate::schema::configs;
 use crate::session::get_user;
 use crate::ws_board::WSBoardMessageS2B;
 use crate::DbPool;
-use actix_identity::Identity;
+use actix_session::Session;
 use actix_web::{get, post, web, HttpResponse, Result};
 use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
 #[get("/list")]
-async fn list(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+async fn list(sess: Session, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), _conn) = get_user(&id, conn).await? {
+    if let (Some(user), _conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let man = get_board_manager();
             if let Ok(res) = man.send(GetBoardList).await {
@@ -32,12 +32,12 @@ struct UpdateVersionRequest {
 
 #[post("/version")]
 async fn update_version(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     body: web::Json<UpdateVersionRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let body = serde_json::to_string(&*body)?;
             web::block(move || {
@@ -94,12 +94,12 @@ struct ConfigBoardRequest {
 
 #[post("/config")]
 async fn config_board(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     body: web::Json<ConfigBoardRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), _conn) = get_user(&id, conn).await? {
+    if let (Some(user), _conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let res = get_board_manager()
                 .send(SendToBoardByRemote {

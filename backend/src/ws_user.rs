@@ -10,7 +10,7 @@ use crate::ws_board::{WSBoardMessageB2S, WSBoardMessageS2B};
 use crate::DbPool;
 use actix::prelude::*;
 use actix_http::ws::Item;
-use actix_identity::Identity;
+use actix_session::Session;
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use diesel::prelude::*;
@@ -240,7 +240,7 @@ impl WSUser {
 }
 
 pub async fn ws_user(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     req: HttpRequest,
     stream: web::Payload,
@@ -248,7 +248,7 @@ pub async fn ws_user(
     let conn = req.connection_info();
     let remote = conn.remote_addr();
     let conn = pool.get().unwrap();
-    if let (Some(user), _conn) = get_user(&id, conn).await? {
+    if let (Some(user), _conn) = get_user(&sess, conn).await? {
         return ws::start(
             WSUser::new(
                 remote.unwrap_or("Unknown Remote"),

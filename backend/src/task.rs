@@ -4,7 +4,7 @@ use crate::schema::jobs;
 use crate::session::get_user;
 use crate::task_manager::{get_task_manager, SubmitBuildTask};
 use crate::DbPool;
-use actix_identity::Identity;
+use actix_session::Session;
 use actix_web::{get, post, web, HttpResponse, Result};
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
@@ -18,12 +18,12 @@ struct BuildRequest {
 
 #[post("/build")]
 async fn build(
-    id: Identity,
+    sess: Session,
     body: web::Json<BuildRequest>,
     pool: web::Data<DbPool>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         let body = body.into_inner();
 
         let dest = generate_uuid();
@@ -137,12 +137,12 @@ impl From<Job> for JobInfo {
 
 #[get("/list")]
 async fn list(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     query: web::Query<JobListRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
             let limit = query.limit.unwrap_or(5);
@@ -167,9 +167,9 @@ async fn list(
 }
 
 #[get("/count")]
-async fn count(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+async fn count(sess: Session, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let count = web::block(move || jobs::dsl::jobs.count().get_result::<i64>(&conn))
                 .await
@@ -182,12 +182,12 @@ async fn count(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
 
 #[get("/")]
 async fn list_self(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     query: web::Query<JobListRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         let offset = query.offset.unwrap_or(0);
         let limit = query.limit.unwrap_or(5);
 
@@ -210,9 +210,9 @@ async fn list_self(
 }
 
 #[get("/get/{job_id}")]
-async fn get(id: Identity, pool: web::Data<DbPool>, path: web::Path<i32>) -> Result<HttpResponse> {
+async fn get(sess: Session, pool: web::Data<DbPool>, path: web::Path<i32>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if let Ok(job) = jobs::dsl::jobs.find(*path).first::<Job>(&conn) {
             if user.role == "admin" || user.user_name == job.submitter {
                 return Ok(HttpResponse::Ok().json(JobInfo::from(job)));

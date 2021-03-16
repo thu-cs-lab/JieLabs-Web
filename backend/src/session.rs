@@ -4,13 +4,13 @@ use crate::models::*;
 use crate::schema::users::dsl;
 use crate::DbConnection;
 use crate::DbPool;
-use actix_identity::Identity;
+use actix_session::Session;
 use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use log::*;
-use ring::{digest, hmac};
+use ring::{digest, hmac, rand};
 use serde_derive::{Deserialize, Serialize};
 
 pub fn hash_password(password: &str) -> String {
@@ -25,7 +25,7 @@ pub fn hash_password(password: &str) -> String {
 }
 
 pub async fn get_user(
-    id: &Identity,
+    sess: &Session,
     conn: PooledConnection<ConnectionManager<DbConnection>>,
 ) -> Result<
     (
@@ -34,10 +34,10 @@ pub async fn get_user(
     ),
     actix_web::Error,
 > {
-    if let Some(name) = id.identity() {
+    if let Some(name) = sess.get::<String>("login")? {
         let (user, conn) = web::block(move || {
             match dsl::users
-                .filter(dsl::user_name.eq(&name))
+                .filter(dsl::user_name.eq(name))
                 .first::<User>(&conn)
             {
                 Ok(res) => Ok((res, conn)),
@@ -69,7 +69,7 @@ struct UserInfoResponse {
 
 #[post("/session")]
 async fn login(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     body: web::Json<LoginRequest>,
 ) -> Result<HttpResponse> {
@@ -90,7 +90,7 @@ async fn login(
             .set(&user)
             .execute(&conn)
             .map_err(err)?;
-        id.remember(user.user_name.clone());
+        sess.set("login", user.user_name.clone())?;
         Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
             user_name: Some(user.user_name),
@@ -106,9 +106,9 @@ async fn login(
 }
 
 #[get("/session")]
-async fn info(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+async fn info(sess: Session, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), _conn) = get_user(&id, conn).await? {
+    if let (Some(user), _conn) = get_user(&sess, conn).await? {
         return Ok(HttpResponse::Ok().json(UserInfoResponse {
             login: true,
             user_name: Some(user.user_name),
@@ -122,10 +122,122 @@ async fn info(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
 }
 
 #[delete("/session")]
-async fn logout(id: Identity) -> impl Responder {
-    if let Some(user) = id.identity() {
+async fn logout(sess: Session) -> Result<HttpResponse> {
+    if let Some(user) = sess.get::<String>("login")? {
         info!("User {} logged out", user);
     }
-    id.forget();
-    HttpResponse::Ok().json(true)
+    sess.remove("login");
+    Ok(HttpResponse::Ok().json(true))
+}
+
+#[get("/portal/auth")]
+async fn portal_fwd(sess: Session, rng: web::Data<dyn rand::SecureRandom>) -> Result<HttpResponse> {
+    let rnd: [u8;32] = rand::generate(rng.as_ref()).map_err(actix_web::error::ErrorInternalServerError)?.expose();
+    let state = hex::encode(&rnd);
+    sess.set("state", &state)?;
+
+    let cb = format!("{}/api/portal/callback", ENV.base);
+    let endpoint = format!("{}/api/authorize", ENV.portal);
+
+    let url = url::Url::parse_with_params(&endpoint, &[
+        ("state", state.as_str()),
+        ("redirect_uri", cb.as_str()),
+        ("scope", "read"),
+        ("client_id", ENV.portal_client_id.as_str()),
+        ("response_type", "code"),
+    ]).map_err(actix_web::error::ErrorInternalServerError)?;
+
+    // Generat state
+    Ok(HttpResponse::Found().header(actix_web::http::header::LOCATION, url.as_str()).finish())
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum CallbackData {
+    Error {
+        error: String,
+        error_description: String,
+    },
+    Success {
+        state: String,
+        code: String,
+    }
+}
+
+#[derive(Deserialize)]
+struct TokenData {
+    access_token: String,
+    refresh_token: String,
+    expires_in: usize,
+    scope: String,
+    token_type: String, // Asserts to Bearer
+}
+
+#[derive(Deserialize)]
+struct PortalUser {
+    user_name: String,
+    real_name: String,
+
+    // Dont care about last_login
+    student_id: Option<String>,
+    department: Option<String>,
+}
+
+#[get("/portal/callback")]
+async fn portal_cb(sess: Session, data: web::Query<CallbackData>, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    // TODO: state timeout
+    if let CallbackData::Success { state, code } = data.into_inner() {
+        let stored_state = sess.get::<String>("state")?;
+        if stored_state != Some(state) {
+            return Ok(HttpResponse::BadRequest().finish())
+        }
+
+        let cb = format!("{}/api/portal/callback", ENV.base);
+        let endpoint = format!("{}/api/token", ENV.portal);
+
+        let token_url = url::Url::parse_with_params(&endpoint, &[
+            ("redirect_uri", cb.as_str()),
+            ("scope", "read"),
+            ("client_id", ENV.portal_client_id.as_str()),
+            ("client_secret", ENV.portal_client_secret.as_str()),
+            ("grant_type", "authorization_code"),
+            ("code", code.as_str()),
+        ]).map_err(actix_web::error::ErrorInternalServerError)?;
+
+        let cli = reqwest::Client::new();
+        let token_resp = cli.get(token_url).send().await.map_err(actix_web::error::ErrorInternalServerError)?;
+        let token_data: TokenData = token_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
+
+        let user_endpoint = format!("{}/api/self", ENV.portal);
+        let user_resp = cli.get(user_endpoint).bearer_auth(token_data.access_token).send()
+            .await.map_err(actix_web::error::ErrorInternalServerError)?;
+        let user_data: PortalUser = user_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
+
+        let now = Utc::now();
+
+        let new_user = NewUser {
+            user_name: user_data.user_name.clone(),
+            password: None,
+            real_name: Some(user_data.real_name),
+            student_id: user_data.student_id,
+            class: user_data.department,
+            role: None,
+            last_login: Some(now),
+        };
+
+        let conn = pool.get().map_err(err)?;
+
+        diesel::insert_into(crate::schema::users::table)
+            .values(&new_user)
+            .on_conflict(dsl::user_name)
+            .do_update()
+            .set(dsl::last_login.eq(Some(now)))
+            .execute(&conn)
+            .expect("insert should not fail");
+
+        sess.set("login", user_data.user_name)?;
+        Ok(HttpResponse::Ok().finish()) // TODO: postMessage
+    } else {
+        Ok(HttpResponse::BadRequest().finish())
+    }
 }

@@ -1,6 +1,6 @@
 #[macro_use]
 extern crate diesel_migrations;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
+use actix_session::CookieSession;
 use actix_web::{middleware, web, App, HttpServer};
 use backend::{
     board, env::ENV, file, metric, session, task, task_manager, user, ws_board, ws_user,
@@ -9,7 +9,7 @@ use backend::{
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
 use log::*;
-use ring::digest;
+use ring::{digest, rand};
 use sentry;
 
 embed_migrations!();
@@ -39,16 +39,17 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .data(rand::SystemRandom::new())
             .wrap(
                 actix_cors::Cors::default()
                     .supports_credentials()
                     .allowed_origin("https://lab.cs.tsinghua.edu.cn"),
             )
-            .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(secret.as_ref())
+            .wrap(
+                CookieSession::private(secret.as_ref()) // Private is required because we are storing OAuth state in cookie
                     .name("jielabsweb")
                     .secure(false),
-            ))
+            )
             .wrap(middleware::Logger::default())
             .service(
                 web::scope("/api")
@@ -84,7 +85,9 @@ async fn main() -> std::io::Result<()> {
                         web::scope("/")
                             .service(session::login)
                             .service(session::logout)
-                            .service(session::info),
+                            .service(session::info)
+                            .service(session::portal_fwd)
+                            .service(session::portal_cb),
                     ),
             )
     })
