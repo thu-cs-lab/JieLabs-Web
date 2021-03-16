@@ -51,7 +51,7 @@ async fn main() -> std::io::Result<()> {
             ))
             .wrap(middleware::Logger::default())
             .service(
-                web::scope("/api")
+                web::scope(&ENV.api_root)
                     .service(web::resource("/ws_board").route(web::get().to(ws_board::ws_board)))
                     .service(web::resource("/ws_user").route(web::get().to(ws_user::ws_user)))
                     .service(

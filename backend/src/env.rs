@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use std::env::var;
 
 pub struct Env {
+    pub api_root: String,
     pub database_url: String,
     pub cookie_secret: String,
     pub password_secret: String,
@@ -24,6 +25,7 @@ pub struct Env {
 
 fn get_env() -> Env {
     Env {
+        api_root: var("API_ROOT").unwrap_or(String::from("/api")),
         database_url: var("DATABASE_URL").expect("DATABASE_URL"),
         cookie_secret: var("COOKIE_SECRET").expect("COOKIE_SECRET"),
         password_secret: var("PASSWORD_SECRET").expect("PASSWORD_SECRET"),
