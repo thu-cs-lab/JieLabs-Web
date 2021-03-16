@@ -133,22 +133,28 @@ async fn logout(sess: Session) -> Result<HttpResponse> {
 #[get("/portal/auth")]
 async fn portal_fwd(sess: Session, rng: web::Data<rand::SystemRandom>) -> Result<HttpResponse> {
     // Generate state
-    let rnd: [u8;32] = rand::generate(rng.as_ref()).map_err(err)?.expose();
+    let rnd: [u8; 32] = rand::generate(rng.as_ref()).map_err(err)?.expose();
     let state = hex::encode(&rnd);
     sess.set("state", &state)?;
 
     let cb = format!("{}/api/portal/callback", ENV.base);
     let endpoint = format!("{}/api/authorize", ENV.portal);
 
-    let url = url::Url::parse_with_params(&endpoint, &[
-        ("state", state.as_str()),
-        ("redirect_uri", cb.as_str()),
-        ("scope", "read"),
-        ("client_id", ENV.portal_client_id.as_str()),
-        ("response_type", "code"),
-    ]).map_err(err)?;
+    let url = url::Url::parse_with_params(
+        &endpoint,
+        &[
+            ("state", state.as_str()),
+            ("redirect_uri", cb.as_str()),
+            ("scope", "read"),
+            ("client_id", ENV.portal_client_id.as_str()),
+            ("response_type", "code"),
+        ],
+    )
+    .map_err(err)?;
 
-    Ok(HttpResponse::Found().header(actix_web::http::header::LOCATION, url.as_str()).finish())
+    Ok(HttpResponse::Found()
+        .header(actix_web::http::header::LOCATION, url.as_str())
+        .finish())
 }
 
 #[derive(Deserialize)]
@@ -161,7 +167,7 @@ enum CallbackData {
     Success {
         state: String,
         code: String,
-    }
+    },
 }
 
 #[derive(Deserialize)]
@@ -184,34 +190,46 @@ struct PortalUser {
 }
 
 #[get("/portal/callback")]
-async fn portal_cb(sess: Session, data: web::Query<CallbackData>, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+async fn portal_cb(
+    sess: Session,
+    data: web::Query<CallbackData>,
+    pool: web::Data<DbPool>,
+) -> Result<HttpResponse> {
     // TODO: state timeout
     match data.into_inner() {
         CallbackData::Success { state, code } => {
             let stored_state = sess.get::<String>("state")?;
             if stored_state != Some(state) {
-                return Ok(HttpResponse::BadRequest().finish())
+                return Ok(HttpResponse::BadRequest().finish());
             }
 
             let cb = format!("{}/api/portal/callback", ENV.base);
             let endpoint = format!("{}/api/token", ENV.portal);
 
-            let token_url = url::Url::parse_with_params(&endpoint, &[
-                ("redirect_uri", cb.as_str()),
-                ("scope", "read"),
-                ("client_id", ENV.portal_client_id.as_str()),
-                ("client_secret", ENV.portal_client_secret.as_str()),
-                ("grant_type", "authorization_code"),
-                ("code", code.as_str()),
-            ]).map_err(err)?;
+            let token_url = url::Url::parse_with_params(
+                &endpoint,
+                &[
+                    ("redirect_uri", cb.as_str()),
+                    ("scope", "read"),
+                    ("client_id", ENV.portal_client_id.as_str()),
+                    ("client_secret", ENV.portal_client_secret.as_str()),
+                    ("grant_type", "authorization_code"),
+                    ("code", code.as_str()),
+                ],
+            )
+            .map_err(err)?;
 
             let cli = reqwest::Client::new();
             let token_resp = cli.get(token_url).send().await.map_err(err)?;
             let token_data: TokenData = token_resp.json().await.map_err(err)?;
 
             let user_endpoint = format!("{}/api/self", ENV.portal);
-            let user_resp = cli.get(&user_endpoint).bearer_auth(token_data.access_token).send()
-                .await.map_err(err)?;
+            let user_resp = cli
+                .get(&user_endpoint)
+                .bearer_auth(token_data.access_token)
+                .send()
+                .await
+                .map_err(err)?;
             let user_data: PortalUser = user_resp.json().await.map_err(err)?;
 
             let now = Utc::now();
@@ -238,9 +256,10 @@ async fn portal_cb(sess: Session, data: web::Query<CallbackData>, pool: web::Dat
 
             sess.set("login", user_data.user_name)?;
             Ok(HttpResponse::Ok().finish()) // TODO: postMessage
-        },
-        CallbackData::Error { error, error_description } => {
-            Ok(HttpResponse::BadRequest().body(format!("{}: {}", error, error_description)))
-        },
+        }
+        CallbackData::Error {
+            error,
+            error_description,
+        } => Ok(HttpResponse::BadRequest().body(format!("{}: {}", error, error_description))),
     }
 }

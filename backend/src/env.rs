@@ -46,7 +46,8 @@ fn get_env() -> Env {
         redis_waiting_queue: var("REDIS_WAITING_QUEUE").expect("jielabs-waiting"),
         redis_working_queue: var("REDIS_WORKING_QUEUE").expect("jielabs-working"),
         sentry_url: var("SENTRY_URL").ok(),
-        portal: var("PORTAL").unwrap_or_else(|_| "https://lab.cs.tsinghua.edu.cn/portal".to_owned()),
+        portal: var("PORTAL")
+            .unwrap_or_else(|_| "https://lab.cs.tsinghua.edu.cn/portal".to_owned()),
         portal_client_id: var("PORTAL_CLIENT_ID").unwrap_or_else(|_| "jielabs".to_owned()),
         portal_client_secret: var("PORTAL_CLIENT_SECRET").expect("PORTAL_CLIENT_SECRET"),
         base: var("BASE").unwrap_or_else(|_| "https://lab.cs.tsinghua.edu.cn/jie".to_owned()),
