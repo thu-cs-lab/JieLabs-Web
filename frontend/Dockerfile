@@ -17,7 +17,7 @@ WORKDIR /app
 ADD package.json .
 ADD yarn.lock .
 RUN yarn install
-COPY --from=wasm /wasm/lib/pkg /app/lib/pkg
+COPY --from=wasm /wasm/pkg /app/lib/pkg
 
 ADD . .
 WORKDIR /app/lib/pkg
