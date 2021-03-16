@@ -1,4 +1,5 @@
-FROM rust:1.50.0-slim
+FROM rust:1.50.0-slim AS builder
+RUN sed -i -e 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' -e 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
 RUN apt update
 RUN apt install -y libssl-dev pkg-config libpq-dev
 
@@ -16,5 +17,5 @@ RUN cargo build --release
 FROM rust:1.50.0-slim
 RUN apt update
 RUN apt install -y libssl-dev pkg-config libpq-dev
-COPY --from=0 /backend/target/release/backend /bin/backend
+COPY --from=builder /backend/target/release/backend /bin/backend
 CMD /bin/backend
