@@ -132,7 +132,8 @@ async fn logout(sess: Session) -> Result<HttpResponse> {
 
 #[get("/portal/auth")]
 async fn portal_fwd(sess: Session, rng: web::Data<rand::SystemRandom>) -> Result<HttpResponse> {
-    let rnd: [u8;32] = rand::generate(rng.as_ref()).map_err(actix_web::error::ErrorInternalServerError)?.expose();
+    // Generate state
+    let rnd: [u8;32] = rand::generate(rng.as_ref()).map_err(err)?.expose();
     let state = hex::encode(&rnd);
     sess.set("state", &state)?;
 
@@ -145,9 +146,8 @@ async fn portal_fwd(sess: Session, rng: web::Data<rand::SystemRandom>) -> Result
         ("scope", "read"),
         ("client_id", ENV.portal_client_id.as_str()),
         ("response_type", "code"),
-    ]).map_err(actix_web::error::ErrorInternalServerError)?;
+    ]).map_err(err)?;
 
-    // Generat state
     Ok(HttpResponse::Found().header(actix_web::http::header::LOCATION, url.as_str()).finish())
 }
 
@@ -203,16 +203,16 @@ async fn portal_cb(sess: Session, data: web::Query<CallbackData>, pool: web::Dat
                 ("client_secret", ENV.portal_client_secret.as_str()),
                 ("grant_type", "authorization_code"),
                 ("code", code.as_str()),
-            ]).map_err(actix_web::error::ErrorInternalServerError)?;
+            ]).map_err(err)?;
 
             let cli = reqwest::Client::new();
-            let token_resp = cli.get(token_url).send().await.map_err(actix_web::error::ErrorInternalServerError)?;
-            let token_data: TokenData = token_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
+            let token_resp = cli.get(token_url).send().await.map_err(err)?;
+            let token_data: TokenData = token_resp.json().await.map_err(err)?;
 
             let user_endpoint = format!("{}/api/self", ENV.portal);
-            let user_resp = cli.get(user_endpoint).bearer_auth(token_data.access_token).send()
-                .await.map_err(actix_web::error::ErrorInternalServerError)?;
-            let user_data: PortalUser = user_resp.json().await.map_err(actix_web::error::ErrorInternalServerError)?;
+            let user_resp = cli.get(&user_endpoint).bearer_auth(token_data.access_token).send()
+                .await.map_err(err)?;
+            let user_data: PortalUser = user_resp.json().await.map_err(err)?;
 
             let now = Utc::now();
 
