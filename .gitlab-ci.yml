@@ -30,12 +30,19 @@ stages:
   - build
   - deploy
 
-build:
+build/frontend:
   stage: build
   script:
     - until docker info; do sleep 1; done
     - echo "$REGISTRY_PASS" | docker login $REGISTRY --username $REGISTRY_USER --password-stdin
-    - ./build.sh
+    - cd frontend && ./build.sh
+
+build/backend:
+  stage: build
+  script:
+    - until docker info; do sleep 1; done
+    - echo "$REGISTRY_PASS" | docker login $REGISTRY --username $REGISTRY_USER --password-stdin
+    - cd backend && ./build.sh
 
 deploy:
   stage: deploy
@@ -46,4 +53,4 @@ deploy:
     - master
   script:
     - kubectl -n jielabs rollout restart deployment/jielabs-backend
-
+    - kubectl -n jielabs rollout restart deployment/jielabs-frontend
