@@ -45,5 +45,5 @@ deploy:
   only:
     - master
   script:
-    - kubectl -n jielabs rollout restart deployment/jielabs-frontend
+    - kubectl -n jielabs rollout restart deployment/jielabs-backend
 
