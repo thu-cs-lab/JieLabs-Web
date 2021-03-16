@@ -20,7 +20,7 @@ cd pkg
 yarn link
 
 cd ../..
-yarn link jiewebs_lib
+yarn link jielabs_lib
 
 yarn build
 # Or yarn watch

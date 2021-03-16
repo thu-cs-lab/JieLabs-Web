@@ -16,7 +16,7 @@ WORKDIR /app
 
 ADD package.json .
 ADD yarn.lock .
-RUN yarn install
+RUN yarn install --frozen-lockfile
 COPY --from=wasm /wasm/pkg /app/lib/pkg
 
 ADD . .
@@ -26,7 +26,7 @@ WORKDIR /app
 
 RUN ln -s config.example.js src/config.js
 ARG commit_sha
-RUN yarn link jiewebs_lib
+RUN yarn link jielabs_lib
 RUN CI_COMMIT_SHA=$commit_sha yarn build
 
 FROM nginx:1.18-alpine
