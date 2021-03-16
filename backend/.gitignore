@@ -4,3 +4,4 @@
 *.db
 *.rbf
 *.csv
+.*.sw[a-p]

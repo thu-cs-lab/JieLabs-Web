@@ -4,7 +4,7 @@ use crate::schema::users::dsl;
 use crate::session::{get_user, hash_password};
 use crate::ws_user::ONLINE_USERS;
 use crate::DbPool;
-use actix_identity::Identity;
+use actix_session::Session;
 use actix_web::{delete, get, post, put, web, HttpResponse, Result};
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
@@ -39,12 +39,12 @@ struct UserInfo {
 
 #[get("/list")]
 async fn list(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     query: web::Query<UserListRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let offset = query.offset.unwrap_or(0);
             let limit = query.limit.unwrap_or(5);
@@ -86,9 +86,9 @@ async fn list(
 }
 
 #[get("/count")]
-async fn count(id: Identity, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+async fn count(sess: Session, pool: web::Data<DbPool>) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             if let Ok(count) = dsl::users.count().get_result::<i64>(&conn) {
                 return Ok(HttpResponse::Ok().json(count));
@@ -109,13 +109,13 @@ struct UserUpdateRequest {
 
 #[post("/manage/{name}")]
 async fn update(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     path: web::Path<String>,
     body: web::Json<UserUpdateRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(login_user), conn) = get_user(&id, conn).await? {
+    if let (Some(login_user), conn) = get_user(&sess, conn).await? {
         if login_user.role == "admin" || (login_user.user_name == *path) {
             // admin: edit anyone
             // other: edit himself
@@ -148,7 +148,7 @@ async fn update(
                     user.role = role.clone();
                 }
                 if let Some(password) = &body.password {
-                    user.password = hash_password(password);
+                    user.password = Some(hash_password(password));
                 }
                 return Ok(HttpResponse::Ok()
                     .json(diesel::update(&user).set(&user).execute(&conn).is_ok()));
@@ -160,13 +160,13 @@ async fn update(
 
 #[put("/manage/{name}")]
 async fn create(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     path: web::Path<String>,
     body: web::Json<UserUpdateRequest>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             let body = body.clone();
             let password = body.password.unwrap_or_else(|| {
@@ -180,11 +180,12 @@ async fn create(
             });
             let new_user = NewUser {
                 user_name: path.clone(),
-                password: hash_password(&password),
+                password: Some(hash_password(&password)),
                 real_name: body.real_name,
                 student_id: body.student_id,
                 class: body.class,
                 role: body.role,
+                last_login: None,
             };
             diesel::insert_into(crate::schema::users::table)
                 .values(&new_user)
@@ -198,12 +199,12 @@ async fn create(
 
 #[get("/manage/{name}")]
 async fn get(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     path: web::Path<String>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             if let Ok(user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))
@@ -229,12 +230,12 @@ async fn get(
 
 #[delete("/manage/{name}")]
 async fn remove(
-    id: Identity,
+    sess: Session,
     pool: web::Data<DbPool>,
     path: web::Path<String>,
 ) -> Result<HttpResponse> {
     let conn = pool.get().map_err(err)?;
-    if let (Some(user), conn) = get_user(&id, conn).await? {
+    if let (Some(user), conn) = get_user(&sess, conn).await? {
         if user.role == "admin" {
             if let Ok(user) = dsl::users
                 .filter(dsl::user_name.eq(&*path))

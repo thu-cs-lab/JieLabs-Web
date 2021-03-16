@@ -54,11 +54,12 @@ fn main(args: Args) {
 
             let new_user = backend::models::NewUser {
                 user_name: record.user_name,
-                password: backend::session::hash_password(&password),
+                password: Some(backend::session::hash_password(&password)),
                 real_name: record.real_name,
                 student_id: record.student_id,
                 class: record.class,
                 role: record.role,
+                last_login: None,
             };
             diesel::insert_into(backend::schema::users::table)
                 .values(&new_user)
