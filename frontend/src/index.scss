@@ -485,7 +485,7 @@ main {
 }
 
 /* Login */
-.login-box {
+.login-cred {
   position: relative;
   padding-right: 128px + 20px;
 
@@ -532,6 +532,66 @@ main {
       opacity: 1;
     }
   }
+}
+
+.login-portal {
+  @include rst-input; 
+  height: 64px;
+  width: 100%;
+
+  background: $primary-color;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 20px;
+
+  cursor: default;
+  filter: grayscale(1);
+  transition: filter .4s ease;
+
+  &:not(:disabled) {
+    cursor: pointer;
+    filter: none;
+  }
+
+  &-name {
+    @extend .monospace;
+    font-weight: 500;
+
+    opacity: .7;
+    transition: opacity .2s ease;
+    font-size: 1.33em;
+  }
+
+  &:hover:not(:disabled) &-name {
+    opacity: 1;
+  }
+
+  small {
+    opacity: .54;
+  }
+}
+
+.login-sep {
+  margin: 20px;
+  height: 10px;
+  background-size: 10px 10px;
+
+  $strong: rgba(255,255,255,.2);
+  $dimmed: transparent;
+
+  background-image: linear-gradient(
+    45deg,
+    $strong 25%,
+    $dimmed 25%,
+    $dimmed 50%,
+    $strong 50%,
+    $strong 75%,
+    $dimmed 75%
+  );
 }
 
 .material-icons {

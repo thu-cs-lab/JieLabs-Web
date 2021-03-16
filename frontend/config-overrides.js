@@ -31,7 +31,7 @@ module.exports = override(
   adjustWorkbox(wb => Object.assign(wb, {
     importWorkboxFrom: 'local',
     navigateFallbackBlacklist: [
-      /^\/api\/.*/,
+      /\/api\/.*/, // TODO: properly does this based on BACKEND in config
       new RegExp('/[^/?]+\\.[^/]+$'),
     ],
     importsDirectory: '.'

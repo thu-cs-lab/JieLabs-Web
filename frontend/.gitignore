@@ -25,3 +25,5 @@ yarn-error.log*
 # Config
 src/config.js
 src/config-*.js
+
+.*.sw[a-p]
