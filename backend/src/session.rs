@@ -240,7 +240,7 @@ async fn portal_cb(
                 real_name: Some(user_data.real_name),
                 student_id: user_data.student_id,
                 class: user_data.department,
-                role: None,
+                role: Some(String::from("user")),
                 last_login: Some(now),
             };
 
