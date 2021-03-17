@@ -41,7 +41,7 @@ export default React.memo(() => {
     setPortalOngoing(true);
     const cb = async (ev) => {
       if(ev.data !== 'done') return;
-      window.removeEventListener('event', cb);
+      window.removeEventListener('message', cb);
       const success = await dispatch(restore())
       setPortalOngoing(false);
 
@@ -50,7 +50,7 @@ export default React.memo(() => {
       else
         setErrored(true);
     };
-    window.addEventListener('event', cb);
+    window.addEventListener('message', cb);
   }, [dispatch, user, pass, history]);
 
   const checkEnter = useCallback(ev => {
