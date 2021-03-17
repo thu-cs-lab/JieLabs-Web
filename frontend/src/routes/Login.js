@@ -37,10 +37,11 @@ export default React.memo(() => {
 
   const [portalOngoing, setPortalOngoing] = useState(false);
   const doPortalAuth = useCallback(() => {
-    window.open(BACKEND + '/api/portal/auth');
+    const loginWindow = window.open(BACKEND + '/api/portal/auth');
     setPortalOngoing(true);
     const cb = async (ev) => {
       if(ev.data !== 'done') return;
+      loginWindow.close();
       window.removeEventListener('message', cb);
       const success = await dispatch(restore())
       setPortalOngoing(false);
