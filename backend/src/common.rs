@@ -108,11 +108,16 @@ pub async fn download_s3(file_name: String) -> Option<Bytes> {
     None
 }
 
+#[track_caller]
 pub fn err<T: Display>(err: T) -> Error {
     let error_token = generate_uuid();
-    error!("Error {}: {}", error_token, err);
+    let location = std::panic::Location::caller();
+    error!("Error {} at {}: {}", error_token, location, err);
     sentry::capture_message(
-        &format!("token: {}, err: {}", error_token, err),
+        &format!(
+            "token: {}, err: {}, location: {}",
+            error_token, err, location
+        ),
         sentry::Level::Error,
     );
     ErrorInternalServerError(format!(
