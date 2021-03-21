@@ -19,10 +19,17 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    if let Some(url) = ENV.sentry_url.clone() {
-        std::mem::forget(sentry::init(url));
-        // sentry::integrations::panic::register_panic_handler();
-        info!("sentry report is up");
+    let _guard = if let Some(url) = ENV.sentry_url.clone() {
+        info!("Sentry report is up");
+        Some(sentry::init((
+            url,
+            sentry::ClientOptions {
+                release: sentry::release_name!(),
+                ..Default::default()
+            },
+        )))
+    } else {
+        None
     };
 
     let conn = ENV.database_url.clone();
