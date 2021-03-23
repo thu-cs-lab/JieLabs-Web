@@ -52,7 +52,8 @@ async fn main() -> std::io::Result<()> {
                     .supports_credentials()
                     .allowed_methods(vec!["GET", "POST"])
                     .allowed_header(actix_web::http::header::CONTENT_TYPE)
-                    .allowed_origin("http://localhost:3000"),
+                    .allowed_origin("http://localhost:3000")
+                    .allowed_origin("https://lab.cs.tsinghua.edu.cn"),
             )
             .wrap(
                 CookieSession::private(secret.as_ref()) // Private is required because we are storing OAuth state in cookie
