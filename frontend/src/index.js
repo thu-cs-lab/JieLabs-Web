@@ -82,6 +82,7 @@ serviceWorker.register({
       0,
       () => {
         const waiting = reg.waiting;
+        if(!waiting) return;
         waiting.postMessage({ type: 'SKIP_WAITING' });
         setTimeout(() => window.location.reload(true), 50); // Wait for 50ms for the sw to activate
       },
