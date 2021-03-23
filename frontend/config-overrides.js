@@ -34,6 +34,7 @@ module.exports = override(
         /\/api\/.*/, // TODO: properly does this based on BACKEND in config
         new RegExp('/[^/?]+\\.[^/]+$'),
       ],
+      maximumFileSizeToCacheInBytes: 8388608,
     })
   ),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
