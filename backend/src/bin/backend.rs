@@ -50,7 +50,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 actix_cors::Cors::default()
                     .supports_credentials()
-                    .allowed_origin("https://lab.cs.tsinghua.edu.cn"),
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_header(actix_web::http::header::CONTENT_TYPE)
+                    .allowed_origin("http://localhost:3000"),
             )
             .wrap(
                 CookieSession::private(secret.as_ref()) // Private is required because we are storing OAuth state in cookie
