@@ -36,4 +36,5 @@ RUN PUBLIC_URL=$base CI_COMMIT_SHA=$commit_sha REACT_APP_BACKEND=$backend REACT_
 FROM nginx:1.18-alpine
 ENV TZ=Asia/Shanghai
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY mime.types /etc/nginx/mime.types
 COPY --from=builder /app/build /usr/share/nginx/html/jie
