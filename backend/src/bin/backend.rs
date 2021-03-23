@@ -64,7 +64,9 @@ async fn main() -> std::io::Result<()> {
                     .secure(!cfg!(debug_assertions))
                     .same_site(SameSite::None),
             )
-            .wrap(middleware::Logger::default())
+            .wrap(middleware::Logger::new(
+                r#"%a %{r}a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#, // add real ip for reverse proxy
+            ))
             .service(
                 web::scope(&ENV.api_root)
                     .service(web::resource("/ws_board").route(web::get().to(ws_board::ws_board)))
