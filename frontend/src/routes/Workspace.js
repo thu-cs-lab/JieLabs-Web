@@ -81,7 +81,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
       else
         setAssigning({ name, dir, subscript });
       setSearch('');
-      setTimeout(() => searchRef.current.focus());
+      if(searchRef.current) setTimeout(() => searchRef.current.focus());
     });
 
     const unreg = registerCodeLens({ asTop, assignPin });
