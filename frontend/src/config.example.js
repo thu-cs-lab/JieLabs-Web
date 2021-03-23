@@ -1,6 +1,4 @@
-const BACKEND_STEM = process.env.REACT_APP_SENTRY ?? '//localhost:8080'
-
-export const BACKEND = process.env.REACT_APP_SENTRY || 'http://localhost:8080';
+export const BACKEND = process.env.REACT_APP_BACKEND || 'http://localhost:8080';
 export const WS_BACKEND = BACKEND.replace(/^http/, 'ws');
 export const HARD_LOGOUT = false;
 export const CODE_ANALYSE_DEBOUNCE = 100;
