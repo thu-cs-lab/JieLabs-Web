@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@juggle/resize-observer": "^3.1.1",
-    "@sentry/browser": "^5.14.2",
+    "@sentry/browser": "^6.2.3",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -20,11 +20,11 @@
     "react-monaco-editor": "^0.43.0",
     "react-redux": "^7.2.3",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.0",
+    "react-scripts": "^4.0.3",
     "react-transition-group": "^4.3.0",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
-    "redux-sentry-middleware": "^0.1.6",
+    "redux-sentry-middleware": "^0.2.2",
     "redux-thunk": "^2.3.0",
     "uuid": "^8.3.2"
   },
@@ -48,9 +48,9 @@
     ]
   },
   "devDependencies": {
-    "customize-cra": "^0.9.1",
+    "customize-cra": "^1.0.0",
     "raw-loader": "^4.0.0",
-    "react-app-rewired": "^2.1.5",
-    "webpack-bundle-analyzer": "^3.6.0"
+    "react-app-rewired": "^2.1.8",
+    "webpack-bundle-analyzer": "^4.4.0"
   }
 }

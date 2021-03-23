@@ -38,9 +38,6 @@ module.exports = override(
     ],
     importsDirectory: '.'
   })),
-  useEslintRc(
-    path.resolve(__dirname, './.eslintrc.json'),
-  ),
   setWebpackOptimizationSplitChunks({
     chunks: 'all',
     name: false,
