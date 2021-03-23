@@ -10,7 +10,7 @@ import * as reducers from './reducers';
 import { Map, List } from 'immutable';
 import { DEFAULT_BOARD, DEFAULT_FIELD } from '../config';
 
-export default () => {
+const init = () => {
   const code = window.localStorage.getItem('code') || '';
   const board = window.localStorage.getItem('board') || DEFAULT_BOARD;
   const top = window.localStorage.getItem('top') || null;
@@ -41,7 +41,7 @@ export default () => {
   function saver(name, first, mapper = data => data) {
     let last = first;
     return data => {
-      if(data != last) {
+      if(data !== last) {
         last = data;
 
         const mapped = mapper(data);
@@ -69,4 +69,6 @@ export default () => {
   });
 
   return store;
-}
+};
+
+export default init;

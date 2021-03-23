@@ -142,13 +142,10 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
 
   const filteredPins = useMemo(() => {
     if(search === '') return sortedPins;
-    const rawNum = Number.parseInt(search, 10);
-    const num = Number.isInteger(rawNum) ? rawNum : null;
 
     let perfectMatch = null;
 
     const filtered = sortedPins.filter(e => {
-      // Strong equality to avoid rawNum = NaN
       const signal = revAssignment.get(e.index);
       if(signal && signal.indexOf(search) !== -1)
         return true;
@@ -289,33 +286,6 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     };
   }, [analysis, assignments]);
 
-  const [pendingSubscript, setPendingSubscript] = useState('');
-
-  const subscriptChange = useCallback(e => {
-    const nv = e.target.value;
-    const parsed = Number.parseInt(nv, 10);
-
-    const target = analysis.entities[analysis.top].signals.find(e => e.name === assigning.name);
-    if(!target || target.arity === null) return;
-
-    let valid;
-    if(Number.isInteger(parsed)) {
-      if(target.arity.from >= target.arity.to) {
-        valid = parsed <= target.arity.from && parsed >= target.arity.to;
-      } else {
-        valid = parsed <= target.arity.to && parsed >= target.arity.from;
-      }
-    } else {
-      valid = false;
-    }
-
-    setPendingSubscript(nv);
-    setAssigning({
-      ...assigning,
-      subscript: valid ? parsed : -1,
-    });
-  }, [assigning, analysis]);
-
   const expandedSignals = useMemo(() => {
     if(!analysis) return [];
     if(analysis.top === null) return [];
@@ -446,7 +416,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
   const startIntHelp = useCallback(() => {
     setHelp(false);
     dispatch(startHelp());
-  });
+  }, [dispatch]);
 
   const lang = useSelector(store => store.lang);
   useEffect(() => {
@@ -462,7 +432,7 @@ export default React.memo(({ showSettings, sandboxHandlerRef }) => {
     const blob = new Blob([str], { type: 'application/json;charset=utf-8' });
     saveAs(blob, 'jielabs-export.json');
     dispatch(showSnackbar('Exported! Drag-n-Drop to load', 5000));
-  }, [sandboxHandlerRef]);
+  }, [sandboxHandlerRef, dispatch, lang]);
 
   return <main className="workspace">
     <div className="left">

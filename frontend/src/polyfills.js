@@ -33,7 +33,7 @@ export class TextEncoder {
   constructor(encoding) {
     console.log('Using custom encoder, expect some real slow motion, please upgrade your browser');
     if(encoding && encoding.toLowerCase() !== 'utf-8' && encoding.toLowerCase() !== 'utf-16le')
-      throw new Error(`Sorry, Meow\'s TextEncoder only supports UTF-8/16LE, required ${encoding}`);
+      throw new Error(`Sorry, Meow's TextEncoder only supports UTF-8/16LE, required ${encoding}`);
     this.encoding = encoding.toLowerCase();
   }
 
@@ -60,7 +60,7 @@ export class TextDecoder {
   constructor(encoding) {
     console.log('Using custom decoder, expect some real slow motion');
     if(encoding && encoding.toLowerCase() !== 'utf-8' && encoding.toLowerCase() !== 'utf-16le')
-      throw new Error(`Sorry, Meow\'s TextEncoder only supports UTF-8/16LE, required ${encoding}`);
+      throw new Error(`Sorry, Meow's TextEncoder only supports UTF-8/16LE, required ${encoding}`);
     this.encoding = encoding.toLowerCase();
   }
   decode(arr) {

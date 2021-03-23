@@ -161,7 +161,7 @@ function applyVerilogHighlight(lang) {
 
 }
 
-export default _store => {
+const init = _store => {
   store = _store;
 
   monaco.languages.register({ id: 'vhdl' });
@@ -222,6 +222,8 @@ export default _store => {
   monaco.languages.registerHoverProvider('verilog', hoverProvider);
 };
 
+export default init;
+
 export function registerCodeLens(cmds) {
   const { asTop, assignPin } = cmds;
 
@@ -229,7 +231,7 @@ export function registerCodeLens(cmds) {
 
   const codeLensProvider = {
     onDidChange: cb => {
-      let { analysis: lastAnalysis, constraints: lastConstraints, board: lastBoard } = store.getState();
+      let { analysis: lastAnalysis, constraints: lastConstraints, /* board: lastBoard */ } = store.getState();
 
       const unsubscribe = store.subscribe(() => {
         const { analysis, constraints } = store.getState();
@@ -285,37 +287,37 @@ export function registerCodeLens(cmds) {
           title: 'Top entity'
         };
 
-        for (const signal of analysis.entities[topIdx].signals) {
-          function push(name, params, isStandalone) {
-            let title;
-            if (isStandalone) {
-              const assigned = constraints.signals.get(name);
-              const spec = boardConfig?.pins[assigned];
-              title = assigned !== undefined ? `Assigned to pin ${ spec?.label || assigned }` : `Assign pin for ${name}`;
-            } else {
-              title = `Assign pins for ${name}`;
-            }
-
-            lenses.push({
-              range: {
-                startLineNumber: signal.pos.from_line + 1,
-                startColumn: signal.pos.from_char + 1,
-                endLineNumber: signal.pos.to_line + 1,
-                endColumn: signal.pos.to_char + 1,
-              },
-              id: `assign-pin:${name}`,
-              command: {
-                title,
-                id: params === null ? undefined : assignPin,
-                arguments: params,
-              },
-            });
+        function push(signal, name, params, isStandalone) {
+          let title;
+          if (isStandalone) {
+            const assigned = constraints.signals.get(name);
+            const spec = boardConfig?.pins[assigned];
+            title = assigned !== undefined ? `Assigned to pin ${ spec?.label || assigned }` : `Assign pin for ${name}`;
+          } else {
+            title = `Assign pins for ${name}`;
           }
 
+          lenses.push({
+            range: {
+              startLineNumber: signal.pos.from_line + 1,
+              startColumn: signal.pos.from_char + 1,
+              endLineNumber: signal.pos.to_line + 1,
+              endColumn: signal.pos.to_char + 1,
+            },
+            id: `assign-pin:${name}`,
+            command: {
+              title,
+              id: params === null ? undefined : assignPin,
+              arguments: params,
+            },
+          });
+        }
+
+        for (const signal of analysis.entities[topIdx].signals) {
           if (signal.arity === null) {
-            push(signal.name, [signal, null], true);
+            push(signal, signal.name, [signal, null], true);
           } else {
-            push(signal.name, [signal, signal.arity.from], false);
+            push(signal, signal.name, [signal, signal.arity.from], false);
           }
         }
       }

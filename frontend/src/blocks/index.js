@@ -68,7 +68,7 @@ export const Connector = React.memo(({
       if(onUnreg)
         onUnreg();
     }
-  }, [mode, onReg, onUnreg, snd]);
+  }, [mode, onReg, onUnreg, snd, _id]); // TODO: do we need _id here?
 
   useEffect(() => {
     if(id !== null)

@@ -416,6 +416,8 @@ export default React.memo(({ handlerRef }) => {
    */
   const field = useSelector(state => state.field);
 
+  const dispatch = useDispatch();
+
   const [scroll, setScroll] = useState({ x: 20, y: 20 });
   const scrollRef = useRef(scroll);
   // TODO: impl scaling
@@ -461,7 +463,7 @@ export default React.memo(({ handlerRef }) => {
     setLines(handler.getLines());
     setLinking(false);
     setFocus(null)
-  }, [handler, linking, focus, timeoutCtx]);
+  }, [handler, focus, timeoutCtx]);
 
   const doStartLinking = useCallback(() => {
     if(layer !== LAYERS.WIRE) return;
@@ -479,18 +481,18 @@ export default React.memo(({ handlerRef }) => {
     setFocus(null);
   }, []);
 
-  const container = useRef();
+  const [container, setContainer] = useState(null);
 
   // Map lines to groups
   const groups = useMemo(() => {
-    if(!container.current) return [];
+    if(!container) return [];
 
     return lines.map(({ id, color, members })=> ({
       id, color,
       members: members.map(({ id, ref }) => {
         if(!ref.current) return null;
         const bounding = ref.current.getBoundingClientRect();
-        const { x, y } = center(bounding, container.current.getBoundingClientRect());
+        const { x, y } = center(bounding, container.getBoundingClientRect());
 
         return {
           x: x - scrollRef.current.x,
@@ -499,18 +501,18 @@ export default React.memo(({ handlerRef }) => {
         };
       }).filter(e => e !== null),
     }));
-  }, [lines]);
+  }, [container, lines]);
 
   // Keep track of all connectors
   const [connectors, setConnectors] = useState([]);
   const refreshConnectors = useCallback(() => {
-    if(!container.current) return;
+    if(!container) return;
 
     const all = handler.getAllConnectors();
 
     setConnectors(all.map(({ id, ref }) => {
       const bounding = ref.current.getBoundingClientRect();
-      const { x, y } = center(bounding, container.current.getBoundingClientRect());
+      const { x, y } = center(bounding, container.getBoundingClientRect());
 
       return {
         id,
@@ -518,7 +520,7 @@ export default React.memo(({ handlerRef }) => {
       y: y - scrollRef.current.y,
       };
     }));
-  }, [handler]);
+  }, [container, handler]);
 
   // Update lines & connectors when updating field
   useLayoutEffect(() => {
@@ -545,16 +547,16 @@ export default React.memo(({ handlerRef }) => {
   }), []);
 
   useEffect(() => {
-    if(container.current) {
-      observer.observe(container.current);
-      const rect = container.current.getBoundingClientRect();
+    if(container) {
+      observer.observe(container);
+      const rect = container.getBoundingClientRect();
       setCanvasWidth(rect.width)
       setCanvasHeight(rect.height)
-    }
 
-    return () => {
-      observer.unobserve(container.current);
-    };
+      return () => {
+        observer.unobserve(container);
+      };
+    }
   }, [container, observer]);
 
   const [ctxMenu, setCtxMenu] = useState(null);
@@ -574,17 +576,15 @@ export default React.memo(({ handlerRef }) => {
         return;
 
     dispatch(settleBlock(idx, ax, ay))
-  }, [field]);
+  }, [field, dispatch]);
   
   const requestDelete = useCallback(idx => {
     dispatch(deleteBlock(idx))
-  }, []);
+  }, [dispatch]);
 
-  const requestRedraw = useCallback(() => setLines(handler.getLines()), []);
+  const requestRedraw = useCallback(() => setLines(handler.getLines()), [handler]);
 
   // FPGA Context related stuff
-
-  const dispatch = useDispatch();
 
   // cpid = Clocking Pin ID
   const cpid = useRef(null);
@@ -660,7 +660,7 @@ export default React.memo(({ handlerRef }) => {
     setLines(handler.getLines());
     setLinking(false);
     setFocus(null);
-  }, [focus, handler, timeoutCtx]);
+  }, [handler, timeoutCtx]);
 
   /* Color stuff */
 
@@ -734,11 +734,11 @@ export default React.memo(({ handlerRef }) => {
     else if(e.key === 'Tab') invoke('shiftColor', e);
     else if(e.key === 'Backspace' || e.key === 'Delete') invoke('disconnect', e);
     else if(e.key === 'Shift') invoke('connect', e);
-  }, [hotkeys]);
+  }, []);
 
   const handleKeyUp = useCallback(e => {
     if(e.key === 'Shift') invoke('cancelConnect', e);
-  }, [hotkeys]);
+  }, []);
 
   const boardConnected = useSelector(state => {
     const status = state.board.status;
@@ -756,11 +756,11 @@ export default React.memo(({ handlerRef }) => {
       dispatch(disconnectBoard());
     else
       dispatch(connectToBoard());
-  }, [boardConnected, boardBusy]);
+  }, [boardConnected, boardBusy, dispatch]);
 
   return <>
     <div
-      ref={container}
+      ref={setContainer}
       className="sandbox"
       tabIndex="0"
       onKeyDown={handleKeyDown}
@@ -846,7 +846,7 @@ export default React.memo(({ handlerRef }) => {
         }}>
           { INSERTABLES.map(t => (
             <div className="ctx-entry" key={t} onClick={() => {
-              const cont = container.current.getBoundingClientRect();
+              const cont = container.getBoundingClientRect();
               let pos = findAlignedPos(field, {
                 x: ctxMenu.x - scroll.x - cont.x,
                 y: ctxMenu.y - scroll.y - cont.y,
@@ -990,13 +990,13 @@ const BlockWrapper = React.memo(({ idx, spec, requestLift, requestSettle, reques
 
     ev.stopPropagation();
     ev.preventDefault();
-  }, [idx, spec, requestSettle, setMoving]);
+  }, [idx, spec, requestSettle, requestLift, setMoving]);
 
   const onDelete = useCallback(() => requestDelete(idx), [idx, requestDelete])
 
   const weakBlocker = useCallback(e => {
     e.stopPropagation();
-  }, [moving]);
+  }, []);
 
   const Block = blocks[spec.type];
 
@@ -1310,7 +1310,7 @@ const WireLayer = React.memo(({
     }
 
     return null;
-  }, [mouse, connectors, scroll]);
+  }, [mouse, connectors, scroll, connectorRadius]);
 
   // Draw connectors
   const renderConnectors = useCallback(canvas => {
@@ -1356,7 +1356,7 @@ const WireLayer = React.memo(({
 
       ctx.shadowColor = 'transparent';
     }
-  }, [connectors, scroll, width, height, hovered, focus, linking]);
+  }, [connectors, scroll, width, height, hovered, focus, linking, connectorRadius]);
 
   // Composite all canvases
   const renderer = useCallback(canvas => {
@@ -1447,7 +1447,7 @@ const WireLayer = React.memo(({
         if(onBlur) onBlur();
       }
     }
-  }, [collided, hovered, linking, link, focus]);
+  }, [collided, hovered, linking, link, focus, linkCancel, onBlur, onFocus]);
 
   return (
     <>

@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 export default React.memo(({ open, onClose, className, children, render, blocker, ...rest }) => {
-  const weakBlocker = useCallback(e => e.stopPropagation());
+  const weakBlocker = useCallback(e => e.stopPropagation(), []);
 
   useEffect(() => {
     if(!open) return;

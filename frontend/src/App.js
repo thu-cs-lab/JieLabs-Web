@@ -44,7 +44,9 @@ function useLoader(loader) {
     loader.then(mod => {
       setComp(() => mod.default);
     });
-  }, []);
+
+    return () => setComp(null);
+  }, [loader]);
 
   const Nullify = useCallback(() => null, []);
 
@@ -151,7 +153,7 @@ export default React.memo(() => {
     // Dst is loaded in a separated useEffect hook to support deferred loading
 
     loadSrc();
-  }, [detail]);
+  }, [dispatch]);
 
   const detailedBuild = detail === null ? null : latestBuilds.find(e => e.id === detail.basic.id);
 
@@ -209,7 +211,7 @@ export default React.memo(() => {
     loadDst();
 
     // Fetch
-  }, [detailedBuild?.status, detail?.basic.id, detail?.basic.dst]);
+  }, [detailedBuild, detail?.basic.id, detail?.basic.dst, detail?.basic.status]);
 
   const dismissDetail = useCallback(() => {
     setDetail(null);
@@ -225,7 +227,7 @@ export default React.memo(() => {
     if(!detail?.bit) return;
     const blob = new Blob(detail.bit);
     saveAs(blob, `bitstream-${detail.basic.id}.bit`);
-  }, [detail?.bit]);
+  }, [detail?.bit, detail?.basic.id]);
 
   const snackbar = useSelector(state => state.snackbar);
 
@@ -233,12 +235,8 @@ export default React.memo(() => {
   // TODO: cancel on server disconnect
   const timeoutRef = useRef(null);
   const timeoutWarningRef = useRef(null);
-  const reconnectFPGA = useCallback(async handle => {
-    await dispatch(connectToBoard());
-    handle();
-    resetTimeout(true);
-  }, []);
-  const resetTimeout = useCallback(start => {
+
+  const resetTimeout = useCallback(function rstTo(start) {
     let started = timeoutRef.current !== null;
     if(started) {
       const [a, b] = timeoutRef.current;
@@ -258,16 +256,22 @@ export default React.memo(() => {
       timeoutRef.current = null;
 
       if(timeoutWarningRef.current) timeoutWarningRef.current();
-      timeoutWarningRef.current = dispatch(showSnackbar('FPGA timed out!', 0, reconnectFPGA, 'RECONNECT'));
+      const reconnect = async handle => {
+        dispatch(connectToBoard());
+        handle();
+        rstTo(true);
+      };
+      timeoutWarningRef.current = dispatch(showSnackbar('FPGA timed out!', 0, reconnect, 'RECONNECT'));
       dispatch(disconnectBoard());
     }, TIMEOUT);
 
     const b = setTimeout(() => {
-      timeoutWarningRef.current = dispatch(showSnackbar('FPGA about to timeout!', 0, resetTimeout, 'NONONO'));
+      timeoutWarningRef.current = dispatch(showSnackbar('FPGA about to timeout!', 0, rstTo, 'NONONO'));
     }, TIMEOUT - TIMEOUT_BUFFER);
 
     timeoutRef.current = [a, b];
-  }, []);
+  }, [dispatch]);
+
   const timeoutCtx = useMemo(() => ({
     reset: () => resetTimeout(false),
     start: () => resetTimeout(true),
@@ -286,10 +290,10 @@ export default React.memo(() => {
       password: newPass,
     });
     dispatch(showSnackbar('Password updated!', 5000));
-  }, [newPass, user?.user_name]);
+  }, [newPass, user?.user_name, dispatch]);
 
   const lang = useSelector(store => store.lang);
-  const setLanguage = useCallback(lang => dispatch(updateLang(lang)));
+  const setLanguage = useCallback(lang => dispatch(updateLang(lang)), [dispatch]);
 
   const [about, setAbout] = useState(false);
   const showAbout = useCallback(() => {
@@ -356,7 +360,7 @@ export default React.memo(() => {
       console.error(e);
       dispatch(showSnackbar('Unable to parse save file'));
     }
-  }, [importing]);
+  }, [importing, dispatch]);
 
   const [errored, setErrored] = useState(false);
   const generateError = useCallback(() => {

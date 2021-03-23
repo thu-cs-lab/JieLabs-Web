@@ -43,7 +43,7 @@ export default React.memo(({ id, ...rest }) => {
     const tail = Array(maxIdx + 1 - head.length).fill(SIGNAL.X);
 
     return head.concat(tail);
-  }, [input, directions, boardTmplPins]);
+  }, [input, directions, boardTmplPins, maxIdx]);
 
   const gridStyle = useMemo(() => {
     const slotCount = boardTmpl.dimensions[0] * boardTmpl.dimensions[1];
@@ -64,7 +64,7 @@ export default React.memo(({ id, ...rest }) => {
 
     // TODO: don't start timeout if board allocation fails
     timeoutCtx.start();
-  }, [timeoutCtx]);
+  }, [timeoutCtx, dispatch]);
 
   const ctx = useContext(FPGAEnvContext);
 

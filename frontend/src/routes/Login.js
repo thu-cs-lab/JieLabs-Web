@@ -52,7 +52,7 @@ export default React.memo(() => {
         setErrored(true);
     };
     window.addEventListener('message', cb);
-  }, [dispatch, user, pass, history]);
+  }, [dispatch, history]);
 
   const checkEnter = useCallback(ev => {
     if(ev.key === 'Enter') doLogin();

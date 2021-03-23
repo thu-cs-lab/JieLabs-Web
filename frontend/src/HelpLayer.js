@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useMemo, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -344,12 +344,14 @@ const STEPS = [
 
 function useStep(step, onDone = null) {
   const state = useSelector(state => state);
+  const stateRef = useRef(state);
+  useEffect(() => stateRef.current = state, [state]);
   const dispatch = useDispatch();
 
   const config = STEPS[step];
   const done = config ? config.done(state) : false;
 
-  const prev = useMemo(() => step === 0 ? null : () => dispatch(unstepHelp()), [step])
+  const prev = useMemo(() => step === 0 ? null : () => dispatch(unstepHelp()), [step, dispatch])
   const next = useMemo(() => {
     if(!done) return null;
     if(step === STEPS.length - 1) return () => {
@@ -357,11 +359,12 @@ function useStep(step, onDone = null) {
       if(onDone) onDone();
     }
     return () => dispatch(stepHelp());
-  }, [step, done]);
+  }, [step, done, dispatch, onDone]);
   const reset = useMemo(() => {
-    if(!config?.reset) return null;
-    return () => config.reset(state, dispatch);
-  }, [step]);
+    const crst = config?.reset;
+    if(!crst) return null;
+    return () => crst(stateRef.current, dispatch);
+  }, [config?.reset, dispatch]);
 
   // Reset on step changes
   useEffect(() => {
@@ -369,8 +372,9 @@ function useStep(step, onDone = null) {
   }, [reset]);
 
   const renderer = useCallback(() => {
-    if(!config?.renderer) return null;
-    return config.renderer(state);
+    const crdr = config?.renderer;
+    if(!crdr) return null;
+    return crdr(state);
   }, [config?.renderer, state]);
 
   return {
@@ -391,7 +395,7 @@ export default React.memo(({ onDone }) => {
 
   const open = step !== null;
 
-  const exit = useCallback(() => dispatch(endHelp()), []);
+  const exit = useCallback(() => dispatch(endHelp()), [dispatch]);
 
   const [hidden, setHidden] = useState(false);
   // Whenever step changes, reset hidden
