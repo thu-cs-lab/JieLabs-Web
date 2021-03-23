@@ -3,7 +3,8 @@ import './index.scss';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/react';
+import { Integrations } from "@sentry/tracing";
 import { SENTRY } from './config';
 
 import App from './App';
@@ -32,7 +33,11 @@ if(!window.TextDecoder)
 /* Sentry */
 if(SENTRY !== null) {
   const release = (__COMMIT_HASH__.match(/^heads\/(.*)[\n\r]+$/) ?? {})[1] ?? __COMMIT_HASH__; // eslint-disable-line no-undef
-  Sentry.init({ dsn: SENTRY, release });
+  Sentry.init({
+    dsn: SENTRY,
+    integrations: [new Integrations.BrowserTracing()],
+    release,
+  });
 }
 
 let storeSet = null;

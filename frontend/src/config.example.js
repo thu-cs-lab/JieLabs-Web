@@ -1,11 +1,13 @@
-export const BACKEND = "http://localhost:8080";
-export const WS_BACKEND = "ws://localhost:8080";
+const BACKEND_STEM = process.env.REACT_APP_SENTRY ?? '//localhost:8080'
+
+export const BACKEND = process.env.REACT_APP_SENTRY || 'http://localhost:8080';
+export const WS_BACKEND = BACKEND.replace(/^http/, 'ws');
 export const HARD_LOGOUT = false;
 export const CODE_ANALYSE_DEBOUNCE = 100;
 export const BUILD_POLL_INTERVAL = 3000;
 export const BUILD_LIST_FETCH_LENGTH = 5;
 
-export const SENTRY = null;
+export const SENTRY = process.env.REACT_APP_SENTRY || null;
 
 export const TAR_FILENAMES = {
   bitstream: 'bitstream.rbf',

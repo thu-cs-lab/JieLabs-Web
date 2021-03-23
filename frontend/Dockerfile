@@ -25,9 +25,12 @@ RUN yarn link
 WORKDIR /app
 
 RUN ln -s config.example.js src/config.js
+ARG backend
+ARG sentry
+
 ARG commit_sha
 RUN yarn link jielabs_lib
-RUN CI_COMMIT_SHA=$commit_sha yarn build
+RUN CI_COMMIT_SHA=$commit_sha REACT_APP_BACKEND=backend REACT_APP_SENTRY=sentry yarn build
 
 FROM nginx:1.18-alpine
 ENV TZ=Asia/Shanghai
