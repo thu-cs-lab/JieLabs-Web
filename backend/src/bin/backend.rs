@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate diesel_migrations;
 use actix_session::CookieSession;
+use actix_web::cookie::SameSite;
 use actix_web::{middleware, web, App, HttpServer};
 use backend::{
     board, env::ENV, file, metric, session, task, task_manager, user, ws_board, ws_user,
@@ -56,7 +57,8 @@ async fn main() -> std::io::Result<()> {
                 CookieSession::private(secret.as_ref()) // Private is required because we are storing OAuth state in cookie
                     .name("jielabsweb-rich")
                     .path(&ENV.cookie_path)
-                    .secure(false),
+                    .secure(false)
+                    .same_site(SameSite::None),
             )
             .wrap(middleware::Logger::default())
             .service(
