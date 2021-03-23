@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate diesel_migrations;
 use actix_session::CookieSession;
+use actix_web::http::header;
 use actix_web::{middleware, web, App, HttpServer};
 use backend::{
     board, env::ENV, file, metric, session, task, task_manager, user, ws_board, ws_user,
@@ -51,7 +52,7 @@ async fn main() -> std::io::Result<()> {
                 actix_cors::Cors::default()
                     .supports_credentials()
                     .allowed_methods(vec!["GET", "POST"])
-                    .allowed_header(actix_web::http::header::CONTENT_TYPE)
+                    .allowed_headers(vec![header::CONTENT_TYPE, header::UPGRADE])
                     .allowed_origin("http://localhost:3000")
                     .allowed_origin("https://lab.cs.tsinghua.edu.cn"),
             )
