@@ -30,7 +30,7 @@ module.exports = override(
   addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
   addWebpackPlugin(
     new GenerateSW({
-      navigateFallback: 'index.html',
+      navigateFallback: `${process.env.PUBLIC_URL || ''}/index.html`,
       navigateFallbackDenylist: [
         /\/api\/.*/, // TODO: properly does this based on BACKEND in config
         new RegExp('/[^/?]+\\.[^/]+$'),
