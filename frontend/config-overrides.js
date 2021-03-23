@@ -9,6 +9,7 @@ const {
 
 const MonacoPlugin = require('monaco-editor-webpack-plugin');
 const AnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { GenerateSW } = require('workbox-webpack-plugin');
 
 const path = require('path');
 const webpack = require('webpack');
@@ -27,17 +28,17 @@ module.exports = override(
     __COMMIT_HASH__: JSON.stringify(commitInfo),
   })),
   addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
+  addWebpackPlugin(
+    new GenerateSW({
+      navigateFallbackDenylist: [
+        /\/api\/.*/, // TODO: properly does this based on BACKEND in config
+        new RegExp('/[^/?]+\\.[^/]+$'),
+      ],
+    })
+  ),
   addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
   addWebpackModuleRule({ test: /\.vhdl/, use: 'raw-loader' }),
   addWebpackModuleRule({ test: /\.v/, use: 'raw-loader' }),
-  adjustWorkbox(wb => Object.assign(wb, {
-    importWorkboxFrom: 'local',
-    navigateFallbackBlacklist: [
-      /\/api\/.*/, // TODO: properly does this based on BACKEND in config
-      new RegExp('/[^/?]+\\.[^/]+$'),
-    ],
-    importsDirectory: '.'
-  })),
   setWebpackOptimizationSplitChunks({
     chunks: 'all',
     name: false,
