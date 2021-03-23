@@ -2,6 +2,7 @@
 extern crate diesel_migrations;
 use actix_session::CookieSession;
 use actix_web::cookie::SameSite;
+use actix_web::http::header;
 use actix_web::{middleware, web, App, HttpServer};
 use backend::{
     board, env::ENV, file, metric, session, task, task_manager, user, ws_board, ws_user,
@@ -51,13 +52,16 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 actix_cors::Cors::default()
                     .supports_credentials()
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![header::CONTENT_TYPE, header::UPGRADE])
+                    .allowed_origin("http://localhost:3000")
                     .allowed_origin("https://lab.cs.tsinghua.edu.cn"),
             )
             .wrap(
                 CookieSession::private(secret.as_ref()) // Private is required because we are storing OAuth state in cookie
                     .name("jielabsweb-rich")
                     .path(&ENV.cookie_path)
-                    .secure(false)
+                    .secure(!cfg!(debug_assertions))
                     .same_site(SameSite::None),
             )
             .wrap(middleware::Logger::default())
