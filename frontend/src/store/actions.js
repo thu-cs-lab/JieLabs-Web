@@ -1,6 +1,6 @@
 import React from 'react';
 import { Map as IMap, List as IList } from 'immutable';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 
 import { get, post, putS3, createTarFile } from '../util';
 import { WS_BACKEND, CODE_ANALYSE_DEBOUNCE, BOARDS, BUILD_POLL_INTERVAL, BUILD_LIST_FETCH_LENGTH, TAR_FILENAMES } from '../config';
