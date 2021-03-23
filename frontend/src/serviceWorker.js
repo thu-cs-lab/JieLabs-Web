@@ -58,6 +58,11 @@ function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
     .then(registration => {
+      if(registration.waiting && config && config.onUpdate) {
+        // There is already a guy hanging out at waiting state
+        config.onUpdate(registration);
+      }
+
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {
