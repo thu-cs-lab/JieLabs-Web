@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
                 CookieSession::private(secret.as_ref()) // Private is required because we are storing OAuth state in cookie
                     .name("jielabsweb-rich")
                     .path(&ENV.cookie_path)
-                    .secure(false),
+                    .secure(!cfg!(debug_assertions)),
             )
             .wrap(middleware::Logger::default())
             .service(
