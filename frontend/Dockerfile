@@ -34,4 +34,5 @@ RUN CI_COMMIT_SHA=$commit_sha REACT_APP_BACKEND=backend REACT_APP_SENTRY=sentry 
 
 FROM nginx:1.18-alpine
 ENV TZ=Asia/Shanghai
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/build /usr/share/nginx/html/jie
