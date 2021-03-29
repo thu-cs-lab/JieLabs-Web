@@ -14,7 +14,7 @@ FROM node:12 AS builder
 
 WORKDIR /app
 
-RUN yarn global add sentry-cli
+RUN yarn global add @sentry/cli
 
 ADD package.json .
 ADD yarn.lock .
