@@ -246,7 +246,7 @@ pub async fn ws_user(
     stream: web::Payload,
 ) -> Result<HttpResponse, Error> {
     let conn = req.connection_info();
-    let remote = conn.remote_addr();
+    let remote = conn.realip_remote_addr();
     let conn = pool.get().unwrap();
     if let (Some(user), _conn) = get_user(&sess, conn).await? {
         return ws::start(
