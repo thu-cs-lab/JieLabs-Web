@@ -27,3 +27,5 @@ src/config.js
 src/config-*.js
 
 .*.sw[a-p]
+
+.sentryclirc

@@ -14,6 +14,7 @@ docker build --target builder \
   --build-arg sentry=$SENTRY \
   --build-arg backend=$BACKEND \
   --build-arg base=$BASE \
+  --build-arg sentry_config=$SENTRY_CONFIG \
   $DOCKER_ARGS -t thu-cs-lab/jielabs-frontend:builder .
 docker tag thu-cs-lab/jielabs-frontend:builder $REGISTRY/thu-cs-lab/jielabs-frontend:builder
 docker push $REGISTRY/thu-cs-lab/jielabs-frontend:builder
@@ -27,6 +28,7 @@ docker build \
   --build-arg sentry=$SENTRY \
   --build-arg backend=$BACKEND \
   --build-arg base=$BASE \
+  --build-arg sentry_config=$SENTRY_CONFIG \
   $DOCKER_ARGS -t thu-cs-lab/jielabs-frontend:latest .
 docker tag thu-cs-lab/jielabs-frontend:latest $REGISTRY/thu-cs-lab/jielabs-frontend:latest
 docker push $REGISTRY/thu-cs-lab/jielabs-frontend:latest

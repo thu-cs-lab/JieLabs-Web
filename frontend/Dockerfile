@@ -14,6 +14,8 @@ FROM node:12 AS builder
 
 WORKDIR /app
 
+RUN yarn global add sentry-cli
+
 ADD package.json .
 ADD yarn.lock .
 RUN yarn install --frozen-lockfile
@@ -32,6 +34,12 @@ ARG base
 ARG commit_sha
 RUN yarn link jielabs_lib
 RUN PUBLIC_URL=$base CI_COMMIT_SHA=$commit_sha REACT_APP_BACKEND=$backend REACT_APP_SENTRY=$sentry yarn build
+
+ARG sentry_config
+RUN echo $sentry_config | base64 -d > .sentryclirc
+RUN sentry-cli --auth-token $sentry_token releases new $commit_sha
+RUN sentry-cli --auth-token $sentry_token releases upload files $commit_sha /app/build
+RUN sentry-cli --auth-token $sentry_token releases finalize $commit_sha
 
 FROM nginx:1.18-alpine
 ENV TZ=Asia/Shanghai
