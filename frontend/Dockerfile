@@ -14,7 +14,9 @@ FROM node:12 AS builder
 
 WORKDIR /app
 
-RUN yarn global add @sentry/cli
+# RUN yarn global add @sentry/cli
+RUN curl -L https://github.com/getsentry/sentry-cli/releases/download/1.63.1/sentry-cli-Linux-x86_64 -o /usr/local/bin/sentry-cli
+RUN chmod +x /usr/local/bin/sentry-cli
 
 ADD package.json .
 ADD yarn.lock .
