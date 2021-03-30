@@ -40,7 +40,7 @@ RUN PUBLIC_URL=$base CI_COMMIT_SHA=$commit_sha REACT_APP_BACKEND=$backend REACT_
 ARG sentry_config
 RUN echo $sentry_config | base64 -d > .sentryclirc
 RUN sentry-cli releases new $commit_sha
-RUN sentry-cli releases files $commit_sha upload-sourcemaps /app/build
+RUN sentry-cli releases files $commit_sha upload-sourcemaps /app/build --url-prefix $base --validate
 RUN sentry-cli releases finalize $commit_sha
 
 FROM nginx:1.18-alpine
