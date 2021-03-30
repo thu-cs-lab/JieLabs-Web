@@ -1057,6 +1057,10 @@ main {
     text-orientation: sideways;
     writing-mode: vertical-lr;
 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     small {
       color: rgba(0,0,0,.38);
     }
