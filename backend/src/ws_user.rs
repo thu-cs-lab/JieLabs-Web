@@ -173,11 +173,12 @@ impl WSUser {
     fn handle_message(&mut self, text: &str, ctx: &mut <Self as Actor>::Context) {
         match serde_json::from_str::<WSUserMessageU2S>(text) {
             Ok(msg) => match msg {
-                WSUserMessageU2S::RequestForBoard(_) => {
+                WSUserMessageU2S::RequestForBoard(hint) => {
                     if !self.has_board {
                         get_board_manager().do_send(RequestForBoard {
                             user: ctx.address(),
                             user_name: self.user_name.clone(),
+                            hint,
                         });
                     }
                 }
