@@ -476,16 +476,18 @@ function connectWebSocket(dispatch) {
   return websocket;
 }
 
-export function connectToBoard() {
+export function connectToBoard(target = null) {
   return async (dispatch, getState) => {
     // TODO: enter waiting state
     try {
       let { board } = getState();
       let websocket = null;
+      const serialized = target ?? '';
+
       if (board && board.websocket) {
         websocket = board.websocket;
         if (websocket.readyState === WebSocket.OPEN) {
-          websocket.send('{"RequestForBoard":""}');
+          websocket.send(`{"RequestForBoard":"${serialized}"}`);
         } else {
           websocket.close();
           websocket = null;
@@ -495,7 +497,7 @@ export function connectToBoard() {
       if (!websocket) {
         websocket = connectWebSocket(dispatch);
         websocket.onopen = () => {
-          websocket.send('{"RequestForBoard":""}');
+          websocket.send(`{"RequestForBoard":"${serialized}"}`);
         };
 
 

@@ -59,11 +59,15 @@ export default React.memo(({ id, ...rest }) => {
   }, [boardTmpl]);
 
   const timeoutCtx = useContext(TimeoutContext);
-  const doConnect = useCallback(async () => {
-    await dispatch(connectToBoard());
+  const doConnect = useCallback(async (e) => {
+    let target = null;
+    if(e.altKey && e.shiftKey)
+      target = prompt('Please input the target board ID');
 
-    // TODO: don't start timeout if board allocation fails
-    timeoutCtx.start();
+    const succ = await dispatch(connectToBoard(target));
+
+    if(succ)
+      timeoutCtx.start();
   }, [timeoutCtx, dispatch]);
 
   const ctx = useContext(FPGAEnvContext);
