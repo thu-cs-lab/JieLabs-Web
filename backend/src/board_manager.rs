@@ -7,8 +7,11 @@ use actix::prelude::*;
 use bimap::BiMap;
 use log::*;
 use serde_derive::Serialize;
-use std::hash::{Hash, Hasher};
 use std::time::Duration;
+use std::{
+    collections::VecDeque,
+    hash::{Hash, Hasher},
+};
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq, Hash)]
 pub struct BoardInfo {
@@ -43,7 +46,7 @@ impl Hash for UserStat {
 
 #[derive(Default)]
 pub struct BoardManagerActor {
-    idle_boards: Vec<BoardStat>,
+    idle_boards: VecDeque<BoardStat>,
     connections: BiMap<UserStat, BoardStat>,
 }
 
@@ -64,7 +67,7 @@ impl Actor for BoardManagerActor {
             actor.idle_boards.retain(|board| board.addr.connected());
             for (user, board) in &actor.connections {
                 if !user.addr.connected() && board.addr.connected() {
-                    actor.idle_boards.push(board.clone());
+                    actor.idle_boards.push_front(board.clone());
                 } else if user.addr.connected() && !board.addr.connected() {
                     user.addr.do_send(BoardDisconnected);
                 }
@@ -88,7 +91,7 @@ impl Handler<RegisterBoard> for BoardManagerActor {
 
     fn handle(&mut self, board: RegisterBoard, _ctx: &mut Context<Self>) -> () {
         info!("board registered {:?}", board.info,);
-        self.idle_boards.push(BoardStat {
+        self.idle_boards.push_front(BoardStat {
             addr: board.addr,
             info: board.info,
         });
@@ -134,6 +137,7 @@ impl Handler<GetBoardList> for BoardManagerActor {
 pub struct RequestForBoard {
     pub user: Addr<WSUser>,
     pub user_name: String,
+    pub hint: String,
 }
 
 impl Handler<RequestForBoard> for BoardManagerActor {
@@ -148,7 +152,7 @@ impl Handler<RequestForBoard> for BoardManagerActor {
         if let Some(board) = self.connections.get_by_left(&user_stat).cloned() {
             // this user has one connection already, remove old one
             let old = self.connections.remove_by_right(&board);
-            self.idle_boards.push(board);
+            self.idle_boards.push_front(board);
             if let Some((old_user, old_board)) = old {
                 old_user.addr.do_send(BoardDisconnected);
                 info!(
@@ -157,7 +161,31 @@ impl Handler<RequestForBoard> for BoardManagerActor {
                 );
             }
         }
-        let res = if let Some(board) = self.idle_boards.pop() {
+        let res = if req.hint != "" {
+            // find board by hint
+            info!("looking for idle boards with hint {}", req.hint);
+
+            let mut res = None;
+            for i in 0..self.idle_boards.len() {
+                let remote = self.idle_boards[i].info.remote.clone();
+                if remote.contains(&req.hint) {
+                    let board = self.idle_boards.remove(i).unwrap();
+                    info!(
+                        "connect user {} to board {} with hint {}",
+                        user_stat.user_name, board.info.remote, req.hint
+                    );
+                    res = Some(remote);
+                    self.connections.insert(user_stat, board);
+                    break;
+                }
+            }
+
+            if res == None {
+                info!("no idle boards matching hint {}, can't allocate", req.hint);
+            }
+
+            res
+        } else if let Some(board) = self.idle_boards.pop_back() {
             info!(
                 "connect user {} to board {}",
                 user_stat.user_name, board.info.remote
