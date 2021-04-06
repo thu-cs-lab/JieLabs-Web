@@ -219,6 +219,10 @@ impl Handler<RouteToBoard> for BoardManagerActor {
         };
         // TODO: filter unneed actions
         if let Some(board) = self.connections.get_by_left(&user_stat) {
+            info!(
+                "user {} send action {:?} to board {}",
+                user_stat.user_name, req.action, board.info.remote
+            );
             board.addr.do_send(SendToBoard { action: req.action });
         }
     }
@@ -268,6 +272,10 @@ impl Handler<RouteToUser> for BoardManagerActor {
         };
         // TODO: filter unneed actions
         if let Some(user) = self.connections.get_by_right(&board) {
+            info!(
+                "board {} send action {:?} to user {}",
+                board.info.remote, req.action, user.user_name,
+            );
             user.addr.do_send(SendToUser { action: req.action });
         }
     }

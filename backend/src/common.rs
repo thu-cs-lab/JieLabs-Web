@@ -19,7 +19,7 @@ pub struct IOSetting {
     pub data: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ClockSetting {
     pub frequency: u32,
 }

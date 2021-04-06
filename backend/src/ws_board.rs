@@ -37,21 +37,21 @@ impl Actor for WSBoard {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct AuthenticateArgs {
     password: String,
     software_version: String,
     hardware_version: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum WSBoardMessageB2S {
     Authenticate(AuthenticateArgs),
     ProgramBitstreamFinish(bool),
     ReportIOChange(IOSetting),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum WSBoardMessageS2B {
     SetIOOutput(IOSetting),
     SetIODirection(IOSetting),
