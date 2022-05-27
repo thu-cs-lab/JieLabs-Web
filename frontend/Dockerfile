@@ -1,4 +1,4 @@
-FROM rust:1.61.1-slim AS wasm
+FROM rust:1.61.0-slim AS wasm
 
 WORKDIR /wasm
 COPY ./src/lib .
