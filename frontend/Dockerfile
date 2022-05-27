@@ -31,7 +31,6 @@ ARG sentry
 ARG base
 
 ARG commit_sha
-RUN yarn link jielabs_lib
 RUN PUBLIC_URL=$base CI_COMMIT_SHA=$commit_sha REACT_APP_BACKEND=$backend REACT_APP_SENTRY=$sentry yarn build
 
 ARG sentry_config
