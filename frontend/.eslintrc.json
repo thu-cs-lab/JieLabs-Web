@@ -1,5 +1,6 @@
 {
     "extends": "react-app",
+    "ignorePatterns": ["src/lib/pkg/**", "node_modules/**"],
     "rules": {
     }
 }

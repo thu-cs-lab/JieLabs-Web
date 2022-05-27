@@ -20,6 +20,7 @@
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "util": "^0.12.4",
     "uuid": "^8.3.2"
   },
   "scripts": {
@@ -42,13 +43,14 @@
     ]
   },
   "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.6.0",
     "customize-cra": "^1.0.0",
-    "monaco-editor-webpack-plugin": "^3.0.1",
-    "node-sass": "^4.13.1",
-    "raw-loader": "^4.0.0",
+    "monaco-editor-webpack-plugin": "^7.0.1",
+    "raw-loader": "^4.0.2",
     "react-app-rewired": "^2.1.8",
-    "react-scripts": "^4.0.3",
-    "webpack-bundle-analyzer": "^4.4.0",
-    "workbox-webpack-plugin": "^6.1.2"
+    "react-scripts": "^5.0.1",
+    "sass": "^1.52.1",
+    "webpack-bundle-analyzer": "^4.5.0",
+    "workbox-webpack-plugin": "^6.5.3"
   }
 }

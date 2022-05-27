@@ -249,7 +249,7 @@ export function logout() {
 
 export function initLib() {
   return async (dispatch, getState) => {
-    const lib = await import('jielabs_lib');
+    const lib = await import('../lib/pkg');
     dispatch(loadLib(lib));
     dispatch(analyze());
   }

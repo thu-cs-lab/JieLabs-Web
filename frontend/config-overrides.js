@@ -10,6 +10,7 @@ const {
 const MonacoPlugin = require('monaco-editor-webpack-plugin');
 const AnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { GenerateSW } = require('workbox-webpack-plugin');
+const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 
 const path = require('path');
 const webpack = require('webpack');
@@ -20,7 +21,7 @@ if(!commitInfo)
     .execSync('git describe --all --dirty --long')
     .toString();
 
-module.exports = override(
+const allOverrides = [
   addWebpackPlugin(new MonacoPlugin({
     languages: [],
   })),
@@ -38,9 +39,17 @@ module.exports = override(
       maximumFileSizeToCacheInBytes: 8388608,
     })
   ),
-  addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/experimental' }),
+  addWebpackPlugin(new WasmPackPlugin({
+    crateDirectory: path.resolve(__dirname, './src/lib'),
+    outDir: path.resolve(__dirname, './src/lib/pkg'),
+  })),
+  addWebpackModuleRule({ test: /\.wasm$/, type: 'webassembly/async' }),
   addWebpackModuleRule({ test: /\.vhdl/, use: 'raw-loader' }),
   addWebpackModuleRule({ test: /\.v/, use: 'raw-loader' }),
+  // useEslintRc(),
+];
+
+const prodOverrides = [
   setWebpackOptimizationSplitChunks({
     chunks: 'all',
     name: false,
@@ -51,5 +60,28 @@ module.exports = override(
         reuseExistingChunk: false,
       },
     },
-  }),
-);
+  })
+];
+
+const devOverrides = [];
+
+function createOverrider(env) {
+  if(env === 'development') return override(...allOverrides, ...devOverrides);
+  else return override(...allOverrides, ...prodOverrides);
+}
+
+module.exports = function(config, env) {
+  const overrider = createOverrider(env);
+  const overriden = overrider(config, env);
+  overriden.experiments = {
+    ...overriden.experiments,
+    asyncWebAssembly: true,
+  };
+  overriden.infrastructureLogging = {
+    debug: true,
+    level: 'verbose',
+  };
+  console.log(overriden);
+  return overriden;
+}
+
