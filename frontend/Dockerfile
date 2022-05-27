@@ -1,15 +1,27 @@
-FROM node:12 AS builder
+FROM rust:1.61.1-slim AS wasm
+
+WORKDIR /wasm
+COPY ./src/lib .
+
+RUN sed -i -e 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' -e 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
+RUN apt update
+RUN apt install -y curl
+
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+RUN wasm-pack build
+
+FROM node:18 AS builder
 
 WORKDIR /app
 
 # RUN yarn global add @sentry/cli
 RUN curl -L https://github.com/getsentry/sentry-cli/releases/download/1.63.1/sentry-cli-Linux-x86_64 -o /usr/local/bin/sentry-cli
 RUN chmod +x /usr/local/bin/sentry-cli
-RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
 ADD package.json .
 ADD yarn.lock .
 RUN yarn install --frozen-lockfile
+COPY --from=wasm /wasm/pkg /app/src/lib/pkg
 
 ADD . .
 
