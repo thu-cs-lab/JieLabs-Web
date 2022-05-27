@@ -516,6 +516,11 @@ export function connectToBoard(target = null) {
   }
 }
 
+/**
+ * Global stashed output register
+ */
+const outputHist = [];
+
 export function programBitstream(id) {
   return async (dispatch, getState) => {
     try {
@@ -531,6 +536,8 @@ export function programBitstream(id) {
       // Build direction config
       let dirArr = [];
       let maskArr = [];
+      let dataMaskArr = [];
+      let dataArr = [];
 
       const pinConf = BOARDS[constraints.board].pins;
 
@@ -541,22 +548,38 @@ export function programBitstream(id) {
           let length = dirArr.length;
           dirArr.push(...Array(ridx - length + 1).fill(0));
           maskArr.push(...Array(ridx - length + 1).fill(0));
+          dataMaskArr.push(...Array(ridx - length + 1).fill(0));
+          dataArr.push(...Array(ridx - length + 1).fill(0));
         }
 
         maskArr[ridx] = 1;
         if(directions[pin] === 'input') // Reads from FPGA
           dirArr[ridx] = 1;
+        else {
+          dataMaskArr[ridx] = 1;
+          dataArr[ridx] = outputHist[ridx] === SIGNAL.H ? 1 : 0;
+        }
           
       }
 
       const dir = dirArr.map(e => e.toString()).join('');
       const mask = maskArr.map(e => e.toString()).join('');
+      const dataMask = dataMaskArr.map(e => e.toString()).join('');
+      const data = dataArr.map(e => e.toString()).join('');
 
       board.websocket.send(JSON.stringify({
         ToBoard: {
           SetIODirection: {
             data: dir,
             mask,
+          },
+        },
+      }));
+
+      board.websocket.send(JSON.stringify({
+        ToBoard: {
+          SetIOOutput: {
+            mask: dataMask, data,
           },
         },
       }));
@@ -599,6 +622,7 @@ export function setOutput(idx, value) {
     else notifSet = [];
 
     notifSet[idx] = value; // JS arrays are sparse
+    outputHist[idx] = value;
 
     notifMerger = setTimeout(() => {
       const totLen = notifSet.length;
