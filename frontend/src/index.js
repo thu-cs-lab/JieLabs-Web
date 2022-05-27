@@ -1,7 +1,7 @@
 import './index.scss';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import * as Sentry from '@sentry/react';
 import { Integrations } from "@sentry/tracing";
@@ -69,7 +69,8 @@ const build = App => () => <ErrorBoundary>
 
 const Render = build(App);
 
-ReactDOM.render(<Render />, document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
+root.render(<Render />);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
@@ -96,7 +97,7 @@ if(module.hot) {
   module.hot.accept('./App', () => {
     const App = require('./App').default;
     const Render = build(App);
-    ReactDOM.render(<Render />, document.getElementById('root'));
+    root.render(<Render />);
   });
 }
 

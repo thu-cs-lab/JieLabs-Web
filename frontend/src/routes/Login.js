@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import cn from 'classnames';
 
 import { login, restore } from '../store/actions';
@@ -24,16 +24,16 @@ export default React.memo(() => {
     setPass(v);
   }, []);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const doLogin = useCallback(async () => {
     const success = await dispatch(login(user, pass));
     if(success)
-      history.push("/");
+      navigate("/");
     else
       setErrored(true);
-  }, [dispatch, user, pass, history]);
+  }, [dispatch, user, pass, navigate]);
 
   const [portalOngoing, setPortalOngoing] = useState(false);
   const doPortalAuth = useCallback(() => {
@@ -47,12 +47,12 @@ export default React.memo(() => {
       setPortalOngoing(false);
 
       if(success)
-        history.push("/");
+        navigate("/");
       else
         setErrored(true);
     };
     window.addEventListener('message', cb);
-  }, [dispatch, history]);
+  }, [dispatch, navigate]);
 
   const checkEnter = useCallback(ev => {
     if(ev.key === 'Enter') doLogin();

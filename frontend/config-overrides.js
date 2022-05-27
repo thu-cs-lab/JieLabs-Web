@@ -29,16 +29,6 @@ const allOverrides = [
     __COMMIT_HASH__: JSON.stringify(commitInfo),
   })),
   addWebpackPlugin(new AnalyzerPlugin({ analyzerMode: (!!process.env.ANALYZE) ? 'static' : 'none', openAnalyzer: false })),
-  addWebpackPlugin(
-    new GenerateSW({
-      navigateFallback: `${process.env.PUBLIC_URL || ''}/index.html`,
-      navigateFallbackDenylist: [
-        /\/api\/.*/, // TODO: properly does this based on BACKEND in config
-        new RegExp('/[^/?]+\\.[^/]+$'),
-      ],
-      maximumFileSizeToCacheInBytes: 8388608,
-    })
-  ),
   addWebpackPlugin(new WasmPackPlugin({
     crateDirectory: path.resolve(__dirname, './src/lib'),
     outDir: path.resolve(__dirname, './src/lib/pkg'),
@@ -50,6 +40,16 @@ const allOverrides = [
 ];
 
 const prodOverrides = [
+  addWebpackPlugin(
+    new GenerateSW({
+      navigateFallback: `${process.env.PUBLIC_URL || ''}/index.html`,
+      navigateFallbackDenylist: [
+        /\/api\/.*/, // TODO: properly does this based on BACKEND in config
+        new RegExp('/[^/?]+\\.[^/]+$'),
+      ],
+      maximumFileSizeToCacheInBytes: 8388608,
+    })
+  ),
   setWebpackOptimizationSplitChunks({
     chunks: 'all',
     name: false,

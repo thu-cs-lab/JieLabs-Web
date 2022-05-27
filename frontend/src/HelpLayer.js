@@ -345,7 +345,9 @@ const STEPS = [
 function useStep(step, onDone = null) {
   const state = useSelector(state => state);
   const stateRef = useRef(state);
-  useEffect(() => stateRef.current = state, [state]);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
   const dispatch = useDispatch();
 
   const config = STEPS[step];

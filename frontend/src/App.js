@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import cn from 'classnames';
 import pako from 'pako';
@@ -55,7 +55,7 @@ function useLoader(loader) {
 
 export default React.memo(() => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
 
@@ -73,10 +73,10 @@ export default React.memo(() => {
 
   useEffect(() => {
     dispatch(init()).then(restored => {;
-      if(!restored) history.push('/login');
+      if(!restored) navigate('/login');
       setLoading(false);
     });
-  }, [dispatch, history]);
+  }, [dispatch, navigate]);
 
   const logined = useSelector(store => store.user !== null);
   const doLogout = useCallback(async () => {
@@ -86,9 +86,9 @@ export default React.memo(() => {
       window.location.href = process.env.PUBLIC_URL + '/login';
     } else {
       // FIXME: routing guard
-      history.push('/login');
+      navigate('/login');
     }
-  }, [dispatch, history]);
+  }, [dispatch, navigate]);
 
   function getStatusInd(status) {
     if(status === null)
@@ -468,10 +468,10 @@ export default React.memo(() => {
         </div>
       </header>
 
-      <Switch>
+      <Routes>
         <Route path="/login" exact component={Login} />
-        <Route path="/" exact render={() => <Workspace showSettings={showSettings} sandboxHandlerRef={sandboxHandlerRef} />} />
-      </Switch>
+        <Route path="/" exact element={<Workspace showSettings={showSettings} sandboxHandlerRef={sandboxHandlerRef} />} />
+      </Routes>
 
       <Dialog className="build-detail-dialog" open={detail} onClose={dismissDetail}
         render={() => (<>
