@@ -469,7 +469,7 @@ export default React.memo(() => {
       </header>
 
       <Routes>
-        <Route path="/login" exact component={Login} />
+        <Route path="/login" exact element={<Login />} />
         <Route path="/" exact element={<Workspace showSettings={showSettings} sandboxHandlerRef={sandboxHandlerRef} />} />
       </Routes>
 
