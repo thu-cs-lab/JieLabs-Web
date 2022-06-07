@@ -547,9 +547,9 @@ dependencies = [
 
 [[package]]
 name = "vhdl_lang"
-version = "0.15.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c361257ac81f4c10ec1694c25a5dc3d51bf9adb49e4541701fbb959a8258d2b"
+checksum = "46cd068c7710b59867e57aa8ae0c48db6dd7a4b693514f28d04dbcea72224109"
 dependencies = [
  "clap",
  "dirs",
